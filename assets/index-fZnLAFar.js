@@ -1322,7 +1322,7 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
     <div class="qa-a">1. <strong>Type Safety</strong>: You cannot pass an arbitrary integer to a method that expects an enum. 2. <strong>Namespace</strong>: Constants are grouped logically. 3. <strong>Behavior</strong>: You can add methods and logic directly to the enum. 4. <strong>Serialization</strong>: Enums handle serialization and deserialization safely by default.</div>
   </div>
 </div>
-`,E=Object.freeze(Object.defineProperty({__proto__:null,default:O},Symbol.toStringTag,{value:"Module"})),P=`<div id="exception-handling" class="section">
+`,P=Object.freeze(Object.defineProperty({__proto__:null,default:O},Symbol.toStringTag,{value:"Module"})),E=`<div id="exception-handling" class="section">
   <div class="breadcrumb">handbook / <span>section 16</span></div>
   <div class="section-eyebrow">The Error Handling</div>
   <h1>Exception Handling: Designing for Failure</h1>
@@ -1498,7 +1498,7 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
     <div class="qa-q" onclick="toggleQA(this)">Checked vs Unchecked — which should you prefer?<span class="arrow">▶</span></div>
     <div class="qa-a">Modern consensus (Spring, Kotlin, C#): <strong>Unchecked</strong> for most cases. Checked exceptions create tight coupling between layers. Use checked only when the caller can genuinely recover (e.g., retry a network call).</div>
   </div>
-</div>`,D=Object.freeze(Object.defineProperty({__proto__:null,default:P},Symbol.toStringTag,{value:"Module"})),M=`<div id="final-keyword" class="section">
+</div>`,D=Object.freeze(Object.defineProperty({__proto__:null,default:E},Symbol.toStringTag,{value:"Module"})),M=`<div id="final-keyword" class="section">
   <div class="breadcrumb">handbook / <span>section 08</span></div>
   <div class="section-eyebrow">The Constraints</div>
   <h1>Final: Immutability and Security</h1>
@@ -1600,59 +1600,36 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-a"><strong>Final</strong> is a modifier (for variables/methods/classes). <strong>Finally</strong> is a block in try-catch-finally for cleanup. <strong>Finalize</strong> is a (deprecated) method in the Object class for pre-GC cleanup. They are unrelated except for their names.</div>
   </div>
 </div>`,L=Object.freeze(Object.defineProperty({__proto__:null,default:M},Symbol.toStringTag,{value:"Module"})),q=`<div id="home" class="home-section">
-  <div class="breadcrumb">Engineering Handbook / <span>Welcome</span></div>
+  <div class="breadcrumb">Engineering Handbook / <span>The Ledger</span></div>
   
-  <div class="hero-eyebrow">
-    <span>// MISSION: MASTERY</span>
-    <span style="opacity:0.3;">•</span>
-    <span>v2.0 STABLE</span>
-  </div>
-
-  <h1 style="font-size: 5rem; margin-bottom: 2rem;">The Architect's<br><span>OOP Ledger</span></h1>
+  <h1 style="font-size: 5rem; margin: 2rem 0 1rem; line-height: 1.1;">The Architect's<br><span>OOP Ledger</span></h1>
   
-  <p style="font-size: 1.4rem; color: var(--text-dim); max-width: 800px; line-height: 1.4;">
-    This is not a tutorial. It is a compressed distillation of a decade of Java engineering. 
-    Built for those who want to flex their architectural muscle on LinkedIn and crush FAANG LLD interviews.
+  <p style="font-size: 1.4rem; color: var(--text-dim); max-width: 800px; line-height: 1.5; margin-bottom: 3rem;">
+    A compressed distillation of high-frequency Java engineering patterns and JVM internals. 
+    Built for those seeking deep architectural mastery and production-grade system design skills.
   </p>
 
   <div class="home-grid">
     <div class="home-card">
-      <div class="home-card-icon" style="color: var(--purple);">💎</div>
-      <div class="home-card-title">Premium Content</div>
-      <div class="home-card-desc">Deep dives into JVM bytecode, memory regions, and vtable internals that you won't find in textbooks.</div>
+      <div style="font-size: 2rem; margin-bottom: 1rem;">💎</div>
+      <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--accent);">JVM Internals</div>
+      <div style="font-size: 0.9rem; color: var(--text-dim);">Deep dives into bytecode, memory regions, and vtable internals.</div>
     </div>
     <div class="home-card">
-      <div class="home-card-icon" style="color: var(--green);">⚡</div>
-      <div class="home-card-title">LLD Ready</div>
-      <div class="home-card-desc">Every principle is mapped directly to real-world system design patterns and architecture.</div>
+      <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
+      <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--green);">LLD Patterns</div>
+      <div style="font-size: 0.9rem; color: var(--text-dim);">Principles mapped directly to real-world system design and architecture.</div>
     </div>
     <div class="home-card">
-      <div class="home-card-icon" style="color: var(--amber);">🔥</div>
-      <div class="home-card-title">FAANG Tier</div>
-      <div class="home-card-desc">Interview notes focused on the "Why" and "Tradeoffs" that senior interviewers actually look for.</div>
+      <div style="font-size: 2rem; margin-bottom: 1rem;">🔥</div>
+      <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--amber);">Senior Prep</div>
+      <div style="font-size: 0.9rem; color: var(--text-dim);">Focused on the "Why" and "Tradeoffs" that senior engineers actually use.</div>
     </div>
   </div>
 
-  <div class="box box-interview">
-    <div class="box-title">🚀 Ready to Flex?</div>
-    <p style="margin:0;">Start with <strong>Section 01 (Why OOP)</strong> to understand the crisis that built our industry, or jump to <strong>Section 12 (Memory)</strong> to master the engine room of the JVM. Share your journey on LinkedIn and tag #EngineeringMastery.</p>
-  </div>
-
-  <div class="takeaways">
-    <div class="takeaways-title">The Engineering Creed</div>
-    <ul>
-      <li><strong>Code is for Humans</strong>, only secondarily for machines.</li>
-      <li><strong>Decoupling</strong> is the only way to survive scale.</li>
-      <li><strong>Understand the Bytecode</strong>, but write clean abstractions.</li>
-      <li><strong>Simplicity</strong> is the ultimate sophistication.</li>
-    </ul>
-  </div>
-
-  <div class="hero-tags" style="justify-content:center; padding: 4rem 0;">
-    <span class="tag tag-purple">20+ Deep Dives</span>
-    <span class="tag tag-green">Architect Perspective</span>
-    <span class="tag tag-amber">JVM Hardened</span>
-    <span class="tag tag-teal">LLD Foundation</span>
+  <div class="box box-interview" style="margin-top: 3rem;">
+    <div class="box-title">🚀 BEGIN YOUR DEEP DIVE</div>
+    <p style="margin:0;">Start with <strong>Section 01 (Why OOP)</strong> to understand the systemic crisis that built our industry, or jump to <strong>Section 12 (Memory)</strong> to master the JVM engine room.</p>
   </div>
 </div>`,j=Object.freeze(Object.defineProperty({__proto__:null,default:q},Symbol.toStringTag,{value:"Module"})),R=`<div id="immutability" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 13</span></div>
@@ -2026,7 +2003,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-a"><code>extends</code> creates an IS-A relationship with a class (single inheritance). <code>implements</code> creates a CAN-DO relationship with an interface (multiple allowed). A class can <code>extend</code> one class and <code>implement</code> many interfaces simultaneously.</div>
   </div>
 </div>
-`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),F=`<div id="inner-classes" class="section">
+`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),U=`<div id="inner-classes" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 14</span></div>
   <div class="section-eyebrow">The Mechanics</div>
   <h1>Inner Classes: Logic within Logic</h1>
@@ -2139,7 +2116,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-a"><strong>Yes, but only if they are effectively final.</strong> This is because the local inner class object might outlive the method execution. The JVM "captures" the value of the variable and stores a copy in the inner object. If the variable could change, the copy and the original would go out of sync.</div>
   </div>
 </div>
-`,U=Object.freeze(Object.defineProperty({__proto__:null,default:F},Symbol.toStringTag,{value:"Module"})),H=`<div id="interfaces" class="section">
+`,F=Object.freeze(Object.defineProperty({__proto__:null,default:U},Symbol.toStringTag,{value:"Module"})),H=`<div id="interfaces" class="section">
   <div class="breadcrumb">handbook / <span>section 09</span></div>
   <div class="section-eyebrow">The Contracts</div>
   <h1>Interfaces: Defining Capability</h1>
@@ -3671,4 +3648,4 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">What is the "Fragile Base Class" problem?<span class="arrow">▶</span></div>
     <div class="qa-a">A major pitfall of inheritance. If you change a small detail in a parent class, you might unknowingly break 50 subclasses that depend on that specific (sometimes accidental) behavior. This is why senior architects favor <strong>Composition</strong> over Inheritance.</div>
   </div>
-</div>`,is=Object.freeze(Object.defineProperty({__proto__:null,default:ps},Symbol.toStringTag,{value:"Module"})),d={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],h={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let i="home";const r=Object.assign({"../content/abstract-classes.html":m,"../content/abstraction.html":f,"../content/access-modifiers.html":w,"../content/cheat-sheets.html":y,"../content/classes-objects.html":C,"../content/constructors.html":I,"../content/encapsulation.html":x,"../content/enums.html":E,"../content/exception-handling.html":D,"../content/final-keyword.html":L,"../content/home.html":j,"../content/immutability.html":B,"../content/inheritance.html":_,"../content/inner-classes.html":U,"../content/interfaces.html":J,"../content/interview-qa.html":z,"../content/memory-model.html":G,"../content/object-class.html":Y,"../content/oop-design-thinking.html":$,"../content/oop-lld-bridge.html":X,"../content/polymorphism.html":ns,"../content/relationships.html":es,"../content/solid-principles.html":cs,"../content/static-keyword.html":os,"../content/why-oop-exists.html":is});for(const s in r){const a=s.split("/").pop().replace(".html","");d[a]=r[s].default||r[s]}function p(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&d[s]){const n=document.createElement("div");n.innerHTML=d[s],e=n.firstElementChild,a.appendChild(e),rs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),document.querySelectorAll(".home-section").forEach(n=>{s==="home"?n.classList.remove("hidden"):n.classList.add("hidden")}),s!=="home"&&e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),i=s,g(),us(),ms(e),window.scrollTo({top:0,behavior:"smooth"})}function rs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function ds(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}function hs(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function gs(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function us(){const s=l.indexOf(i),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=h[a]||a,n.onclick=()=>p(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=h[e]||e,c.onclick=()=>p(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",i==="home")}function ms(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||i==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function vs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(i);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&p(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&p(l[a-1]))})}function fs(){window.scrollTo({top:0,behavior:"smooth"})}function bs(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function g(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=p;window.toggleQA=ds;window.filterNav=hs;window.scrollToTop=fs;window.toggleSidebar=bs;window.closeSidebar=g;document.addEventListener("DOMContentLoaded",()=>{gs(),vs(),p("home")});
+</div>`,is=Object.freeze(Object.defineProperty({__proto__:null,default:ps},Symbol.toStringTag,{value:"Module"})),d={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],h={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let i="home";const r=Object.assign({"../content/abstract-classes.html":m,"../content/abstraction.html":f,"../content/access-modifiers.html":w,"../content/cheat-sheets.html":y,"../content/classes-objects.html":C,"../content/constructors.html":I,"../content/encapsulation.html":x,"../content/enums.html":P,"../content/exception-handling.html":D,"../content/final-keyword.html":L,"../content/home.html":j,"../content/immutability.html":B,"../content/inheritance.html":_,"../content/inner-classes.html":F,"../content/interfaces.html":J,"../content/interview-qa.html":z,"../content/memory-model.html":G,"../content/object-class.html":Y,"../content/oop-design-thinking.html":$,"../content/oop-lld-bridge.html":X,"../content/polymorphism.html":ns,"../content/relationships.html":es,"../content/solid-principles.html":cs,"../content/static-keyword.html":os,"../content/why-oop-exists.html":is});for(const s in r){const a=s.split("/").pop().replace(".html","");d[a]=r[s].default||r[s]}function p(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&d[s]){const n=document.createElement("div");n.innerHTML=d[s],e=n.firstElementChild,a.appendChild(e),rs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),document.querySelectorAll(".home-section").forEach(n=>{s==="home"?n.classList.remove("hidden"):n.classList.add("hidden")}),s!=="home"&&e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),i=s,g(),us(),ms(e),window.scrollTo({top:0,behavior:"smooth"})}function rs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function ds(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}function hs(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function gs(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function us(){const s=l.indexOf(i),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=h[a]||a,n.onclick=()=>p(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=h[e]||e,c.onclick=()=>p(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",i==="home")}function ms(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||i==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function vs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(i);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&p(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&p(l[a-1]))})}function fs(){window.scrollTo({top:0,behavior:"smooth"})}function bs(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function g(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=p;window.toggleQA=ds;window.filterNav=hs;window.scrollToTop=fs;window.toggleSidebar=bs;window.closeSidebar=g;document.addEventListener("DOMContentLoaded",()=>{gs(),vs(),p("home")});
