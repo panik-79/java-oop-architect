@@ -133,6 +133,37 @@ export function toggleQA(el) {
   ans.classList.toggle('open');
 }
 
+// Theme Management
+const themeToggle = document.getElementById('themeToggle');
+if (themeToggle) {
+  const themeIcon = themeToggle.querySelector('i');
+  const body = document.body;
+
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  body.setAttribute('data-theme', savedTheme);
+  if (themeIcon) updateThemeIcon(themeIcon, savedTheme);
+
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (themeIcon) updateThemeIcon(themeIcon, newTheme);
+  });
+}
+
+function updateThemeIcon(icon, theme) {
+  const label = themeToggle.querySelector('span');
+  if (theme === 'dark') {
+    icon.className = 'ri-moon-line';
+    if (label) label.textContent = 'Dark Mode';
+  } else {
+    icon.className = 'ri-sun-line';
+    if (label) label.textContent = 'Light Mode';
+  }
+}
+
 export function filterNav(val) {
   const items = document.querySelectorAll('.nav-item');
   items.forEach(item => {
@@ -257,8 +288,22 @@ window.toggleSidebar = toggleSidebar;
 window.closeSidebar = closeSidebar;
 
 document.addEventListener('DOMContentLoaded', () => {
-  initScrollProgress();
-  initKeyboardNav();
-  // Show initial section
-  showSection('home');
+  try {
+    initScrollProgress();
+    initKeyboardNav();
+    
+    // Safety check for mainContent
+    if (!document.getElementById('mainContent')) {
+      console.error('CRITICAL: mainContent container missing');
+    }
+
+    // Show initial section
+    showSection('home');
+    
+    // Post-boot theme sync
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+  } catch (err) {
+    console.error('Boot error:', err);
+  }
 });

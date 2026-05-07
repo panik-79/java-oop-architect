@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/css/main.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
 
@@ -19,15 +20,19 @@
 <div class="layout">
   <!-- SIDEBAR -->
   <nav class="sidebar" id="sidebar">
-    <div class="sidebar-close" onclick="closeSidebar()">✕</div>
     <div class="sidebar-header">
-      <div class="sidebar-logo">Engineering Handbook</div>
-      <div class="sidebar-title">OOP in Java</div>
+      <div class="sidebar-logo">JAVA <span>OOP</span></div>
+      <div class="sidebar-title">Architect Handbook</div>
+      <div class="sidebar-close" onclick="toggleSidebar()">
+        <i class="ri-close-line"></i>
+      </div>
     </div>
+
     <div class="search-box">
       <span class="search-icon">⌕</span>
       <input type="text" placeholder="Search topics..." id="searchInput" oninput="filterNav(this.value)">
     </div>
+
     <div id="navContent">
       <div class="nav-section">
         <div class="nav-section-label">Overview</div>
@@ -79,6 +84,13 @@
         <div class="nav-item" onclick="showSection('cheat-sheets')"><span class="nav-num">21</span>Quick Review Sheet</div>
       </div>
     </div>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle" id="themeToggle" title="Switch Theme">
+        <i class="ri-moon-line"></i>
+        <span>Dark Mode</span>
+      </div>
+    </div>
   </nav>
 
   <!-- MAIN -->
@@ -103,12 +115,12 @@
 
     <!-- BOTTOM NAV -->
     <div class="bottom-nav hidden" id="bottomNav">
-      <button class="bottom-nav-btn bottom-nav-prev">
+      <button class="bottom-nav-prev bottom-nav-btn">
         <span class="bottom-nav-dir">← Previous</span>
         <span class="bottom-nav-label">Section</span>
       </button>
       <div class="bottom-nav-counter">1 / 24</div>
-      <button class="bottom-nav-btn bottom-nav-next">
+      <button class="bottom-nav-next bottom-nav-btn">
         <span class="bottom-nav-dir">Next →</span>
         <span class="bottom-nav-label">Section</span>
       </button>
