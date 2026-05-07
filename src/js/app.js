@@ -55,7 +55,7 @@ const sectionNames = {
   'oop-lld-bridge': 'OOP → LLD Bridge',
   'oop-design-thinking': 'Design Thinking',
   'interview-qa': 'Interview Q&A',
-  'cheat-sheets': 'LLD Connection',
+  'cheat-sheets': 'Quick Review Sheet',
 };
 
 let currentSection = 'home';
