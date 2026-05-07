@@ -1,4 +1,4 @@
-(function(){const a=document.createElement("link").relList;if(a&&a.supports&&a.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))t(n);new MutationObserver(n=>{for(const c of n)if(c.type==="childList")for(const o of c.addedNodes)o.tagName==="LINK"&&o.rel==="modulepreload"&&t(o)}).observe(document,{childList:!0,subtree:!0});function e(n){const c={};return n.integrity&&(c.integrity=n.integrity),n.referrerPolicy&&(c.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?c.credentials="include":n.crossOrigin==="anonymous"?c.credentials="omit":c.credentials="same-origin",c}function t(n){if(n.ep)return;n.ep=!0;const c=e(n);fetch(n.href,c)}})();const u=`<div id="abstract-classes" class="section">
+(function(){const a=document.createElement("link").relList;if(a&&a.supports&&a.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))t(n);new MutationObserver(n=>{for(const c of n)if(c.type==="childList")for(const o of c.addedNodes)o.tagName==="LINK"&&o.rel==="modulepreload"&&t(o)}).observe(document,{childList:!0,subtree:!0});function e(n){const c={};return n.integrity&&(c.integrity=n.integrity),n.referrerPolicy&&(c.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?c.credentials="include":n.crossOrigin==="anonymous"?c.credentials="omit":c.credentials="same-origin",c}function t(n){if(n.ep)return;n.ep=!0;const c=e(n);fetch(n.href,c)}})();const v=`<div id="abstract-classes" class="section">
   <div class="breadcrumb">handbook / <span>section 10</span></div>
   <div class="section-eyebrow">The Foundations</div>
   <h1>Abstract Classes: Partial Reality</h1>
@@ -140,7 +140,7 @@ p2.<span class="fn">process</span>(); <span class="cm">// reads JSON, transforms
     <div class="qa-q" onclick="toggleQA(this)">Can we have an abstract class without any abstract methods?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes.</strong> This is done when you want to prevent direct instantiation of a class (e.g., a base class for generic entities) but it has only concrete methods that you want subclasses to reuse.</div>
   </div>
-</div>`,m=Object.freeze(Object.defineProperty({__proto__:null,default:u},Symbol.toStringTag,{value:"Module"})),v=`<div id="abstraction" class="section">
+</div>`,f=Object.freeze(Object.defineProperty({__proto__:null,default:v},Symbol.toStringTag,{value:"Module"})),b=`<div id="abstraction" class="section">
   <div class="breadcrumb">handbook / the 4 pillars / <span>section 04B</span></div>
   <div class="section-eyebrow">The Second Pillar</div>
   <h1>Abstraction: Managing Complexity</h1>
@@ -452,7 +452,7 @@ stack.<span class="fn">push</span>(<span class="str">"World"</span>);
     <div class="qa-q" onclick="toggleQA(this)">What is the difference between abstraction via Interface vs Abstract Class?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Interface</strong>: Pure contract. No state. Multiple inheritance. Use when you want to define "what" something can do. <strong>Abstract Class</strong>: Partial implementation. Can have state and constructors. Single inheritance. Use when you want to share common code among closely related classes. Since Java 8 (default methods), the gap has narrowed, but the conceptual difference remains: interfaces define capability, abstract classes define identity.</div>
   </div>
-</div>`,f=Object.freeze(Object.defineProperty({__proto__:null,default:v},Symbol.toStringTag,{value:"Module"})),b=`<div id="access-modifiers" class="section">
+</div>`,w=Object.freeze(Object.defineProperty({__proto__:null,default:b},Symbol.toStringTag,{value:"Module"})),k=`<div id="access-modifiers" class="section">
   <div class="breadcrumb">handbook / <span>section 06</span></div>
   <div class="section-eyebrow">The Gatekeepers</div>
   <h1>Access Modifiers: Architectural Gates</h1>
@@ -688,7 +688,7 @@ exporter.<span class="fn">export</span>(<span class="cl">List</span>.<span class
     <div class="qa-a"><strong>Yes.</strong> Private constructors are used in three key patterns: <strong>1) Singleton</strong> — prevent external instantiation. <strong>2) Utility class</strong> — prevent instantiation entirely (e.g., <code>java.util.Collections</code>). <strong>3) Static Factory Method</strong> — control object creation through named methods like <code>of()</code>, <code>valueOf()</code>, or <code>newInstance()</code>.</div>
   </div>
 </div>
-`,w=Object.freeze(Object.defineProperty({__proto__:null,default:b},Symbol.toStringTag,{value:"Module"})),k=`<div id="cheat-sheets" class="section">
+`,y=Object.freeze(Object.defineProperty({__proto__:null,default:k},Symbol.toStringTag,{value:"Module"})),S=`<div id="cheat-sheets" class="section">
   <div class="breadcrumb">handbook / <span>section 20</span></div>
   <div class="section-eyebrow">The Mastery Roadmap</div>
   <h1>The Senior Developer's Cheat Sheet</h1>
@@ -760,7 +760,7 @@ exporter.<span class="fn">export</span>(<span class="cl">List</span>.<span class
     <span class="tag tag-green">Senior Perspective</span>
     <span class="tag tag-teal">Architect Ready</span>
   </div>
-</div>`,y=Object.freeze(Object.defineProperty({__proto__:null,default:k},Symbol.toStringTag,{value:"Module"})),S=`<div id="classes-objects" class="section">
+</div>`,C=Object.freeze(Object.defineProperty({__proto__:null,default:S},Symbol.toStringTag,{value:"Module"})),T=`<div id="classes-objects" class="section">
   <div class="breadcrumb">handbook / <span>section 02</span></div>
   <div class="section-eyebrow">The Mechanics</div>
   <h1>Classes & Objects: The JVM Deep Dive</h1>
@@ -883,7 +883,7 @@ a.<span class="fn">speak</span>(); <span class="cm">// Prints "Woof!" thanks to 
     <div class="qa-q" onclick="toggleQA(this)">Can an object be created without calling a constructor?<span class="arrow">▶</span></div>
     <div class="qa-a">Yes. Via <strong>Deserialization</strong> (using ObjectInputStream) or <strong>Cloning</strong> (Object.clone()). In these cases, the JVM recreates the object's state directly from data without re-executing constructor logic. This is an edge case often used in advanced frameworks.</div>
   </div>
-</div>`,C=Object.freeze(Object.defineProperty({__proto__:null,default:S},Symbol.toStringTag,{value:"Module"})),T=`<div id="constructors" class="section">
+</div>`,I=Object.freeze(Object.defineProperty({__proto__:null,default:T},Symbol.toStringTag,{value:"Module"})),A=`<div id="constructors" class="section">
   <div class="breadcrumb">handbook / <span>section 03</span></div>
   <div class="section-eyebrow">The Initialization</div>
   <h1>Constructors: Mastering Object Birth</h1>
@@ -1045,7 +1045,7 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
     <div class="qa-q" onclick="toggleQA(this)">Can a constructor be synchronized?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>No.</strong> A constructor cannot be synchronized. Only the thread that creates an object should have access to it while it is being constructed. Synchronization is not needed and will result in a compile-time error.</div>
   </div>
-</div>`,I=Object.freeze(Object.defineProperty({__proto__:null,default:T},Symbol.toStringTag,{value:"Module"})),A=`<div id="encapsulation" class="section">
+</div>`,x=Object.freeze(Object.defineProperty({__proto__:null,default:A},Symbol.toStringTag,{value:"Module"})),O=`<div id="encapsulation" class="section">
   <div class="breadcrumb">handbook / the 4 pillars / <span>section 04A</span></div>
   <div class="section-eyebrow">The First Pillar</div>
   <h1>Encapsulation: Protecting the Invariants</h1>
@@ -1223,7 +1223,7 @@ balanceField.<span class="fn">setDouble</span>(account, <span class="num">999999
     <div class="qa-q" onclick="toggleQA(this)">What is 'Strong Encapsulation' in Java 17?<span class="arrow">▶</span></div>
     <div class="qa-a">Project Jigsaw means even Reflection cannot access internal classes unless explicitly <code>exported</code> or <code>opened</code> in <code>module-info.java</code>.</div>
   </div>
-</div>`,x=Object.freeze(Object.defineProperty({__proto__:null,default:A},Symbol.toStringTag,{value:"Module"})),O=`<div id="enums" class="section">
+</div>`,E=Object.freeze(Object.defineProperty({__proto__:null,default:O},Symbol.toStringTag,{value:"Module"})),P=`<div id="enums" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 15</span></div>
   <div class="section-eyebrow">The Special Classes</div>
   <h1>Enums: More than just Constants</h1>
@@ -1322,7 +1322,7 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
     <div class="qa-a">1. <strong>Type Safety</strong>: You cannot pass an arbitrary integer to a method that expects an enum. 2. <strong>Namespace</strong>: Constants are grouped logically. 3. <strong>Behavior</strong>: You can add methods and logic directly to the enum. 4. <strong>Serialization</strong>: Enums handle serialization and deserialization safely by default.</div>
   </div>
 </div>
-`,P=Object.freeze(Object.defineProperty({__proto__:null,default:O},Symbol.toStringTag,{value:"Module"})),E=`<div id="exception-handling" class="section">
+`,D=Object.freeze(Object.defineProperty({__proto__:null,default:P},Symbol.toStringTag,{value:"Module"})),M=`<div id="exception-handling" class="section">
   <div class="breadcrumb">handbook / <span>section 16</span></div>
   <div class="section-eyebrow">The Error Handling</div>
   <h1>Exception Handling: Designing for Failure</h1>
@@ -1498,7 +1498,7 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
     <div class="qa-q" onclick="toggleQA(this)">Checked vs Unchecked — which should you prefer?<span class="arrow">▶</span></div>
     <div class="qa-a">Modern consensus (Spring, Kotlin, C#): <strong>Unchecked</strong> for most cases. Checked exceptions create tight coupling between layers. Use checked only when the caller can genuinely recover (e.g., retry a network call).</div>
   </div>
-</div>`,D=Object.freeze(Object.defineProperty({__proto__:null,default:E},Symbol.toStringTag,{value:"Module"})),M=`<div id="final-keyword" class="section">
+</div>`,L=Object.freeze(Object.defineProperty({__proto__:null,default:M},Symbol.toStringTag,{value:"Module"})),q=`<div id="final-keyword" class="section">
   <div class="breadcrumb">handbook / <span>section 08</span></div>
   <div class="section-eyebrow">The Constraints</div>
   <h1>Final: Immutability and Security</h1>
@@ -1599,7 +1599,7 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-q" onclick="toggleQA(this)">Difference between 'final', 'finally', and 'finalize'? (The Classic)<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Final</strong> is a modifier (for variables/methods/classes). <strong>Finally</strong> is a block in try-catch-finally for cleanup. <strong>Finalize</strong> is a (deprecated) method in the Object class for pre-GC cleanup. They are unrelated except for their names.</div>
   </div>
-</div>`,L=Object.freeze(Object.defineProperty({__proto__:null,default:M},Symbol.toStringTag,{value:"Module"})),q=`<div id="home" class="home-section">
+</div>`,j=Object.freeze(Object.defineProperty({__proto__:null,default:q},Symbol.toStringTag,{value:"Module"})),R=`<div id="home" class="home-section">
   <div class="breadcrumb">Engineering Handbook / <span>The Ledger</span></div>
   
   <h1 style="font-size: 5rem; margin: 2rem 0 1rem; line-height: 1.1;">The Architect's<br><span>OOP Ledger</span></h1>
@@ -1631,7 +1631,7 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="box-title">🚀 BEGIN YOUR DEEP DIVE</div>
     <p style="margin:0;">Start with <strong>Section 01 (Why OOP)</strong> to understand the systemic crisis that built our industry, or jump to <strong>Section 12 (Memory)</strong> to master the JVM engine room.</p>
   </div>
-</div>`,j=Object.freeze(Object.defineProperty({__proto__:null,default:q},Symbol.toStringTag,{value:"Module"})),R=`<div id="immutability" class="section">
+</div>`,B=Object.freeze(Object.defineProperty({__proto__:null,default:R},Symbol.toStringTag,{value:"Module"})),N=`<div id="immutability" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 13</span></div>
   <div class="section-eyebrow">The Mastery</div>
   <h1>Immutability: The Architecture of Truth</h1>
@@ -1751,7 +1751,7 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-q" onclick="toggleQA(this)">Why should you not use a mutable object as a HashMap key?<span class="arrow">▶</span></div>
     <div class="qa-a">If the object changes after being put in the Map, its <code>hashCode()</code> will change. When you try to retrieve it, the Map will look in the <strong>wrong bucket</strong> and fail to find it, even though the object is still in the map! This is a "Memory Leak" equivalent in Java.</div>
   </div>
-</div>`,B=Object.freeze(Object.defineProperty({__proto__:null,default:R},Symbol.toStringTag,{value:"Module"})),N=`<div id="inheritance" class="section">
+</div>`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),U=`<div id="inheritance" class="section">
   <div class="breadcrumb">handbook / the 4 pillars / <span>section 04C</span></div>
   <div class="section-eyebrow">The Deep Hierarchy</div>
   <h1>Inheritance: Hierarchy, State, and the Fragile Base</h1>
@@ -2003,7 +2003,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-a"><code>extends</code> creates an IS-A relationship with a class (single inheritance). <code>implements</code> creates a CAN-DO relationship with an interface (multiple allowed). A class can <code>extend</code> one class and <code>implement</code> many interfaces simultaneously.</div>
   </div>
 </div>
-`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),U=`<div id="inner-classes" class="section">
+`,F=Object.freeze(Object.defineProperty({__proto__:null,default:U},Symbol.toStringTag,{value:"Module"})),H=`<div id="inner-classes" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 14</span></div>
   <div class="section-eyebrow">The Mechanics</div>
   <h1>Inner Classes: Logic within Logic</h1>
@@ -2116,7 +2116,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-a"><strong>Yes, but only if they are effectively final.</strong> This is because the local inner class object might outlive the method execution. The JVM "captures" the value of the variable and stores a copy in the inner object. If the variable could change, the copy and the original would go out of sync.</div>
   </div>
 </div>
-`,F=Object.freeze(Object.defineProperty({__proto__:null,default:U},Symbol.toStringTag,{value:"Module"})),H=`<div id="interfaces" class="section">
+`,J=Object.freeze(Object.defineProperty({__proto__:null,default:H},Symbol.toStringTag,{value:"Module"})),W=`<div id="interfaces" class="section">
   <div class="breadcrumb">handbook / <span>section 09</span></div>
   <div class="section-eyebrow">The Contracts</div>
   <h1>Interfaces: Defining Capability</h1>
@@ -2231,7 +2231,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-q" onclick="toggleQA(this)">What is the 'Three-Tier Architecture' link?<span class="arrow">▶</span></div>
     <div class="qa-a">In professional backend development, we use <strong>Interfaces</strong> to separate layers: <code>Controller</code> -> <code>IService</code> -> <code>IRepository</code>. This allows us to change the implementation of the Service or Repository (e.g., swapping a Database for a Mock) without affecting other layers.</div>
   </div>
-</div>`,J=Object.freeze(Object.defineProperty({__proto__:null,default:H},Symbol.toStringTag,{value:"Module"})),W=`<div id="interview-qa" class="section">
+</div>`,z=Object.freeze(Object.defineProperty({__proto__:null,default:W},Symbol.toStringTag,{value:"Module"})),V=`<div id="interview-qa" class="section">
   <div class="breadcrumb">handbook / <span>section 19</span></div>
   <div class="section-eyebrow">The Senior Engineer's Guide</div>
   <h1>The Interview Masterclass: FAANG-Level Deep Dives</h1>
@@ -2312,7 +2312,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
       <li>Reference <strong>JVM behavior</strong> for extra points.</li>
     </ul>
   </div>
-</div>`,z=Object.freeze(Object.defineProperty({__proto__:null,default:W},Symbol.toStringTag,{value:"Module"})),V=`<div id="memory-model" class="section">
+</div>`,G=Object.freeze(Object.defineProperty({__proto__:null,default:V},Symbol.toStringTag,{value:"Module"})),Q=`<div id="memory-model" class="section">
   <div class="breadcrumb">handbook / <span>section 12</span></div>
   <div class="section-eyebrow">The Engine Room</div>
   <h1>JVM Memory: The Generational Architecture</h1>
@@ -2424,7 +2424,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-q" onclick="toggleQA(this)">Why did Java 8 remove 'PermGen' and introduce 'Metaspace'?<span class="arrow">▶</span></div>
     <div class="qa-a">PermGen was part of the Heap and had a fixed size, leading to the frequent <code>java.lang.OutOfMemoryError: PermGen space</code>. Metaspace is part of <strong>Native Memory</strong>. It can grow dynamically with the OS, reducing the risk of crashes due to class-loading heavy frameworks.</div>
   </div>
-</div>`,G=Object.freeze(Object.defineProperty({__proto__:null,default:V},Symbol.toStringTag,{value:"Module"})),Q=`<div id="object-class" class="section">
+</div>`,Y=Object.freeze(Object.defineProperty({__proto__:null,default:Q},Symbol.toStringTag,{value:"Module"})),K=`<div id="object-class" class="section">
   <div class="breadcrumb">handbook / <span>section 11</span></div>
   <div class="section-eyebrow">The Root</div>
   <h1>java.lang.Object: The Mother of All</h1>
@@ -2542,7 +2542,7 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
     <div class="qa-q" onclick="toggleQA(this)">Why is it bad to use <code>instanceof</code> in an <code>equals()</code> override? (Architect level)<span class="arrow">▶</span></div>
     <div class="qa-a">Using <code>instanceof</code> violates <strong>Symmetry</strong> if inheritance is involved. If <code>Point(x,y)</code> uses <code>instanceof</code>, it might return true for a <code>ColorPoint(x,y,z)</code>. But <code>ColorPoint.equals(Point)</code> would be false because of the extra field. Using <code>getClass() == other.getClass()</code> is safer as it ensures both objects are the exact same type.</div>
   </div>
-</div>`,Y=Object.freeze(Object.defineProperty({__proto__:null,default:Q},Symbol.toStringTag,{value:"Module"})),K=`<div id="oop-design-thinking" class="section">
+</div>`,$=Object.freeze(Object.defineProperty({__proto__:null,default:K},Symbol.toStringTag,{value:"Module"})),Z=`<div id="oop-design-thinking" class="section">
   <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>
   <div class="section-eyebrow">LLD Framework</div>
   <h1>OOP Design Thinking: The Architect's Mindset</h1>
@@ -2674,7 +2674,7 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
     <div class="qa-q" onclick="toggleQA(this)">What is "Skinny Models, Fat Services" vs "Rich Domain Models"?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Skinny Models</strong> (Anemic Domain Model) have only data, and logic is in Service classes. <strong>Rich Domain Models</strong> put logic inside the entities themselves (true OOP). In complex LLD, Rich Domain Models are usually preferred as they keep the code more organized.</div>
   </div>
-</div>`,$=Object.freeze(Object.defineProperty({__proto__:null,default:K},Symbol.toStringTag,{value:"Module"})),Z=`<div id="oop-lld-bridge" class="section">
+</div>`,X=Object.freeze(Object.defineProperty({__proto__:null,default:Z},Symbol.toStringTag,{value:"Module"})),ss=`<div id="oop-lld-bridge" class="section">
   <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>
   <div class="section-eyebrow">The Professional Bridge</div>
   <h1>OOP → LLD: From Code to Architecture</h1>
@@ -2771,7 +2771,7 @@ bus.<span class="fn">publish</span>(<span class="str">"ORDER_PLACED"</span>); <s
     <div class="qa-q" onclick="toggleQA(this)">How do you handle a "Circular Dependency" between two classes in LLD?<span class="arrow">▶</span></div>
     <div class="qa-a">Circular dependency is an architectural smell. <strong>Fix 1</strong>: Use an Interface to break the cycle. <strong>Fix 2</strong>: Introduce a third "Orchestrator" class that handles the interaction between the two. <strong>Fix 3</strong>: Use Dependency Injection (Setter injection) if using a framework like Spring.</div>
   </div>
-</div>`,X=Object.freeze(Object.defineProperty({__proto__:null,default:Z},Symbol.toStringTag,{value:"Module"})),ss=`<div id="polymorphism" class="section">
+</div>`,ns=Object.freeze(Object.defineProperty({__proto__:null,default:ss},Symbol.toStringTag,{value:"Module"})),as=`<div id="polymorphism" class="section">
   <div class="breadcrumb">handbook / the 4 pillars / <span>section 04D</span></div>
   <div class="section-eyebrow">The Mastery</div>
   <h1>Polymorphism: The Power of Many Forms</h1>
@@ -2981,7 +2981,7 @@ obj.<span class="fn">go</span>(); <span class="cm">// Calls B.go()!</span></code
     <div class="qa-q" onclick="toggleQA(this)">Can we override a private method?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>No.</strong> Private methods are not visible to subclasses. A method with the same signature in the subclass is a completely <strong>new</strong> method, not an override.</div>
   </div>
-</div>`,ns=Object.freeze(Object.defineProperty({__proto__:null,default:ss},Symbol.toStringTag,{value:"Module"})),as=`<div id="relationships" class="section">
+</div>`,es=Object.freeze(Object.defineProperty({__proto__:null,default:as},Symbol.toStringTag,{value:"Module"})),ts=`<div id="relationships" class="section">
   <div class="breadcrumb">handbook / <span>section 05</span></div>
   <div class="section-eyebrow">The Connections</div>
   <h1>Object Relationships: Beyond IS-A</h1>
@@ -3231,7 +3231,7 @@ h.<span class="fn">showRooms</span>();
     <div class="qa-a">Ask: <strong>"Does the container logically 'own' the contained object?"</strong> If a <code>Team</code> has <code>Players</code>, the Team "owns" them in context — that's Aggregation. If a <code>Student</code> knows a <code>Library</code>, neither owns the other — that's Association. The UML diamond (◇) indicates "whole-part" thinking.</div>
   </div>
 </div>
-`,es=Object.freeze(Object.defineProperty({__proto__:null,default:as},Symbol.toStringTag,{value:"Module"})),ts=`<div id="solid-principles" class="section">
+`,cs=Object.freeze(Object.defineProperty({__proto__:null,default:ts},Symbol.toStringTag,{value:"Module"})),ls=`<div id="solid-principles" class="section">
   <div class="breadcrumb">handbook / <span>section 17</span></div>
   <div class="section-eyebrow">The Architecture</div>
   <h1>SOLID Principles: The Engineering Compass</h1>
@@ -3413,7 +3413,7 @@ assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>(
     <div class="qa-q" onclick="toggleQA(this)">What is the "Dependency Inversion" vs "Dependency Injection"?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Dependency Inversion</strong> is the <em>Principle</em> (The Goal: decouple). <strong>Dependency Injection</strong> is the <em>Pattern</em> (The Tool: passing dependencies via constructor/setter). DI is how we achieve DIP.</div>
   </div>
-</div>`,cs=Object.freeze(Object.defineProperty({__proto__:null,default:ts},Symbol.toStringTag,{value:"Module"})),ls=`<div id="static-keyword" class="section">
+</div>`,os=Object.freeze(Object.defineProperty({__proto__:null,default:ls},Symbol.toStringTag,{value:"Module"})),ps=`<div id="static-keyword" class="section">
   <div class="breadcrumb">handbook / <span>section 07</span></div>
   <div class="section-eyebrow">The Shared State</div>
   <h1>Static: Class-Level Mechanics</h1>
@@ -3539,7 +3539,7 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">Why is a static method faster than an instance method?<span class="arrow">▶</span></div>
     <div class="qa-a">Because the JVM doesn't have to perform a vtable lookup (Dynamic Dispatch). It knows the exact address of the static method at compile time. However, with JIT optimizations, the difference is negligible in modern Java.</div>
   </div>
-</div>`,os=Object.freeze(Object.defineProperty({__proto__:null,default:ls},Symbol.toStringTag,{value:"Module"})),ps=`<div id="why-oop-exists" class="section">
+</div>`,is=Object.freeze(Object.defineProperty({__proto__:null,default:ps},Symbol.toStringTag,{value:"Module"})),rs=`<div id="why-oop-exists" class="section">
   <div class="breadcrumb">handbook / <span>section 01</span></div>
   <div class="section-eyebrow">The Foundations</div>
   <h1>Why OOP Exists: The Architecture of Scale</h1>
@@ -3648,4 +3648,4 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">What is the "Fragile Base Class" problem?<span class="arrow">▶</span></div>
     <div class="qa-a">A major pitfall of inheritance. If you change a small detail in a parent class, you might unknowingly break 50 subclasses that depend on that specific (sometimes accidental) behavior. This is why senior architects favor <strong>Composition</strong> over Inheritance.</div>
   </div>
-</div>`,is=Object.freeze(Object.defineProperty({__proto__:null,default:ps},Symbol.toStringTag,{value:"Module"})),d={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],h={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let i="home";const r=Object.assign({"../content/abstract-classes.html":m,"../content/abstraction.html":f,"../content/access-modifiers.html":w,"../content/cheat-sheets.html":y,"../content/classes-objects.html":C,"../content/constructors.html":I,"../content/encapsulation.html":x,"../content/enums.html":P,"../content/exception-handling.html":D,"../content/final-keyword.html":L,"../content/home.html":j,"../content/immutability.html":B,"../content/inheritance.html":_,"../content/inner-classes.html":F,"../content/interfaces.html":J,"../content/interview-qa.html":z,"../content/memory-model.html":G,"../content/object-class.html":Y,"../content/oop-design-thinking.html":$,"../content/oop-lld-bridge.html":X,"../content/polymorphism.html":ns,"../content/relationships.html":es,"../content/solid-principles.html":cs,"../content/static-keyword.html":os,"../content/why-oop-exists.html":is});for(const s in r){const a=s.split("/").pop().replace(".html","");d[a]=r[s].default||r[s]}function p(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&d[s]){const n=document.createElement("div");n.innerHTML=d[s],e=n.firstElementChild,a.appendChild(e),rs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),document.querySelectorAll(".home-section").forEach(n=>{s==="home"?n.classList.remove("hidden"):n.classList.add("hidden")}),s!=="home"&&e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),i=s,g(),us(),ms(e),window.scrollTo({top:0,behavior:"smooth"})}function rs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function ds(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}function hs(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function gs(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function us(){const s=l.indexOf(i),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=h[a]||a,n.onclick=()=>p(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=h[e]||e,c.onclick=()=>p(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",i==="home")}function ms(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||i==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function vs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(i);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&p(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&p(l[a-1]))})}function fs(){window.scrollTo({top:0,behavior:"smooth"})}function bs(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function g(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=p;window.toggleQA=ds;window.filterNav=hs;window.scrollToTop=fs;window.toggleSidebar=bs;window.closeSidebar=g;document.addEventListener("DOMContentLoaded",()=>{gs(),vs(),p("home")});
+</div>`,ds=Object.freeze(Object.defineProperty({__proto__:null,default:rs},Symbol.toStringTag,{value:"Module"})),h={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],g={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let i="home";const d=Object.assign({"../content/abstract-classes.html":f,"../content/abstraction.html":w,"../content/access-modifiers.html":y,"../content/cheat-sheets.html":C,"../content/classes-objects.html":I,"../content/constructors.html":x,"../content/encapsulation.html":E,"../content/enums.html":D,"../content/exception-handling.html":L,"../content/final-keyword.html":j,"../content/home.html":B,"../content/immutability.html":_,"../content/inheritance.html":F,"../content/inner-classes.html":J,"../content/interfaces.html":z,"../content/interview-qa.html":G,"../content/memory-model.html":Y,"../content/object-class.html":$,"../content/oop-design-thinking.html":X,"../content/oop-lld-bridge.html":ns,"../content/polymorphism.html":es,"../content/relationships.html":cs,"../content/solid-principles.html":os,"../content/static-keyword.html":is,"../content/why-oop-exists.html":ds});for(const s in d){const a=s.split("/").pop().replace(".html","");h[a]=d[s].default||d[s]}function p(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&h[s]){const n=document.createElement("div");n.innerHTML=h[s],e=n.firstElementChild,a.appendChild(e),hs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),document.querySelectorAll(".home-section").forEach(n=>{s==="home"?n.classList.remove("hidden"):n.classList.add("hidden")}),s!=="home"&&e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),i=s,m(),vs(),fs(e),window.scrollTo({top:0,behavior:"smooth"})}function hs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function gs(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}const r=document.getElementById("themeToggle");if(r){const s=r.querySelector("i"),a=document.body,e=localStorage.getItem("theme")||"dark";a.setAttribute("data-theme",e),s&&u(s,e),r.addEventListener("click",()=>{const n=a.getAttribute("data-theme")==="dark"?"light":"dark";a.setAttribute("data-theme",n),localStorage.setItem("theme",n),s&&u(s,n)})}function u(s,a){const e=r.querySelector("span");a==="dark"?(s.className="ri-moon-line",e&&(e.textContent="Dark Mode")):(s.className="ri-sun-line",e&&(e.textContent="Light Mode"))}function us(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function ms(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function vs(){const s=l.indexOf(i),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=g[a]||a,n.onclick=()=>p(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=g[e]||e,c.onclick=()=>p(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",i==="home")}function fs(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||i==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function bs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(i);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&p(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&p(l[a-1]))})}function ws(){window.scrollTo({top:0,behavior:"smooth"})}function ks(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function m(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=p;window.toggleQA=gs;window.filterNav=us;window.scrollToTop=ws;window.toggleSidebar=ks;window.closeSidebar=m;document.addEventListener("DOMContentLoaded",()=>{try{ms(),bs(),document.getElementById("mainContent")||console.error("CRITICAL: mainContent container missing"),p("home");const s=localStorage.getItem("theme")||"dark";document.body.setAttribute("data-theme",s)}catch(s){console.error("Boot error:",s)}});
