@@ -1,0 +1,313 @@
+<div id="abstraction" class="section">
+  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04B</span></div>
+  <div class="section-eyebrow">The Second Pillar</div>
+  <h1>Abstraction: Managing Complexity</h1>
+  <div class="section-desc">Abstraction is the art of hiding the "How" to focus on the "What." It is the primary tool we use to design APIs, decoupled systems, and scalable architectures.</div>
+
+  <h2>1. The "Iceberg" Model of Abstraction</h2>
+  <p>An object is like an iceberg. The 10% above the water is the <strong>Public Interface</strong> (What the object does). The 90% below is the <strong>Private Implementation</strong> (How it does it). As long as the tip stays the same, the bottom can change entirely without affecting the world.</p>
+
+  <div class="diagram">
+[ CLIENT CODE ]
+      │
+      ▼
+[ PUBLIC API (Interface) ]  <── "I need to send an email."
+      │
+      ▼
+[ PRIVATE LOGIC (Impl) ]   <── Connect to SMTP, handle retries, 
+                                 log errors, manage sockets.</div>
+
+  <h3>Example: The Iceberg in Action</h3>
+  <pre><code><span class="cm">// The PUBLIC surface — the client only sees this</span>
+<span class="kw">public interface</span> <span class="cl">EmailService</span> {
+    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> subject, <span class="cl">String</span> body);
+}
+
+<span class="cm">// The PRIVATE iceberg — 90% of the complexity is hidden</span>
+<span class="kw">public class</span> <span class="cl">SmtpEmailService</span> <span class="kw">implements</span> <span class="cl">EmailService</span> {
+    <span class="kw">private final</span> <span class="cl">SmtpConnection</span> connection;
+    <span class="kw">private final</span> <span class="cl">RetryPolicy</span> retryPolicy;
+    <span class="kw">private final</span> <span class="cl">Logger</span> logger;
+
+    <span class="kw">public</span> <span class="cl">SmtpEmailService</span>(<span class="cl">SmtpConnection</span> conn, <span class="cl">RetryPolicy</span> rp) {
+        <span class="kw">this</span>.connection = conn;
+        <span class="kw">this</span>.retryPolicy = rp;
+        <span class="kw">this</span>.logger = <span class="cl">LoggerFactory</span>.<span class="fn">getLogger</span>(<span class="cl">SmtpEmailService</span>.<span class="kw">class</span>);
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> subject, <span class="cl">String</span> body) {
+        retryPolicy.<span class="fn">execute</span>(() -> {
+            connection.<span class="fn">open</span>();
+            connection.<span class="fn">sendMail</span>(to, subject, body);
+            connection.<span class="fn">close</span>();
+            logger.<span class="fn">info</span>(<span class="str">"Email sent to {}"</span>, to);
+        });
+    }
+}
+
+<span class="cm">// CLIENT CODE — beautifully simple</span>
+<span class="cl">EmailService</span> emailService = <span class="kw">new</span> <span class="cl">SmtpEmailService</span>(conn, policy);
+emailService.<span class="fn">send</span>(<span class="str">"user@example.com"</span>, <span class="str">"Welcome!"</span>, <span class="str">"Hello World"</span>);
+</code></pre>
+
+  <h2>2. Abstract Data Types (ADT) &amp; Clean Architecture</h2>
+  <p>In computer science, an <strong>ADT</strong> defines a data structure by its behavior (e.g., a <code>Stack</code> has <code>push</code> and <code>pop</code>) rather than its memory layout. In Java, we use <strong>Interfaces</strong> to define ADTs.</p>
+
+  <h3>Example: Stack as an ADT</h3>
+  <pre><code><span class="cm">// The ADT — defines WHAT, not HOW</span>
+<span class="kw">public interface</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="cl">T</span> item);
+    <span class="cl">T</span> <span class="fn">pop</span>();
+    <span class="cl">T</span> <span class="fn">peek</span>();
+    <span class="kw">boolean</span> <span class="fn">isEmpty</span>();
+    <span class="kw">int</span> <span class="fn">size</span>();
+}
+
+<span class="cm">// Implementation 1: Array-based</span>
+<span class="kw">public class</span> <span class="cl">ArrayStack</span>&lt;<span class="cl">T</span>&gt; <span class="kw">implements</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {
+    <span class="kw">private</span> <span class="cl">Object</span>[] data = <span class="kw">new</span> <span class="cl">Object</span>[<span class="num">16</span>];
+    <span class="kw">private int</span> top = -<span class="num">1</span>;
+
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">push</span>(<span class="cl">T</span> item) { data[++top] = item; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public</span> <span class="cl">T</span> <span class="fn">pop</span>() { <span class="kw">return</span> (<span class="cl">T</span>) data[top--]; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public</span> <span class="cl">T</span> <span class="fn">peek</span>() { <span class="kw">return</span> (<span class="cl">T</span>) data[top]; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public boolean</span> <span class="fn">isEmpty</span>() { <span class="kw">return</span> top == -<span class="num">1</span>; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public int</span> <span class="fn">size</span>() { <span class="kw">return</span> top + <span class="num">1</span>; }
+}
+
+<span class="cm">// Implementation 2: LinkedList-based</span>
+<span class="kw">public class</span> <span class="cl">LinkedStack</span>&lt;<span class="cl">T</span>&gt; <span class="kw">implements</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {
+    <span class="kw">private</span> <span class="cl">Node</span>&lt;<span class="cl">T</span>&gt; head;
+    <span class="kw">private int</span> count = <span class="num">0</span>;
+
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">push</span>(<span class="cl">T</span> item) {
+        head = <span class="kw">new</span> <span class="cl">Node</span>&lt;&gt;(item, head);
+        count++;
+    }
+    <span class="cm">// ... other methods follow the same pattern</span>
+}
+
+<span class="cm">// The client doesn't care which implementation is used!</span>
+<span class="cl">Stack</span>&lt;<span class="cl">String</span>&gt; stack = <span class="kw">new</span> <span class="cl">ArrayStack</span>&lt;&gt;();
+stack.<span class="fn">push</span>(<span class="str">"Hello"</span>);
+stack.<span class="fn">push</span>(<span class="str">"World"</span>);
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(stack.<span class="fn">pop</span>()); <span class="cm">// "World"</span>
+</code></pre>
+
+  <div class="box box-insight">
+    <div class="box-title">💡 Architect's Insight: Pluggable Architecture (Repository Pattern)</div>
+    By abstracting the database layer behind a <code>Repository</code> interface, you make your business logic "database agnostic." You can swap PostgreSQL for MongoDB by simply changing the implementation class. This is the heart of <strong>Hexagonal Architecture (Ports and Adapters)</strong>.
+  </div>
+
+  <h3>Example: Repository Pattern (Hexagonal Architecture)</h3>
+  <pre><code><span class="cm">// PORT — the abstraction</span>
+<span class="kw">public interface</span> <span class="cl">UserRepository</span> {
+    <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id);
+    <span class="kw">void</span> <span class="fn">save</span>(<span class="cl">User</span> user);
+    <span class="cl">List</span>&lt;<span class="cl">User</span>&gt; <span class="fn">findAll</span>();
+}
+
+<span class="cm">// ADAPTER 1 — PostgreSQL</span>
+<span class="kw">public class</span> <span class="cl">PostgresUserRepository</span> <span class="kw">implements</span> <span class="cl">UserRepository</span> {
+    <span class="kw">private final</span> <span class="cl">JdbcTemplate</span> jdbc;
+
+    <span class="kw">@Override</span>
+    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id) {
+        <span class="kw">return</span> jdbc.<span class="fn">queryForObject</span>(
+            <span class="str">"SELECT * FROM users WHERE id = ?"</span>, userMapper, id);
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">save</span>(<span class="cl">User</span> user) {
+        jdbc.<span class="fn">update</span>(<span class="str">"INSERT INTO users VALUES (?, ?)"</span>,
+            user.<span class="fn">getId</span>(), user.<span class="fn">getName</span>());
+    }
+}
+
+<span class="cm">// ADAPTER 2 — MongoDB (swap without touching business logic!)</span>
+<span class="kw">public class</span> <span class="cl">MongoUserRepository</span> <span class="kw">implements</span> <span class="cl">UserRepository</span> {
+    <span class="kw">private final</span> <span class="cl">MongoCollection</span>&lt;<span class="cl">Document</span>&gt; collection;
+
+    <span class="kw">@Override</span>
+    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id) {
+        <span class="cl">Document</span> doc = collection.<span class="fn">find</span>(<span class="fn">eq</span>(<span class="str">"_id"</span>, id)).<span class="fn">first</span>();
+        <span class="kw">return</span> <span class="fn">mapToUser</span>(doc);
+    }
+}
+
+<span class="cm">// BUSINESS LOGIC — depends only on the abstraction</span>
+<span class="kw">public class</span> <span class="cl">UserService</span> {
+    <span class="kw">private final</span> <span class="cl">UserRepository</span> repo; <span class="cm">// abstraction, not concrete!</span>
+
+    <span class="kw">public</span> <span class="cl">UserService</span>(<span class="cl">UserRepository</span> repo) {
+        <span class="kw">this</span>.repo = repo;
+    }
+
+    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">getUser</span>(<span class="cl">String</span> id) {
+        <span class="kw">return</span> repo.<span class="fn">findById</span>(id);
+    }
+}
+</code></pre>
+
+  <h2>3. Levels of Abstraction (The Stack)</h2>
+  <p>Engineering is a stack of abstractions. Each layer relies on the one below it being "correct" without needing to know why:</p>
+  <ol>
+    <li><strong>Business Logic</strong>: "Place Order."</li>
+    <li><strong>Application Service</strong>: <code>orderService.place(id)</code>.</li>
+    <li><strong>Domain Model</strong>: <code>order.validate()</code>.</li>
+    <li><strong>Java Method</strong>: <code>invokevirtual</code> call.</li>
+    <li><strong>JVM / OS</strong>: Memory management, file handles.</li>
+    <li><strong>Hardware</strong>: CPU instructions and registers.</li>
+  </ol>
+
+  <h2>4. The "Leaky Abstraction" Problem</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Concept: Joel Spolsky's Law</div>
+    "All non-trivial abstractions, to some degree, are leaky." 
+    <br><br>
+    Example: <code>Hibernate</code> abstracts SQL. But if you don't understand how SQL joins work, you will create a "N+1 Query Problem" that kills performance. The abstraction <em>leaks</em> the underlying complexity. A senior dev knows the abstraction but understands the layer beneath it.
+  </div>
+
+  <h3>Example: The N+1 Problem (Leaky Abstraction)</h3>
+  <pre><code><span class="cm">// BAD — N+1 Queries (the abstraction leaks!)</span>
+<span class="cl">List</span>&lt;<span class="cl">Author</span>&gt; authors = authorRepo.<span class="fn">findAll</span>(); <span class="cm">// 1 query</span>
+<span class="kw">for</span> (<span class="cl">Author</span> a : authors) {
+    <span class="cl">List</span>&lt;<span class="cl">Book</span>&gt; books = a.<span class="fn">getBooks</span>(); <span class="cm">// N queries! (lazy load)</span>
+    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">getName</span>() + <span class="str">" wrote "</span> + books.<span class="fn">size</span>());
+}
+
+<span class="cm">// GOOD — Eager fetch with JOIN (understand the layer below)</span>
+<span class="cl">List</span>&lt;<span class="cl">Author</span>&gt; authors = authorRepo.<span class="fn">findAllWithBooks</span>(); <span class="cm">// 1 query with JOIN</span>
+<span class="kw">for</span> (<span class="cl">Author</span> a : authors) {
+    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">getName</span>() + <span class="str">" wrote "</span> + a.<span class="fn">getBooks</span>().<span class="fn">size</span>());
+}
+</code></pre>
+
+  <h2>5. Abstraction vs. Encapsulation</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Pillar</th><th>Focus</th><th>Goal</th></tr>
+    <tr><td><strong>Abstraction</strong></td><td>Design Level</td><td>Hiding complexity (WHAT). Focused on <strong>Behavior</strong>.</td></tr>
+    <tr><td><strong>Encapsulation</strong></td><td>Implementation Level</td><td>Hiding state / Data protection (HOW). Focused on <strong>Data</strong>.</td></tr>
+  </table></div>
+
+  <h3>Example: Abstraction + Encapsulation Together</h3>
+  <pre><code><span class="cm">// ABSTRACTION — hides WHAT a shape can do</span>
+<span class="kw">public interface</span> <span class="cl">Shape</span> {
+    <span class="kw">double</span> <span class="fn">area</span>();
+    <span class="kw">double</span> <span class="fn">perimeter</span>();
+}
+
+<span class="cm">// ENCAPSULATION — hides HOW the data is stored</span>
+<span class="kw">public class</span> <span class="cl">Circle</span> <span class="kw">implements</span> <span class="cl">Shape</span> {
+    <span class="kw">private final double</span> radius; <span class="cm">// encapsulated!</span>
+
+    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> radius) {
+        <span class="kw">if</span> (radius <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>();
+        <span class="kw">this</span>.radius = radius;
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">perimeter</span>() { <span class="kw">return</span> <span class="num">2</span> * <span class="cl">Math</span>.PI * radius; }
+}
+
+<span class="kw">public class</span> <span class="cl">Rectangle</span> <span class="kw">implements</span> <span class="cl">Shape</span> {
+    <span class="kw">private final double</span> width, height;
+
+    <span class="kw">public</span> <span class="cl">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) {
+        <span class="kw">this</span>.width = w;
+        <span class="kw">this</span>.height = h;
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> width * height; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">perimeter</span>() { <span class="kw">return</span> <span class="num">2</span> * (width + height); }
+}
+
+<span class="cm">// Polymorphic usage — client only knows "Shape"</span>
+<span class="cl">List</span>&lt;<span class="cl">Shape</span>&gt; shapes = <span class="cl">List</span>.<span class="fn">of</span>(<span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">5</span>), <span class="kw">new</span> <span class="cl">Rectangle</span>(<span class="num">3</span>, <span class="num">4</span>));
+<span class="kw">double</span> totalArea = shapes.<span class="fn">stream</span>()
+    .<span class="fn">mapToDouble</span>(<span class="cl">Shape</span>::area)
+    .<span class="fn">sum</span>();
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Total area: "</span> + totalArea);
+</code></pre>
+
+  <h2>6. The Facade Pattern: The Ultimate Abstraction</h2>
+  <p>If you have a complex subsystem with 50 classes, don't expose them all. Create a <strong>Facade</strong> class that provides 3 simple methods. This is an abstraction that simplifies the entry point to a complex system.</p>
+
+  <h3>Example: Facade Pattern</h3>
+  <pre><code><span class="cm">// Complex subsystem classes</span>
+<span class="kw">class</span> <span class="cl">InventoryService</span> {
+    <span class="kw">boolean</span> <span class="fn">checkStock</span>(<span class="cl">String</span> productId) { <span class="cm">/* complex logic */</span> <span class="kw">return true</span>; }
+}
+
+<span class="kw">class</span> <span class="cl">PaymentService</span> {
+    <span class="kw">boolean</span> <span class="fn">charge</span>(<span class="cl">String</span> userId, <span class="kw">double</span> amount) { <span class="cm">/* gateway logic */</span> <span class="kw">return true</span>; }
+}
+
+<span class="kw">class</span> <span class="cl">ShippingService</span> {
+    <span class="cl">String</span> <span class="fn">ship</span>(<span class="cl">String</span> productId, <span class="cl">String</span> address) { <span class="kw">return</span> <span class="str">"TRACK-123"</span>; }
+}
+
+<span class="cm">// THE FACADE — one simple method hides all complexity</span>
+<span class="kw">public class</span> <span class="cl">OrderFacade</span> {
+    <span class="kw">private final</span> <span class="cl">InventoryService</span> inventory = <span class="kw">new</span> <span class="cl">InventoryService</span>();
+    <span class="kw">private final</span> <span class="cl">PaymentService</span> payment = <span class="kw">new</span> <span class="cl">PaymentService</span>();
+    <span class="kw">private final</span> <span class="cl">ShippingService</span> shipping = <span class="kw">new</span> <span class="cl">ShippingService</span>();
+
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">placeOrder</span>(<span class="cl">String</span> userId, <span class="cl">String</span> productId,
+                               <span class="kw">double</span> amount, <span class="cl">String</span> address) {
+        <span class="kw">if</span> (!inventory.<span class="fn">checkStock</span>(productId))
+            <span class="kw">throw new</span> <span class="cl">RuntimeException</span>(<span class="str">"Out of stock"</span>);
+        <span class="kw">if</span> (!payment.<span class="fn">charge</span>(userId, amount))
+            <span class="kw">throw new</span> <span class="cl">RuntimeException</span>(<span class="str">"Payment failed"</span>);
+        <span class="kw">return</span> shipping.<span class="fn">ship</span>(productId, address);
+    }
+}
+
+<span class="cm">// CLIENT — one line does everything</span>
+<span class="cl">OrderFacade</span> facade = <span class="kw">new</span> <span class="cl">OrderFacade</span>();
+<span class="cl">String</span> trackingId = facade.<span class="fn">placeOrder</span>(<span class="str">"U1"</span>, <span class="str">"P1"</span>, <span class="num">99.99</span>, <span class="str">"123 Main St"</span>);
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 04B</div>
+    <ul>
+      <li><strong>Interfaces</strong> are the strongest form of abstraction in Java.</li>
+      <li><strong>Abstract only what changes</strong>; don't over-engineer static logic.</li>
+      <li><strong>Decoupling</strong> is the primary result of good abstraction.</li>
+      <li><strong>Understand the layer below</strong> to avoid "leaks."</li>
+      <li><strong>Hiding vs Omitting</strong>: Abstraction is about hiding unnecessary details, not omitting them entirely.</li>
+      <li><strong>Facade Pattern</strong> is the most practical use of abstraction in enterprise code.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 04B</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can we have Abstraction without Encapsulation?<span class="arrow">▶</span></div>
+    <div class="qa-a">Technically, yes. But it's bad design. Abstraction gives you the "remote control" (Interface), and Encapsulation ensures the "battery compartment" (Data) is locked. Without encapsulation, the user could mess with the internals of the remote, breaking the abstraction.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is "Interface Segregation" in the context of Abstraction?<span class="arrow">▶</span></div>
+    <div class="qa-a">It means creating specific abstractions for specific clients. Instead of one giant <code>Machine</code> interface, create <code>Printer</code>, <code>Scanner</code>, and <code>Fax</code> interfaces. This ensures that a client using the printer isn't forced to know about (or depend on) the fax functionality. It keeps the abstraction "clean."</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between abstraction via Interface vs Abstract Class?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Interface</strong>: Pure contract. No state. Multiple inheritance. Use when you want to define "what" something can do. <strong>Abstract Class</strong>: Partial implementation. Can have state and constructors. Single inheritance. Use when you want to share common code among closely related classes. Since Java 8 (default methods), the gap has narrowed, but the conceptual difference remains: interfaces define capability, abstract classes define identity.</div>
+  </div>
+</div>

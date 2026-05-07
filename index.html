@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OOP in Java — Engineering Handbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/css/main.css">
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<!-- MOBILE HAMBURGER -->
+<button class="mobile-menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-close" onclick="closeSidebar()">✕</div>
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Engineering Handbook</div>
+      <div class="sidebar-title">OOP in Java</div>
+    </div>
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input type="text" placeholder="Search topics..." id="searchInput" oninput="filterNav(this.value)">
+    </div>
+    <div id="navContent">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" onclick="showSection('home')"><span class="nav-num">00</span>Home & Contents</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Foundations</div>
+        <div class="nav-item" onclick="showSection('why-oop-exists')"><span class="nav-num">01</span>Why OOP Exists</div>
+        <div class="nav-item" onclick="showSection('classes-objects')"><span class="nav-num">02</span>Classes & Objects</div>
+        <div class="nav-item" onclick="showSection('constructors')"><span class="nav-num">03</span>Constructors</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">The 4 Pillars</div>
+        <div class="nav-item" onclick="showSection('encapsulation')"><span class="nav-num">04A</span>Encapsulation</div>
+        <div class="nav-item" onclick="showSection('abstraction')"><span class="nav-num">04B</span>Abstraction</div>
+        <div class="nav-item" onclick="showSection('inheritance')"><span class="nav-num">04C</span>Inheritance</div>
+        <div class="nav-item" onclick="showSection('polymorphism')"><span class="nav-num">04D</span>Polymorphism</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Relationships</div>
+        <div class="nav-item" onclick="showSection('relationships')"><span class="nav-num">05</span>Relationships</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Java Mechanics</div>
+        <div class="nav-item" onclick="showSection('access-modifiers')"><span class="nav-num">06</span>Access Modifiers</div>
+        <div class="nav-item" onclick="showSection('static-keyword')"><span class="nav-num">07</span>Static Keyword</div>
+        <div class="nav-item" onclick="showSection('final-keyword')"><span class="nav-num">08</span>Final Keyword</div>
+        <div class="nav-item" onclick="showSection('interfaces')"><span class="nav-num">09</span>Interfaces</div>
+        <div class="nav-item" onclick="showSection('abstract-classes')"><span class="nav-num">10</span>Abstract Classes</div>
+        <div class="nav-item" onclick="showSection('object-class')"><span class="nav-num">11</span>Object Class</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Deep Dives</div>
+        <div class="nav-item" onclick="showSection('memory-model')"><span class="nav-num">12</span>Memory Model</div>
+        <div class="nav-item" onclick="showSection('immutability')"><span class="nav-num">13</span>Immutability</div>
+        <div class="nav-item" onclick="showSection('inner-classes')"><span class="nav-num">14</span>Inner Classes</div>
+        <div class="nav-item" onclick="showSection('enums')"><span class="nav-num">15</span>Enums</div>
+        <div class="nav-item" onclick="showSection('exception-handling')"><span class="nav-num">16</span>Exception Handling</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Architecture</div>
+        <div class="nav-item" onclick="showSection('solid-principles')"><span class="nav-num">17</span>SOLID Principles</div>
+        <div class="nav-item" onclick="showSection('oop-lld-bridge')"><span class="nav-num">18</span>OOP → LLD Bridge</div>
+        <div class="nav-item" onclick="showSection('oop-design-thinking')"><span class="nav-num">19</span>Design Thinking</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Interview Prep</div>
+        <div class="nav-item" onclick="showSection('interview-qa')"><span class="nav-num">20</span>Master Interview Q&A</div>
+        <div class="nav-item" onclick="showSection('cheat-sheets')"><span class="nav-num">21</span>LLD Connection</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="hero home-section" id="heroEl">
+      <div style="max-width:860px;margin:0 auto;">
+        <div class="hero-eyebrow">// FAANG-Level Preparation Guide</div>
+        <div class="hero-title">Object Oriented<br>Programming in <span>Java</span></div>
+        <div class="hero-sub">A senior engineer's complete handbook for OOP mastery — built for LLD interviews, backend engineering, and production-grade Java development.</div>
+        <div class="hero-tags">
+          <span class="tag tag-purple">21 Sections</span>
+          <span class="tag tag-green">100+ Code Examples</span>
+          <span class="tag tag-amber">Interview Ready</span>
+          <span class="tag tag-teal">LLD Foundation</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" id="mainContent">
+      <!-- Sections will be loaded here -->
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav hidden" id="bottomNav">
+      <button class="bottom-nav-btn bottom-nav-prev">
+        <span class="bottom-nav-dir">← Previous</span>
+        <span class="bottom-nav-label">Section</span>
+      </button>
+      <div class="bottom-nav-counter">1 / 24</div>
+      <button class="bottom-nav-btn bottom-nav-next">
+        <span class="bottom-nav-dir">Next →</span>
+        <span class="bottom-nav-label">Section</span>
+      </button>
+    </div>
+  </main>
+</div>
+
+<!-- SCROLL TO TOP -->
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="scrollToTop()" aria-label="Scroll to top">↑</button>
+
+<!-- READING TIME BADGE -->
+<div class="reading-time hidden" id="readingTime">☕ 5 min read</div>
+
+<script type="module" src="/src/js/app.js"></script>
+</body>
+</html>

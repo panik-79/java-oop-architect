@@ -1,0 +1,252 @@
+<div id="inheritance" class="section">
+  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04C</span></div>
+  <div class="section-eyebrow">The Deep Hierarchy</div>
+  <h1>Inheritance: Hierarchy, State, and the Fragile Base</h1>
+  <div class="section-desc">Inheritance represents the <strong>IS-A</strong> relationship. While powerful, it is the most dangerous tool in OOP due to tight coupling. We explore the memory layout, the dangers of deep hierarchies, and the modern transition to <strong>Composition</strong> and <strong>Sealed Classes</strong>.</div>
+
+  <h2>1. IS-A vs. HAS-A (The Golden Rule)</h2>
+  <p>Use inheritance only if you can say "A [Subclass] IS-A [Superclass]."</p>
+  <ul>
+    <li><code>Dog</code> <strong>IS-A</strong> <code>Animal</code> (Inheritance).</li>
+    <li><code>Car</code> <strong>HAS-A</strong> <code>Engine</code> (Composition).</li>
+  </ul>
+
+  <h3>Example: Basic Inheritance</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">Animal</span> {
+    <span class="kw">protected</span> <span class="cl">String</span> name;
+
+    <span class="kw">public</span> <span class="cl">Animal</span>(<span class="cl">String</span> name) { <span class="kw">this</span>.name = name; }
+
+    <span class="kw">public void</span> <span class="fn">eat</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" is eating"</span>);
+    }
+
+    <span class="kw">public void</span> <span class="fn">sleep</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" is sleeping"</span>);
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">Dog</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
+    <span class="kw">private</span> <span class="cl">String</span> breed;
+
+    <span class="kw">public</span> <span class="cl">Dog</span>(<span class="cl">String</span> name, <span class="cl">String</span> breed) {
+        <span class="kw">super</span>(name); <span class="cm">// MUST call parent constructor</span>
+        <span class="kw">this</span>.breed = breed;
+    }
+
+    <span class="kw">public void</span> <span class="fn">bark</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" says Woof!"</span>);
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">Cat</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
+    <span class="kw">public</span> <span class="cl">Cat</span>(<span class="cl">String</span> name) { <span class="kw">super</span>(name); }
+
+    <span class="kw">public void</span> <span class="fn">purr</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" purrs..."</span>);
+    }
+}
+
+<span class="cm">// Usage</span>
+<span class="cl">Dog</span> dog = <span class="kw">new</span> <span class="cl">Dog</span>(<span class="str">"Rex"</span>, <span class="str">"German Shepherd"</span>);
+dog.<span class="fn">eat</span>();   <span class="cm">// inherited from Animal</span>
+dog.<span class="fn">bark</span>();  <span class="cm">// own method</span>
+
+<span class="cl">Animal</span> a = <span class="kw">new</span> <span class="cl">Cat</span>(<span class="str">"Whiskers"</span>); <span class="cm">// polymorphic reference</span>
+a.<span class="fn">eat</span>();    <span class="cm">// works — inherited method</span>
+<span class="cm">// a.purr(); // ERROR — Animal ref doesn't know about purr()</span>
+</code></pre>
+
+  <h2>2. Memory Layout: The Layered Object</h2>
+  <p>When you create a <code>Child</code> object, the JVM creates a unified memory block with <strong>all</strong> fields from the entire hierarchy.</p>
+  <div class="diagram">
+[ CHILD OBJECT ON HEAP ]
+┌───────────────────────────┐
+│  Object Header            │
+├───────────────────────────┤
+│  Parent Fields (hidden)   │ <── Still takes space!
+├───────────────────────────┤
+│  Child Fields             │
+└───────────────────────────┘</div>
+  <div class="box box-insight">
+    <div class="box-title">🕵️ Senior Insight: The Memory Cost</div>
+    Even if you "shadow" a field (Parent and Child both have <code>int id</code>), <strong>both fields exist in memory</strong>. The JVM simply chooses which one to show you based on the reference type.
+  </div>
+
+  <h2>3. The "super" Keyword Deep Dive</h2>
+  <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {
+    <span class="kw">protected</span> <span class="cl">String</span> name;
+    <span class="kw">protected double</span> baseSalary;
+
+    <span class="kw">public</span> <span class="cl">Employee</span>(<span class="cl">String</span> name, <span class="kw">double</span> baseSalary) {
+        <span class="kw">this</span>.name = name;
+        <span class="kw">this</span>.baseSalary = baseSalary;
+    }
+
+    <span class="kw">public double</span> <span class="fn">calculatePay</span>() {
+        <span class="kw">return</span> baseSalary;
+    }
+
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">toString</span>() {
+        <span class="kw">return</span> name + <span class="str">": $"</span> + <span class="fn">calculatePay</span>();
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">Manager</span> <span class="kw">extends</span> <span class="cl">Employee</span> {
+    <span class="kw">private double</span> bonus;
+
+    <span class="kw">public</span> <span class="cl">Manager</span>(<span class="cl">String</span> name, <span class="kw">double</span> base, <span class="kw">double</span> bonus) {
+        <span class="kw">super</span>(name, base); <span class="cm">// call parent constructor</span>
+        <span class="kw">this</span>.bonus = bonus;
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">calculatePay</span>() {
+        <span class="kw">return super</span>.<span class="fn">calculatePay</span>() + bonus; <span class="cm">// extend parent behavior</span>
+    }
+}
+
+<span class="cl">Employee</span> mgr = <span class="kw">new</span> <span class="cl">Manager</span>(<span class="str">"Alice"</span>, <span class="num">5000</span>, <span class="num">2000</span>);
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(mgr); <span class="cm">// Alice: $7000.0</span>
+</code></pre>
+
+  <h2>4. The "Diamond Problem" (The Bytecode Fix)</h2>
+  <p>Java forbids multiple inheritance of <strong>Classes</strong> but allows it for <strong>Interfaces</strong> with <code>default</code> methods.</p>
+  <pre><code><span class="kw">interface</span> <span class="cl">Flyable</span> {
+    <span class="kw">default void</span> <span class="fn">move</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Flying"</span>); }
+}
+
+<span class="kw">interface</span> <span class="cl">Swimmable</span> {
+    <span class="kw">default void</span> <span class="fn">move</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Swimming"</span>); }
+}
+
+<span class="cm">// Diamond! Must resolve manually</span>
+<span class="kw">class</span> <span class="cl">Duck</span> <span class="kw">implements</span> <span class="cl">Flyable</span>, <span class="cl">Swimmable</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">move</span>() {
+        <span class="cl">Flyable</span>.<span class="kw">super</span>.<span class="fn">move</span>();   <span class="cm">// explicitly choose</span>
+        <span class="cl">Swimmable</span>.<span class="kw">super</span>.<span class="fn">move</span>();
+    }
+}
+
+<span class="cl">Duck</span> d = <span class="kw">new</span> <span class="cl">Duck</span>();
+d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "Swimming"</span>
+</code></pre>
+
+  <h2>5. The "Fragile Base Class" Problem</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Trap: The Semantic Break</div>
+    If you add a new method to a Base class, you might unknowingly break a Subclass that already has a method with the same name but different logic.
+    <br><br>
+    <strong>Solution</strong>: Keep inheritance hierarchies shallow (max 2-3 levels). If deeper, you need Composition.
+  </div>
+
+  <h2>6. Composition Over Inheritance</h2>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label compare-bad">❌ Inheritance (Static)</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Bird</span> { <span class="kw">void</span> <span class="fn">fly</span>() { ... } }
+<span class="kw">class</span> <span class="cl">Ostrich</span> <span class="kw">extends</span> <span class="cl">Bird</span> {
+   <span class="cm">// Breaks LSP: Ostriches can't fly!</span>
+}</code></pre>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label compare-good">✅ Composition (Dynamic)</div>
+      <pre style="font-size:11px;"><code><span class="kw">interface</span> <span class="cl">FlyBehavior</span> {
+   <span class="kw">void</span> <span class="fn">fly</span>();
+}
+<span class="kw">class</span> <span class="cl">CanFly</span> <span class="kw">implements</span> <span class="cl">FlyBehavior</span> {
+   <span class="kw">public void</span> <span class="fn">fly</span>() { <span class="cm">/*soar*/</span> }
+}
+<span class="kw">class</span> <span class="cl">NoFly</span> <span class="kw">implements</span> <span class="cl">FlyBehavior</span> {
+   <span class="kw">public void</span> <span class="fn">fly</span>() { <span class="cm">/*noop*/</span> }
+}
+<span class="kw">class</span> <span class="cl">Bird</span> {
+   <span class="cl">FlyBehavior</span> flyBehavior;
+   <span class="kw">void</span> <span class="fn">performFly</span>() {
+       flyBehavior.<span class="fn">fly</span>();
+   }
+}</code></pre>
+    </div>
+  </div>
+
+  <h2>7. Sealed Classes (Java 17)</h2>
+  <pre><code><span class="kw">public sealed class</span> <span class="cl">Shape</span>
+    <span class="kw">permits</span> <span class="cl">Circle</span>, <span class="cl">Rectangle</span>, <span class="cl">Triangle</span> {
+
+    <span class="kw">public abstract double</span> <span class="fn">area</span>();
+}
+
+<span class="kw">public final class</span> <span class="cl">Circle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
+    <span class="kw">private final double</span> radius;
+    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> r) { <span class="kw">this</span>.radius = r; }
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }
+}
+
+<span class="kw">public final class</span> <span class="cl">Rectangle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
+    <span class="kw">private final double</span> w, h;
+    <span class="kw">public</span> <span class="cl">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) { <span class="kw">this</span>.w = w; <span class="kw">this</span>.h = h; }
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> w * h; }
+}
+
+<span class="cm">// Exhaustive switch (Java 21)</span>
+<span class="kw">double</span> <span class="fn">describeArea</span>(<span class="cl">Shape</span> s) {
+    <span class="kw">return switch</span> (s) {
+        <span class="kw">case</span> <span class="cl">Circle</span> c    -> c.<span class="fn">area</span>();
+        <span class="kw">case</span> <span class="cl">Rectangle</span> r -> r.<span class="fn">area</span>();
+        <span class="kw">case</span> <span class="cl">Triangle</span> t  -> t.<span class="fn">area</span>();
+    }; <span class="cm">// no default needed — sealed!</span>
+}
+</code></pre>
+
+  <h2>8. Shadowing vs. Overriding</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Feature</th><th>Methods</th><th>Fields / Static Methods</th></tr>
+    <tr><td><strong>Resolution</strong></td><td>Runtime (Dynamic Dispatch)</td><td>Compile Time (Static Binding)</td></tr>
+    <tr><td><strong>Decision</strong></td><td>Based on <strong>Object</strong> Type</td><td>Based on <strong>Reference</strong> Type</td></tr>
+    <tr><td><strong>Term</strong></td><td>Overriding</td><td>Shadowing / Hiding</td></tr>
+  </table></div>
+
+  <h3>Example: Field Shadowing Trap</h3>
+  <pre><code><span class="kw">class</span> <span class="cl">Parent</span> {
+    <span class="cl">String</span> name = <span class="str">"Parent"</span>;
+}
+
+<span class="kw">class</span> <span class="cl">Child</span> <span class="kw">extends</span> <span class="cl">Parent</span> {
+    <span class="cl">String</span> name = <span class="str">"Child"</span>; <span class="cm">// SHADOWS parent field</span>
+}
+
+<span class="cl">Parent</span> obj = <span class="kw">new</span> <span class="cl">Child</span>();
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(obj.name); <span class="cm">// "Parent" — resolved by REFERENCE type!</span>
+
+<span class="cl">Child</span> obj2 = <span class="kw">new</span> <span class="cl">Child</span>();
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(obj2.name); <span class="cm">// "Child"</span>
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 04C</div>
+    <ul>
+      <li><strong>Inheritance is White-Box reuse</strong> (internal details leak to children).</li>
+      <li><strong>Always use @Override</strong> to catch compile-time errors.</li>
+      <li><strong>Favor Composition</strong>: "Has-A" is usually safer than "Is-A."</li>
+      <li><strong>Shallow is better</strong>: Avoid the "God Parent" class.</li>
+      <li><strong>Sealed Classes</strong> give you controlled inheritance for domain modeling.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Questions — Section 04C</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the 'Object' class's role in the hierarchy?<span class="arrow">▶</span></div>
+    <div class="qa-a">Every class implicitly inherits from <code>java.lang.Object</code>. It provides <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code>, and <code>wait/notify</code>. It is the root of all polymorphism in Java.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why doesn't Java support multiple inheritance for classes?<span class="arrow">▶</span></div>
+    <div class="qa-a">To avoid the <strong>Diamond Problem</strong>. If Class A and B have a field <code>x</code>, and Class C inherits from both, which <code>x</code> does it get? Java avoids this ambiguity. Interfaces with default methods re-introduced a controlled version.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between 'extends' and 'implements'?<span class="arrow">▶</span></div>
+    <div class="qa-a"><code>extends</code> creates an IS-A relationship with a class (single inheritance). <code>implements</code> creates a CAN-DO relationship with an interface (multiple allowed). A class can <code>extend</code> one class and <code>implement</code> many interfaces simultaneously.</div>
+  </div>
+</div>

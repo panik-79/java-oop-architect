@@ -1,0 +1,177 @@
+<div id="exception-handling" class="section">
+  <div class="breadcrumb">handbook / <span>section 16</span></div>
+  <div class="section-eyebrow">The Error Handling</div>
+  <h1>Exception Handling: Designing for Failure</h1>
+  <div class="section-desc">Exceptions are objects. Handling them is not just about avoiding crashes; it's about defining how your system communicates failure across layers and managing the performance cost of failure.</div>
+
+  <h2>1. The Throwable Hierarchy</h2>
+  <div class="diagram">
+        [ Throwable ]
+       /             \
+  [ Error ]       [ Exception ]
+  (JVM Failure)      /         \
+             [ RuntimeEx ] [ Checked Ex ]
+             (Bugs)        (Recoverable)</div>
+
+  <h2>2. Checked vs. Unchecked</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Type</th><th>Must Catch/Declare?</th><th>Examples</th><th>Use When</th></tr>
+    <tr><td><strong>Checked</strong></td><td>Yes</td><td>IOException, SQLException</td><td>Caller CAN recover</td></tr>
+    <tr><td><strong>Unchecked</strong></td><td>No</td><td>NPE, IllegalArgument</td><td>Programming error (bug)</td></tr>
+    <tr><td><strong>Error</strong></td><td>No (don't catch!)</td><td>OutOfMemoryError, StackOverflow</td><td>JVM is dying</td></tr>
+  </table></div>
+
+  <h3>Example: Custom Checked vs Unchecked Exception</h3>
+  <pre><code><span class="cm">// CHECKED — caller is forced to handle</span>
+<span class="kw">public class</span> <span class="cl">InsufficientFundsException</span> <span class="kw">extends</span> <span class="cl">Exception</span> {
+    <span class="kw">private final double</span> deficit;
+
+    <span class="kw">public</span> <span class="cl">InsufficientFundsException</span>(<span class="kw">double</span> deficit) {
+        <span class="kw">super</span>(<span class="str">"Short by $"</span> + deficit);
+        <span class="kw">this</span>.deficit = deficit;
+    }
+
+    <span class="kw">public double</span> <span class="fn">getDeficit</span>() { <span class="kw">return</span> deficit; }
+}
+
+<span class="cm">// UNCHECKED — programming error, fail fast</span>
+<span class="kw">public class</span> <span class="cl">InvalidOrderException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
+    <span class="kw">public</span> <span class="cl">InvalidOrderException</span>(<span class="cl">String</span> msg) {
+        <span class="kw">super</span>(msg);
+    }
+}
+</code></pre>
+
+  <h2>3. The "Fail-Fast" Principle</h2>
+  <pre><code><span class="cm">// BAD — null propagates, crashes deep in the stack</span>
+<span class="kw">public void</span> <span class="fn">processOrder</span>(<span class="cl">Order</span> order) {
+    <span class="cm">// ... 50 lines later ...</span>
+    order.<span class="fn">getCustomer</span>().<span class="fn">getEmail</span>(); <span class="cm">// NPE! Where did null come from?</span>
+}
+
+<span class="cm">// GOOD — fail fast at the gate</span>
+<span class="kw">public void</span> <span class="fn">processOrder</span>(<span class="cl">Order</span> order) {
+    <span class="cl">Objects</span>.<span class="fn">requireNonNull</span>(order, <span class="str">"Order cannot be null"</span>);
+    <span class="cl">Objects</span>.<span class="fn">requireNonNull</span>(order.<span class="fn">getCustomer</span>(), <span class="str">"Customer cannot be null"</span>);
+    <span class="cm">// now proceed safely...</span>
+}
+</code></pre>
+
+  <h2>4. Try-with-Resources (AutoCloseable)</h2>
+  <pre><code><span class="cm">// MODERN — resources auto-closed, even if exception thrown</span>
+<span class="kw">public</span> <span class="cl">String</span> <span class="fn">readFile</span>(<span class="cl">String</span> path) <span class="kw">throws</span> <span class="cl">IOException</span> {
+    <span class="kw">try</span> (<span class="cl">BufferedReader</span> br = <span class="kw">new</span> <span class="cl">BufferedReader</span>(
+            <span class="kw">new</span> <span class="cl">FileReader</span>(path))) {
+        <span class="cl">StringBuilder</span> sb = <span class="kw">new</span> <span class="cl">StringBuilder</span>();
+        <span class="cl">String</span> line;
+        <span class="kw">while</span> ((line = br.<span class="fn">readLine</span>()) != <span class="kw">null</span>) {
+            sb.<span class="fn">append</span>(line).<span class="fn">append</span>(<span class="str">"\n"</span>);
+        }
+        <span class="kw">return</span> sb.<span class="fn">toString</span>();
+    } <span class="cm">// br.close() called automatically!</span>
+}
+
+<span class="cm">// Multiple resources</span>
+<span class="kw">try</span> (<span class="cl">Connection</span> conn = dataSource.<span class="fn">getConnection</span>();
+     <span class="cl">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+     <span class="cl">ResultSet</span> rs = ps.<span class="fn">executeQuery</span>()) {
+    <span class="kw">while</span> (rs.<span class="fn">next</span>()) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(rs.<span class="fn">getString</span>(<span class="str">"name"</span>));
+    }
+} <span class="cm">// All three closed in REVERSE order!</span>
+</code></pre>
+
+  <h2>5. Multi-Catch and Exception Chaining</h2>
+  <pre><code><span class="cm">// MULTI-CATCH (Java 7+)</span>
+<span class="kw">try</span> {
+    <span class="fn">riskyOperation</span>();
+} <span class="kw">catch</span> (<span class="cl">IOException</span> | <span class="cl">SQLException</span> e) {
+    logger.<span class="fn">error</span>(<span class="str">"Operation failed"</span>, e);
+    <span class="kw">throw new</span> <span class="cl">ServiceException</span>(<span class="str">"Service unavailable"</span>, e);
+}
+
+<span class="cm">// EXCEPTION CHAINING — preserve the root cause</span>
+<span class="kw">public class</span> <span class="cl">ServiceException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
+    <span class="kw">public</span> <span class="cl">ServiceException</span>(<span class="cl">String</span> msg, <span class="cl">Throwable</span> cause) {
+        <span class="kw">super</span>(msg, cause); <span class="cm">// ALWAYS pass the cause!</span>
+    }
+}
+
+<span class="cm">// Later, you can inspect the full chain:</span>
+<span class="kw">catch</span> (<span class="cl">ServiceException</span> e) {
+    <span class="cl">Throwable</span> root = e.<span class="fn">getCause</span>(); <span class="cm">// original IOException</span>
+}
+</code></pre>
+
+  <h2>6. Creating Custom Exception Hierarchies</h2>
+  <pre><code><span class="cm">// Base exception for your domain</span>
+<span class="kw">public abstract class</span> <span class="cl">DomainException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
+    <span class="kw">private final</span> <span class="cl">String</span> errorCode;
+
+    <span class="kw">protected</span> <span class="cl">DomainException</span>(<span class="cl">String</span> code, <span class="cl">String</span> msg) {
+        <span class="kw">super</span>(msg);
+        <span class="kw">this</span>.errorCode = code;
+    }
+
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getErrorCode</span>() { <span class="kw">return</span> errorCode; }
+}
+
+<span class="cm">// Specific domain exceptions</span>
+<span class="kw">public class</span> <span class="cl">UserNotFoundException</span> <span class="kw">extends</span> <span class="cl">DomainException</span> {
+    <span class="kw">public</span> <span class="cl">UserNotFoundException</span>(<span class="cl">String</span> userId) {
+        <span class="kw">super</span>(<span class="str">"USER_NOT_FOUND"</span>, <span class="str">"User not found: "</span> + userId);
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">OrderExpiredException</span> <span class="kw">extends</span> <span class="cl">DomainException</span> {
+    <span class="kw">public</span> <span class="cl">OrderExpiredException</span>(<span class="cl">String</span> orderId) {
+        <span class="kw">super</span>(<span class="str">"ORDER_EXPIRED"</span>, <span class="str">"Order expired: "</span> + orderId);
+    }
+}
+
+<span class="cm">// Global handler catches all domain exceptions uniformly</span>
+<span class="kw">try</span> {
+    userService.<span class="fn">getUser</span>(<span class="str">"U99"</span>);
+} <span class="kw">catch</span> (<span class="cl">DomainException</span> e) {
+    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Error ["</span> + e.<span class="fn">getErrorCode</span>() + <span class="str">"]: "</span> + e.<span class="fn">getMessage</span>());
+}
+</code></pre>
+
+  <h2>7. Performance: fillInStackTrace() Cost</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Fact: Exception Performance</div>
+    Creating an exception is expensive because <code>fillInStackTrace()</code> walks the entire call stack. In high-frequency validation (e.g., parsing 1M records), use return codes or <code>Optional</code> instead of exceptions for flow control.
+    <pre style="margin-top:10px;"><code><span class="cm">// High-performance: skip stack trace for expected validation failures</span>
+<span class="kw">public class</span> <span class="cl">ValidationException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public synchronized</span> <span class="cl">Throwable</span> <span class="fn">fillInStackTrace</span>() {
+        <span class="kw">return this</span>; <span class="cm">// skip expensive stack walk!</span>
+    }
+}</code></pre>
+  </div>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 16</div>
+    <ul>
+      <li><strong>Checked</strong> = recoverable. <strong>Unchecked</strong> = bugs. <strong>Error</strong> = JVM dying.</li>
+      <li><strong>Always use try-with-resources</strong> for AutoCloseable objects.</li>
+      <li><strong>Chain exceptions</strong> — never swallow the cause.</li>
+      <li><strong>Fail fast</strong> with <code>Objects.requireNonNull()</code>.</li>
+      <li><strong>Don't use exceptions for flow control</strong> — they're expensive.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 16</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if an exception is thrown in a finally block?<span class="arrow">▶</span></div>
+    <div class="qa-a">It <strong>masks</strong> the original exception from the try block. The caller only sees the finally-block exception. This is called <strong>Exception Masking</strong>. Try-with-resources solves this by attaching the suppressed exception via <code>addSuppressed()</code>.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Should you catch Exception or Throwable?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Never catch Throwable</strong> — you'd catch <code>Error</code> too (OutOfMemoryError). Catching <code>Exception</code> is acceptable at the top level (e.g., global handler), but prefer catching <strong>specific</strong> exceptions in business logic.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Checked vs Unchecked — which should you prefer?<span class="arrow">▶</span></div>
+    <div class="qa-a">Modern consensus (Spring, Kotlin, C#): <strong>Unchecked</strong> for most cases. Checked exceptions create tight coupling between layers. Use checked only when the caller can genuinely recover (e.g., retry a network call).</div>
+  </div>
+</div>

@@ -1,0 +1,250 @@
+<div id="relationships" class="section">
+  <div class="breadcrumb">handbook / <span>section 05</span></div>
+  <div class="section-eyebrow">The Connections</div>
+  <h1>Object Relationships: Beyond IS-A</h1>
+  <div class="section-desc">Objects don't live in isolation. We explore how they connect, own each other, and manage each other's lifecycles through Association, Aggregation, Composition, and Dependency.</div>
+
+  <h2>1. The Spectrum of Ownership</h2>
+  <p>In LLD, the most important question is: <strong>"If the parent dies, what happens to the child?"</strong></p>
+
+  <div class="table-wrap"><table>
+    <tr><th>Relationship</th><th>Ownership</th><th>Lifecycle</th><th>UML</th><th>Java Clue</th></tr>
+    <tr><td><strong>Dependency</strong></td><td>None (uses temporarily)</td><td>Independent</td><td>- - -></td><td>Method parameter</td></tr>
+    <tr><td><strong>Association</strong></td><td>No ownership</td><td>Independent</td><td>───</td><td>Field reference</td></tr>
+    <tr><td><strong>Aggregation</strong></td><td>Weak (HAS-A)</td><td>Independent (child survives)</td><td>◇──</td><td>Field injected via constructor</td></tr>
+    <tr><td><strong>Composition</strong></td><td>Strong (PART-OF)</td><td>Dependent (child dies with parent)</td><td>◆──</td><td>Field created with <code>new</code> inside class</td></tr>
+  </table></div>
+
+  <h2>2. Dependency: "I use you temporarily"</h2>
+  <p>The weakest relationship. Object A uses Object B only inside a method — no field reference is stored.</p>
+  <pre><code><span class="kw">public class</span> <span class="cl">ReportGenerator</span> {
+    <span class="cm">// No field for Printer — it's just a parameter</span>
+    <span class="kw">public void</span> <span class="fn">generateReport</span>(<span class="cl">Printer</span> printer) {
+        <span class="cl">String</span> report = <span class="str">"Sales Report Q1"</span>;
+        printer.<span class="fn">print</span>(report); <span class="cm">// uses Printer temporarily</span>
+    }
+}
+
+<span class="cm">// Usage</span>
+<span class="cl">ReportGenerator</span> gen = <span class="kw">new</span> <span class="cl">ReportGenerator</span>();
+gen.<span class="fn">generateReport</span>(<span class="kw">new</span> <span class="cl">LaserPrinter</span>()); <span class="cm">// dependency injected as param</span>
+</code></pre>
+
+  <h2>3. Association: "I know you"</h2>
+  <p>The simplest relationship. One object uses another, but neither owns the other. Both can exist independently. It is a <strong>bidirectional or unidirectional</strong> reference stored as a field.</p>
+  <pre><code><span class="cm">// ASSOCIATION: Doctor ↔ Patient (both exist independently)</span>
+<span class="kw">public class</span> <span class="cl">Doctor</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Patient</span>&gt; patients = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+
+    <span class="kw">public</span> <span class="cl">Doctor</span>(<span class="cl">String</span> name) { <span class="kw">this</span>.name = name; }
+
+    <span class="kw">public void</span> <span class="fn">addPatient</span>(<span class="cl">Patient</span> p) {
+        patients.<span class="fn">add</span>(p);
+    }
+
+    <span class="kw">public void</span> <span class="fn">diagnose</span>(<span class="cl">Patient</span> p) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" diagnosing "</span> + p.<span class="fn">getName</span>());
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">Patient</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Doctor</span>&gt; doctors = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+
+    <span class="kw">public</span> <span class="cl">Patient</span>(<span class="cl">String</span> name) { <span class="kw">this</span>.name = name; }
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getName</span>() { <span class="kw">return</span> name; }
+
+    <span class="kw">public void</span> <span class="fn">addDoctor</span>(<span class="cl">Doctor</span> d) {
+        doctors.<span class="fn">add</span>(d);
+    }
+}
+
+<span class="cm">// Both exist independently — deleting a Doctor doesn't delete a Patient</span>
+<span class="cl">Doctor</span> doc = <span class="kw">new</span> <span class="cl">Doctor</span>(<span class="str">"Dr. Smith"</span>);
+<span class="cl">Patient</span> pat = <span class="kw">new</span> <span class="cl">Patient</span>(<span class="str">"Alice"</span>);
+doc.<span class="fn">addPatient</span>(pat);
+pat.<span class="fn">addDoctor</span>(doc);
+doc.<span class="fn">diagnose</span>(pat); <span class="cm">// Dr. Smith diagnosing Alice</span>
+</code></pre>
+
+  <h2>4. Aggregation: "I have you (but you can leave)"</h2>
+  <p>A "Whole-Part" relationship where the parts can belong to more than one "Whole" or exist without it. The child is <strong>injected from outside</strong>.</p>
+  <pre><code><span class="cm">// AGGREGATION: Department HAS-A Professor (professor survives without dept)</span>
+<span class="kw">public class</span> <span class="cl">Professor</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+    <span class="kw">public</span> <span class="cl">Professor</span>(<span class="cl">String</span> name) { <span class="kw">this</span>.name = name; }
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getName</span>() { <span class="kw">return</span> name; }
+}
+
+<span class="kw">public class</span> <span class="cl">Department</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Professor</span>&gt; professors; <span class="cm">// aggregation</span>
+
+    <span class="cm">// Child is INJECTED — not created here</span>
+    <span class="kw">public</span> <span class="cl">Department</span>(<span class="cl">String</span> name, <span class="cl">List</span>&lt;<span class="cl">Professor</span>&gt; professors) {
+        <span class="kw">this</span>.name = name;
+        <span class="kw">this</span>.professors = professors;
+    }
+
+    <span class="kw">public void</span> <span class="fn">printRoster</span>() {
+        professors.<span class="fn">forEach</span>(p ->
+            <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">": "</span> + p.<span class="fn">getName</span>()));
+    }
+}
+
+<span class="cm">// Professors exist BEFORE the department</span>
+<span class="cl">Professor</span> p1 = <span class="kw">new</span> <span class="cl">Professor</span>(<span class="str">"Dr. Turing"</span>);
+<span class="cl">Professor</span> p2 = <span class="kw">new</span> <span class="cl">Professor</span>(<span class="str">"Dr. Knuth"</span>);
+<span class="cl">Department</span> cs = <span class="kw">new</span> <span class="cl">Department</span>(<span class="str">"CS"</span>, <span class="cl">List</span>.<span class="fn">of</span>(p1, p2));
+cs.<span class="fn">printRoster</span>();
+
+<span class="cm">// If department is deleted, professors still exist!</span>
+cs = <span class="kw">null</span>;
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(p1.<span class="fn">getName</span>()); <span class="cm">// "Dr. Turing" — still alive</span>
+</code></pre>
+
+  <h2>5. Composition: "I own you completely"</h2>
+  <p>A strict ownership where the child is physically or logically a part of the parent. The child cannot exist without the parent. The parent <strong>creates</strong> the child internally.</p>
+  <pre><code><span class="cm">// COMPOSITION: House OWNS Rooms (rooms die with the house)</span>
+<span class="kw">public class</span> <span class="cl">Room</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+    <span class="kw">private int</span> squareFeet;
+
+    <span class="kw">public</span> <span class="cl">Room</span>(<span class="cl">String</span> name, <span class="kw">int</span> sqft) {
+        <span class="kw">this</span>.name = name;
+        <span class="kw">this</span>.squareFeet = sqft;
+    }
+
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">toString</span>() {
+        <span class="kw">return</span> name + <span class="str">" ("</span> + squareFeet + <span class="str">" sqft)"</span>;
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">House</span> {
+    <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Room</span>&gt; rooms;
+
+    <span class="kw">public</span> <span class="cl">House</span>() {
+        <span class="cm">// Rooms are CREATED inside — composition!</span>
+        <span class="kw">this</span>.rooms = <span class="cl">List</span>.<span class="fn">of</span>(
+            <span class="kw">new</span> <span class="cl">Room</span>(<span class="str">"Living Room"</span>, <span class="num">300</span>),
+            <span class="kw">new</span> <span class="cl">Room</span>(<span class="str">"Kitchen"</span>, <span class="num">150</span>),
+            <span class="kw">new</span> <span class="cl">Room</span>(<span class="str">"Bedroom"</span>, <span class="num">200</span>)
+        );
+    }
+
+    <span class="kw">public void</span> <span class="fn">showRooms</span>() {
+        rooms.<span class="fn">forEach</span>(r -> <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(r));
+    }
+}
+
+<span class="cm">// If House is garbage collected, Rooms are too — no external references</span>
+<span class="cl">House</span> h = <span class="kw">new</span> <span class="cl">House</span>();
+h.<span class="fn">showRooms</span>();
+</code></pre>
+
+  <div class="box box-insight">
+    <div class="box-title">💡 Senior Insight: The ORM Perspective</div>
+    In Hibernate/JPA, Composition maps to <code>CascadeType.ALL</code> and <code>orphanRemoval=true</code>. Aggregation typically uses no cascade or just <code>CascadeType.PERSIST</code>.
+    <pre style="margin-top:10px;"><code><span class="cm">// JPA Composition</span>
+<span class="kw">@OneToMany</span>(cascade = <span class="cl">CascadeType</span>.ALL, orphanRemoval = <span class="kw">true</span>)
+<span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Room</span>&gt; rooms;
+
+<span class="cm">// JPA Aggregation</span>
+<span class="kw">@ManyToMany</span>
+<span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Professor</span>&gt; professors;
+</code></pre>
+  </div>
+
+  <h2>6. Multiplicity &amp; Mapping</h2>
+  <ul>
+    <li><strong>1-to-1</strong>: One <code>User</code> has one <code>Profile</code>.</li>
+    <li><strong>1-to-Many</strong>: One <code>Author</code> has many <code>Books</code>.</li>
+    <li><strong>Many-to-Many</strong>: Many <code>Students</code> attend many <code>Courses</code>. (Usually requires a "Join Object" like <code>Enrollment</code>).</li>
+  </ul>
+
+  <h3>Example: Many-to-Many with Join Entity</h3>
+  <pre><code><span class="cm">// Instead of direct Many-to-Many, use a Join Entity</span>
+<span class="kw">public class</span> <span class="cl">Student</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Enrollment</span>&gt; enrollments = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+}
+
+<span class="kw">public class</span> <span class="cl">Course</span> {
+    <span class="kw">private</span> <span class="cl">String</span> title;
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Enrollment</span>&gt; enrollments = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+}
+
+<span class="cm">// The JOIN entity — holds relationship data</span>
+<span class="kw">public class</span> <span class="cl">Enrollment</span> {
+    <span class="kw">private</span> <span class="cl">Student</span> student;
+    <span class="kw">private</span> <span class="cl">Course</span> course;
+    <span class="kw">private</span> <span class="cl">LocalDate</span> enrolledDate;
+    <span class="kw">private</span> <span class="cl">String</span> grade;
+
+    <span class="kw">public</span> <span class="cl">Enrollment</span>(<span class="cl">Student</span> s, <span class="cl">Course</span> c) {
+        <span class="kw">this</span>.student = s;
+        <span class="kw">this</span>.course = c;
+        <span class="kw">this</span>.enrolledDate = <span class="cl">LocalDate</span>.<span class="fn">now</span>();
+    }
+}
+</code></pre>
+
+  <h2>7. Breaking Circular Dependencies</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Architectural Smell</div>
+    If <code>Class A</code> HAS-A <code>Class B</code>, and <code>Class B</code> HAS-A <code>Class A</code>, you have a <strong>Circular Dependency</strong>. This makes testing, compilation, and Garbage Collection much harder.
+  </div>
+
+  <h3>Example: Breaking a Circular Dependency with an Interface</h3>
+  <pre><code><span class="cm">// BAD — Circular dependency</span>
+<span class="kw">class</span> <span class="cl">OrderService</span> {
+    <span class="kw">private</span> <span class="cl">PaymentService</span> paymentService; <span class="cm">// depends on Payment</span>
+}
+<span class="kw">class</span> <span class="cl">PaymentService</span> {
+    <span class="kw">private</span> <span class="cl">OrderService</span> orderService; <span class="cm">// depends on Order — CIRCULAR!</span>
+}
+
+<span class="cm">// GOOD — Break with an Interface</span>
+<span class="kw">interface</span> <span class="cl">OrderLookup</span> {
+    <span class="cl">Order</span> <span class="fn">findById</span>(<span class="cl">String</span> orderId);
+}
+
+<span class="kw">class</span> <span class="cl">OrderService</span> <span class="kw">implements</span> <span class="cl">OrderLookup</span> {
+    <span class="kw">private</span> <span class="cl">PaymentService</span> paymentService;
+
+    <span class="kw">@Override</span>
+    <span class="kw">public</span> <span class="cl">Order</span> <span class="fn">findById</span>(<span class="cl">String</span> id) { <span class="cm">/* ... */</span> <span class="kw">return null</span>; }
+}
+
+<span class="kw">class</span> <span class="cl">PaymentService</span> {
+    <span class="kw">private</span> <span class="cl">OrderLookup</span> orderLookup; <span class="cm">// depends on abstraction, not concrete!</span>
+}
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 05</div>
+    <ul>
+      <li><strong>Favor Composition</strong> for strictly owned entities.</li>
+      <li><strong>Use Aggregation</strong> when entities are shared or independent.</li>
+      <li><strong>Associations</strong> are the most flexible but weakest links.</li>
+      <li><strong>Lifecycle management</strong> is the key differentiator.</li>
+      <li><strong>Break circular deps</strong> with Interfaces (DIP).</li>
+      <li><strong>Many-to-Many</strong> should use a Join Entity for clean domain modeling.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 05</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Difference between Aggregation and Composition in a real coding interview?<span class="arrow">▶</span></div>
+    <div class="qa-a">In code, they look identical (both are just fields). The difference is in <strong>Intent and Lifecycle</strong>. If you pass the child object into the constructor (Dependency Injection), it's usually Aggregation. If you create the child object inside the constructor with <code>new</code>, it's usually Composition.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why is Many-to-Many avoided in pure Domain Models?<span class="arrow">▶</span></div>
+    <div class="qa-a">Because it's complex to manage the state of the relationship. Instead of a direct link, we usually introduce a "Relationship Entity" (e.g., <code>OrderLineItem</code> between <code>Order</code> and <code>Product</code>) that can hold its own data (like quantity or price-at-time-of-purchase).</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">How do you decide between Association and Aggregation?<span class="arrow">▶</span></div>
+    <div class="qa-a">Ask: <strong>"Does the container logically 'own' the contained object?"</strong> If a <code>Team</code> has <code>Players</code>, the Team "owns" them in context — that's Aggregation. If a <code>Student</code> knows a <code>Library</code>, neither owns the other — that's Association. The UML diamond (◇) indicates "whole-part" thinking.</div>
+  </div>
+</div>

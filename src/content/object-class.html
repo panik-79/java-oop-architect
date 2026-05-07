@@ -1,0 +1,119 @@
+<div id="object-class" class="section">
+  <div class="breadcrumb">handbook / <span>section 11</span></div>
+  <div class="section-eyebrow">The Root</div>
+  <h1>java.lang.Object: The Mother of All</h1>
+  <div class="section-desc">Every class in Java, whether you write it or not, inherits from <code>Object</code>. We explore the universal methods that define what it means to be an object in the JVM, the monitor lock internals, and the broken <code>clone()</code> contract.</div>
+
+  <h2>1. The equals() and hashCode() Contract</h2>
+  <p>This is the most critical part of the <code>Object</code> class. If you override <code>equals()</code>, you <strong>must</strong> override <code>hashCode()</code>. </p>
+  <ul>
+    <li><strong>The Rule</strong>: If two objects are equal according to <code>equals()</code>, they must have the same <code>hashCode()</code>.</li>
+    <li><strong>The Consequence</strong>: If you break this rule, your objects will behave unpredictably in <code>HashMap</code>, <code>HashSet</code>, and other collections.</li>
+  </ul>
+
+  <div class="box box-insight">
+    <div class="box-title">⚖️ The 5 Rules of Equals</div>
+    <ol>
+      <li><strong>Reflexive</strong>: <code>a.equals(a)</code> must be true.</li>
+      <li><strong>Symmetric</strong>: If <code>a.equals(b)</code>, then <code>b.equals(a)</code>.</li>
+      <li><strong>Transitive</strong>: If <code>a.equals(b)</code> and <code>b.equals(c)</code>, then <code>a.equals(c)</code>.</li>
+      <li><strong>Consistent</strong>: Multiple calls return the same result (unless state changes).</li>
+      <li><strong>Non-null</strong>: <code>a.equals(null)</code> must always be false.</li>
+    </ol>
+  </div>
+
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Trap: HashMap Buckets</div>
+    When you put an object in a HashMap:<br>
+    1. The Map uses <code>hashCode()</code> to find the correct <strong>Bucket</strong>.<br>
+    2. If there are multiple objects in that bucket, it uses <code>equals()</code> to find the <strong>Exact Match</strong>.<br>
+    If equal objects have different hashes, the Map will look in the wrong bucket and never find your object!
+  </div>
+
+  <h3>Example: Correct equals() and hashCode()</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {
+    <span class="kw">private final</span> <span class="cl">String</span> id;
+    <span class="kw">private</span> <span class="cl">String</span> name;
+
+    <span class="kw">@Override</span>
+    <span class="kw">public boolean</span> <span class="fn">equals</span>(<span class="cl">Object</span> o) {
+        <span class="kw">if</span> (<span class="kw">this</span> == o) <span class="kw">return true</span>;
+        <span class="kw">if</span> (o == <span class="kw">null</span> || getClass() != o.<span class="fn">getClass</span>()) <span class="kw">return false</span>;
+        <span class="cl">Employee</span> other = (<span class="cl">Employee</span>) o;
+        <span class="kw">return</span> <span class="cl">Objects</span>.<span class="fn">equals</span>(id, other.id);
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public int</span> <span class="fn">hashCode</span>() {
+        <span class="kw">return</span> <span class="cl">Objects</span>.<span class="fn">hash</span>(id);
+    }
+}
+
+<span class="cm">// Now works correctly in HashMap</span>
+<span class="cl">Map</span>&lt;<span class="cl">Employee</span>, <span class="cl">String</span>&gt; map = <span class="kw">new</span> <span class="cl">HashMap</span>&lt;&gt;();
+<span class="cl">Employee</span> e1 = <span class="kw">new</span> <span class="cl">Employee</span>(<span class="str">"E1"</span>, <span class="str">"Alice"</span>);
+map.<span class="fn">put</span>(e1, <span class="str">"Engineering"</span>);
+
+<span class="cl">Employee</span> e2 = <span class="kw">new</span> <span class="cl">Employee</span>(<span class="str">"E1"</span>, <span class="str">"Alice"</span>); <span class="cm">// different object, same ID</span>
+map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" — because equals + hashCode work!</span>
+</code></pre>
+
+  <h2>2. toString(): The Developer's Friend</h2>
+  <p>The default implementation returns <code>ClassName@HashCode</code>. Always override this.</p>
+  <pre><code><span class="kw">@Override</span>
+<span class="kw">public</span> <span class="cl">String</span> <span class="fn">toString</span>() {
+    <span class="kw">return</span> <span class="str">"Employee{id='"</span> + id + <span class="str">"', name='"</span> + name + <span class="str">"'}"</span>;
+}
+
+<span class="cm">// Better: use String.format or record (auto-generates toString)</span>
+<span class="kw">public record</span> <span class="cl">Point</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) {} <span class="cm">// toString: Point[x=1, y=2]</span>
+</code></pre>
+  <p><strong>Senior Tip</strong>: Don't include passwords or PII in <code>toString()</code> to avoid leaking them in logs.</p>
+
+  <h2>3. getClass(): The Gateway to Reflection</h2>
+  <p>Returns the <code>Class</code> object that represents the runtime class of the object. Unlike <code>instanceof</code>, <code>getClass() == Other.class</code> is <strong>Strict</strong>; it doesn't return true for subclasses. </p>
+
+  <h2>4. clone(): The "Shallow" Heritage</h2>
+  <p>The <code>clone()</code> method is widely considered "broken" in Java. It requires the <code>Cloneable</code> interface (a marker interface) but doesn't actually define it. 
+  <ul>
+    <li><strong>Shallow Copy</strong>: Copies field values. If a field is a reference, both objects point to the same child.</li>
+    <li><strong>Deep Copy</strong>: Requires manual implementation to clone every child object.</li>
+  </ul>
+  <strong>Senior Recommendation</strong>: Use <strong>Copy Constructors</strong> or <strong>Serialization</strong> for deep copying. Avoid <code>clone()</code>.</p>
+
+  <h2>5. finalize(): The Deprecated Reaper</h2>
+  <p>Historically used for cleanup before GC. However, it is unpredictable, slow, and can lead to memory leaks. 
+  <br><strong>Object Resurrection</strong>: A finalize method could potentially save an object by assigning <code>this</code> to a static variable. This is extremely dangerous and confusing. <strong>Deprecated since Java 9.</strong> Use <code>try-with-resources</code>.</p>
+
+  <h2>6. wait(), notify(), notifyAll(): The Monitor</h2>
+  <p>These methods are on the <code>Object</code> class because every object in Java can act as a <strong>Lock (Monitor)</strong>.</p>
+  <ul>
+    <li><strong>Wait Set</strong>: Threads that called <code>wait()</code> and are waiting for a signal.</li>
+    <li><strong>Entry Set</strong>: Threads waiting to acquire the lock.</li>
+  </ul>
+  <div class="box box-warning">
+    <div class="box-title">⚠️ Synchronization Rule</div>
+    They can <strong>only</strong> be called inside a <code>synchronized</code> block on that specific object, otherwise they throw <code>IllegalMonitorStateException</code>.
+  </div>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 11</div>
+    <ul>
+      <li><strong>Always override equals/hashCode</strong> together.</li>
+      <li><strong>Object is the root</strong> of all polymorphism.</li>
+      <li><strong>Every object has a monitor</strong> for synchronization.</li>
+      <li><strong>Prefer AutoCloseable</strong> over finalize().</li>
+      <li><strong>Java 8+ HashMap Optimization</strong>: If a bucket has too many collisions, it converts the linked list to a <strong>Balanced Tree</strong> (O(log n) vs O(n)).</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 11</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between '==' and 'equals()'?<span class="arrow">▶</span></div>
+    <div class="qa-a"><code>==</code> compares <strong>References</strong> (do they point to the same memory address?). <code>equals()</code> compares <strong>Content</strong> (do they have the same data?). By default, <code>Object.equals()</code> uses <code>==</code>, so you must override it to compare fields.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why is it bad to use <code>instanceof</code> in an <code>equals()</code> override? (Architect level)<span class="arrow">▶</span></div>
+    <div class="qa-a">Using <code>instanceof</code> violates <strong>Symmetry</strong> if inheritance is involved. If <code>Point(x,y)</code> uses <code>instanceof</code>, it might return true for a <code>ColorPoint(x,y,z)</code>. But <code>ColorPoint.equals(Point)</code> would be false because of the extra field. Using <code>getClass() == other.getClass()</code> is safer as it ensures both objects are the exact same type.</div>
+  </div>
+</div>

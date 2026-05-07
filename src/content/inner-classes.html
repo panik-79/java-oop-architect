@@ -1,0 +1,113 @@
+<div id="inner-classes" class="section">
+  <div class="breadcrumb">handbook / deep dives / <span>section 14</span></div>
+  <div class="section-eyebrow">The Mechanics</div>
+  <h1>Inner Classes: Logic within Logic</h1>
+  <div class="section-desc">Nested classes are a powerful way to group classes that are only used by one other class. We explore the memory implications, the "Hidden Pointer," the bytecode differences, and why Static Inner Classes are the preferred choice for modern architecture.</div>
+
+  <h2>1. The Four Types of Nested Classes</h2>
+  <ul>
+    <li><strong>Static Nested Class</strong>: Behaves like a top-level class. Does not need an instance of the outer class.</li>
+    <li><strong>Inner Class (Non-static)</strong>: Tied to a specific instance of the outer class.</li>
+    <li><strong>Local Inner Class</strong>: Defined inside a method. Scoped to the method's lifecycle.</li>
+    <li><strong>Anonymous Inner Class</strong>: A class without a name, used for one-time implementations of interfaces or abstract classes.</li>
+  </ul>
+
+  <h2>2. The "Hidden Pointer" (Memory Overhead)</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Fact: Memory Leaks</div>
+    A non-static <strong>Inner Class</strong> carries a hidden reference (<code>this$0</code>) to the instance of its <strong>Outer Class</strong>. 
+    <br><br>
+    <strong>The Chain</strong>: <code>Reference</code> -> <code>InnerObject</code> -> <code>OuterObject</code>.
+    <br>If you store an InnerObject in a static collection (like a cache), the OuterObject can <strong>never</strong> be Garbage Collected, even if it is no longer used by the rest of the app. This is a common cause of <code>OutOfMemoryError</code> in Android and UI frameworks.
+  </div>
+
+  <p>Used to logically group classes. No access to the outer <code>this</code>. Foundation of the <strong>Builder Pattern</strong>.</p>
+  <pre><code><span class="kw">public class</span> <span class="cl">Computer</span> {
+    <span class="kw">private final</span> <span class="cl">String</span> cpu;
+    <span class="kw">private final int</span> ram;
+    <span class="kw">private final int</span> storage;
+
+    <span class="kw">private</span> <span class="cl">Computer</span>(<span class="cl">Builder</span> b) {
+        <span class="kw">this</span>.cpu = b.cpu;
+        <span class="kw">this</span>.ram = b.ram;
+        <span class="kw">this</span>.storage = b.storage;
+    }
+
+    <span class="cm">// Static nested class — no outer 'this' reference!</span>
+    <span class="kw">public static class</span> <span class="cl">Builder</span> {
+        <span class="kw">private</span> <span class="cl">String</span> cpu = <span class="str">"i5"</span>;
+        <span class="kw">private int</span> ram = <span class="num">8</span>;
+        <span class="kw">private int</span> storage = <span class="num">256</span>;
+
+        <span class="kw">public</span> <span class="cl">Builder</span> <span class="fn">cpu</span>(<span class="cl">String</span> cpu) { <span class="kw">this</span>.cpu = cpu; <span class="kw">return this</span>; }
+        <span class="kw">public</span> <span class="cl">Builder</span> <span class="fn">ram</span>(<span class="kw">int</span> ram) { <span class="kw">this</span>.ram = ram; <span class="kw">return this</span>; }
+        <span class="kw">public</span> <span class="cl">Builder</span> <span class="fn">storage</span>(<span class="kw">int</span> s) { <span class="kw">this</span>.storage = s; <span class="kw">return this</span>; }
+        <span class="kw">public</span> <span class="cl">Computer</span> <span class="fn">build</span>() { <span class="kw">return new</span> <span class="cl">Computer</span>(<span class="kw">this</span>); }
+    }
+}
+
+<span class="cm">// Usage</span>
+<span class="cl">Computer</span> pc = <span class="kw">new</span> <span class="cl">Computer</span>.<span class="cl">Builder</span>()
+    .<span class="fn">cpu</span>(<span class="str">"Ryzen 9"</span>)
+    .<span class="fn">ram</span>(<span class="num">64</span>)
+    .<span class="fn">storage</span>(<span class="num">2048</span>)
+    .<span class="fn">build</span>();
+</code></pre>
+
+  <h2>4. Anonymous Inner Classes vs. Lambdas</h2>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label compare-bad">Anonymous Class (Pre-Java 8)</div>
+      <pre style="font-size:11px;"><code><span class="cl">Runnable</span> r = <span class="kw">new</span> <span class="cl">Runnable</span>() {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">run</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Running"</span>);
+    }
+};</code></pre>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label compare-good">Lambda (Java 8+)</div>
+      <pre style="font-size:11px;"><code><span class="cl">Runnable</span> r = () ->
+    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Running"</span>);
+
+<span class="cm">// No .class file generated!</span>
+<span class="cm">// Uses invokedynamic instead</span></code></pre>
+    </div>
+  </div>
+
+  <h2>5. Shadowing & The Outer 'this'</h2>
+  <p>If an inner class has a field with the same name as the outer class, use the <code>Outer.this</code> syntax to resolve the ambiguity.</p>
+  <pre><code><span class="kw">class</span> <span class="cl">Outer</span> {
+    <span class="kw">int</span> x = <span class="num">10</span>;
+    <span class="kw">class</span> <span class="cl">Inner</span> {
+        <span class="kw">int</span> x = <span class="num">20</span>;
+        <span class="kw">void</span> <span class="fn">show</span>() {
+            System.out.println(this.x); <span class="cm">// 20</span>
+            System.out.println(<span class="cl">Outer</span>.this.x); <span class="cm">// 10</span>
+        }
+    }
+}</code></pre>
+
+  <h2>6. Serialization Pitfalls</h2>
+  <p>Serializing a non-static inner class is <strong>highly discouraged</strong>. Because of the hidden reference to the outer class, serializing the inner object will attempt to serialize the entire outer object as well. If the outer class isn't <code>Serializable</code>, the whole operation fails with a <code>NotSerializableException</code>.</p>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 14</div>
+    <ul>
+      <li><strong>Static Nested</strong>: Preferred for performance and memory (No <code>this$0</code>).</li>
+      <li><strong>Inner Class</strong>: Use only when you need to access private members of an outer instance.</li>
+      <li><strong>Local Inner</strong>: Useful for complex logic that is only relevant to a single method.</li>
+      <li><strong>Lambdas</strong>: Prefer over Anonymous Inner Classes for single-method interfaces.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 14</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why can inner classes access private members of the outer class?<span class="arrow">▶</span></div>
+    <div class="qa-a">The compiler generates <strong>synthetic bridge methods</strong> (package-private) in the outer class that the inner class can call to access the private data. To the JVM, they are two separate classes in the same package.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can a local inner class access local variables of the method?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes, but only if they are effectively final.</strong> This is because the local inner class object might outlive the method execution. The JVM "captures" the value of the variable and stores a copy in the inner object. If the variable could change, the copy and the original would go out of sync.</div>
+  </div>
+</div>

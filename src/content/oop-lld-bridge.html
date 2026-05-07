@@ -1,0 +1,98 @@
+<div id="oop-lld-bridge" class="section">
+  <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>
+  <div class="section-eyebrow">The Professional Bridge</div>
+  <h1>OOP → LLD: From Code to Architecture</h1>
+  <div class="section-desc">Low-Level Design (LLD) is where OOP meets real-world constraints. We map the pillars of OOP to the patterns of architecture, focusing on coupling, cohesion, and scalability.</div>
+
+  <h2>1. Design Patterns: Formalized OOP Solutions</h2>
+  <p>Every design pattern is an application of OOP principles — inheritance, polymorphism, encapsulation, and composition — to a recurring problem.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>Pattern</th><th>OOP Concept</th><th>Solves</th><th>Real Usage</th></tr>
+    <tr><td><strong>Strategy</strong></td><td>Polymorphism + DI</td><td>Swappable algorithms</td><td>Payment methods, sorting.</td></tr>
+    <tr><td><strong>Observer</strong></td><td>Association + Interface</td><td>Loosely coupled events</td><td>Event systems, Kafka consumers.</td></tr>
+    <tr><td><strong>Decorator</strong></td><td>Composition</td><td>Add behavior without inheritance</td><td>Java I/O streams, Logging.</td></tr>
+    <li><strong>State</strong></td><td>Polymorphism</td><td>Complex lifecycles</td><td>ATM states, Order status.</td></tr>
+  </table></div>
+
+  <h2>2. Coupling vs. Cohesion (The LLD North Star)</h2>
+  <div class="box box-insight">
+    <div class="box-title">⚖️ The Architect's Balance</div>
+    <ul>
+      <li><strong>High Cohesion</strong>: A class should do <strong>one thing</strong> and do it well (SRP). All methods in a class should be related to its purpose.</li>
+      <li><strong>Low Coupling</strong>: Classes should depend on <strong>Abstractions</strong> (Interfaces), not concrete implementations. This allows you to change one class without breaking 50 others.</li>
+    </ul>
+    <strong>Goal</strong>: Design systems that are easy to test and impossible to break during a refactor.
+  </div>
+
+  <h2>3. LLD Case Study: Vending Machine</h2>
+  <p>How do we map OOP to a real LLD problem? Let's take a <strong>Vending Machine</strong>.</p>
+  <ul>
+    <li><strong>Encapsulation</strong>: The <code>Inventory</code> class protects the item count and price. You can't just decrement an item; you must call <code>dispense()</code>.</li>
+    <li><strong>Abstraction</strong>: The <code>VendingState</code> interface hides the complexity of what happens when you press a button (Idle, HasMoney, Dispensing).</li>
+    <li><strong>Polymorphism</strong>: Different payment methods (Cash, Card, Crypto) implement a <code>PaymentStrategy</code> interface.</li>
+    <li><strong>Relationships</strong>: A <code>VendingMachine</code> <strong>HAS-A</strong> <code>Inventory</code> (Composition) and <strong>IS-A</strong> <code>StateMachine</code> (Inheritance).</li>
+  </ul>
+
+  <h3>Example: Observer Pattern</h3>
+  <pre><code><span class="kw">public interface</span> <span class="cl">EventListener</span> {
+    <span class="kw">void</span> <span class="fn">onEvent</span>(<span class="cl">String</span> event);
+}
+
+<span class="kw">public class</span> <span class="cl">EventBus</span> {
+    <span class="kw">private final</span> <span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">List</span>&lt;<span class="cl">EventListener</span>&gt;&gt; listeners = <span class="kw">new</span> <span class="cl">HashMap</span>&lt;&gt;();
+
+    <span class="kw">public void</span> <span class="fn">subscribe</span>(<span class="cl">String</span> event, <span class="cl">EventListener</span> listener) {
+        listeners.<span class="fn">computeIfAbsent</span>(event, k -> <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;()).<span class="fn">add</span>(listener);
+    }
+
+    <span class="kw">public void</span> <span class="fn">publish</span>(<span class="cl">String</span> event) {
+        listeners.<span class="fn">getOrDefault</span>(event, <span class="cl">List</span>.<span class="fn">of</span>())
+            .<span class="fn">forEach</span>(l -> l.<span class="fn">onEvent</span>(event));
+    }
+}
+
+<span class="cm">// Usage — fully decoupled components</span>
+<span class="cl">EventBus</span> bus = <span class="kw">new</span> <span class="cl">EventBus</span>();
+bus.<span class="fn">subscribe</span>(<span class="str">"ORDER_PLACED"</span>, e -> <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Send email"</span>));
+bus.<span class="fn">subscribe</span>(<span class="str">"ORDER_PLACED"</span>, e -> <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Update inventory"</span>));
+bus.<span class="fn">publish</span>(<span class="str">"ORDER_PLACED"</span>); <span class="cm">// both listeners fire!</span>
+</code></pre>
+
+
+  <h2>4. Domain Modeling vs. Data Modeling</h2>
+  <p>Senior devs don't design tables first; they design <strong>Objects</strong>. 
+  <br><strong>Anemic Domain Model</strong>: Classes that only have getters/setters (Data only).
+  <br><strong>Rich Domain Model</strong>: Classes that have both data and the logic to manipulate that data (Encapsulation). <strong>Always aim for a Rich Domain Model in LLD.</strong></p>
+
+  <h2>5. Concurrency in LLD</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Thread Safety by Design</div>
+    In a real LLD (like a Cab Booking system), objects are accessed by multiple threads simultaneously.
+    <ul>
+      <li>Use <strong>Immutability</strong> for value objects (Location, Price).</li>
+      <li>Use <strong>Atomic</strong> variables or <strong>Locks</strong> in Service classes.</li>
+      <li>Use <strong>ThreadLocal</strong> for context-specific data.</li>
+    </ul>
+  </div>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 18</div>
+    <ul>
+      <li><strong>LLD is about relationships</strong>, not just individual classes.</li>
+      <li><strong>Patterns are tools</strong>, not rules. Use them only when they solve a specific problem.</li>
+      <li><strong>Design for Change</strong>: Use Abstraction and Polymorphism to make your system "Open for Extension, Closed for Modification."</li>
+      <li><strong>Cohesion > Coupling</strong>: It's better to have 10 small, focused classes than 1 giant "God Class."</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 18</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">"Favor Composition over Inheritance" — Why? (LLD Level)<span class="arrow">▶</span></div>
+    <div class="qa-a">Inheritance is static and creates a "Fragile Base Class" problem. If you change the parent, all children might break. Composition is dynamic; you can swap the behavior at runtime by injecting a different implementation. It keeps the class hierarchy flat and flexible.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">How do you handle a "Circular Dependency" between two classes in LLD?<span class="arrow">▶</span></div>
+    <div class="qa-a">Circular dependency is an architectural smell. <strong>Fix 1</strong>: Use an Interface to break the cycle. <strong>Fix 2</strong>: Introduce a third "Orchestrator" class that handles the interaction between the two. <strong>Fix 3</strong>: Use Dependency Injection (Setter injection) if using a framework like Spring.</div>
+  </div>
+</div>

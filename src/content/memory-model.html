@@ -1,0 +1,113 @@
+<div id="memory-model" class="section">
+  <div class="breadcrumb">handbook / <span>section 12</span></div>
+  <div class="section-eyebrow">The Engine Room</div>
+  <h1>JVM Memory: The Generational Architecture</h1>
+  <div class="section-desc">We move beyond "Stack vs Heap." We explore the TLABs, the Survivor space rotation, the ZGC revolution, and the memory regions that make Java's Garbage Collector one of the most advanced in the world.</div>
+
+  <h2>1. The "Big Three" Regions</h2>
+  <div class="diagram">
+[ JVM PROCESS ]
+├─ METASPACE (Native) ──► Class Metadata, Method vtables, Static Fields
+├─ STACK (Private)    ──► Thread-local storage, LIFO, Primitive data
+└─ HEAP (Shared)      ──► The dynamic playground of all objects
+
+   [ HEAP ANATOMY ]
+   ┌─────────────┬─────────────┬─────────────┐
+   │ YOUNG GEN   │ OLD GEN     │ HUMONGOUS   │ (G1 Layout)
+   │ [E][S0][S1] │ [Tenured]   │ [Regions]   │
+   └─────────────┴─────────────┴─────────────┘</div>
+
+  <h2>2. The Generational Hypothesis</h2>
+  <p>The entire memory system is built on one observation: <strong>"Most objects die young."</strong></p>
+  <ul>
+    <li><strong>Eden Space</strong>: Where 99% of objects are born.</li>
+    <li><strong>Survivor Spaces (S0/S1)</strong>: "The Waiting Room." Objects that survive a Minor GC move here. They swap roles (From/To) every cycle to ensure <strong>Zero Fragmentation</strong>.</li>
+    <li><strong>Old Generation</strong>: "The Retirement Home." If an object survives enough cycles (usually 15, the "Tenuring Threshold"), it is promoted here.</li>
+  </ul>
+
+  <div class="box box-insight">
+    <div class="box-title">🚀 Senior Speed: TLAB (Thread Local Allocation Buffer)</div>
+    Allocating memory on a shared heap requires "locking" (to prevent two threads from taking the same spot). To avoid this bottleneck, the JVM gives each thread a small chunk of the Eden space called a <strong>TLAB</strong>. A thread can allocate objects in its TLAB without any locking. This makes Java's <code>new</code> almost as fast as a pointer increment.
+  </div>
+
+  <h2>3. Garbage Collection: G1 vs ZGC</h2>
+  <p>Modern Java (9+) uses the <strong>G1 (Garbage First)</strong> collector as default. But for low-latency systems, we use <strong>ZGC</strong>.</p>
+  <ul>
+    <li><strong>G1 GC</strong>: Regional collector. Targets "Garbage First" regions. Optimized for <strong>Throughput</strong>.</li>
+    <li><strong>ZGC (Java 15+)</strong>: A concurrent, NUMA-aware collector. It handles heaps from 8MB to 16TB with <strong>max pause times of 1ms</strong>. It uses "Colored Pointers" and "Load Barriers" to move objects while the app is still running.</li>
+  </ul>
+
+  <h2>4. The String Pool: Memory vs Identity</h2>
+  <p>The <strong>String Pool</strong> lives on the Heap (since Java 7). It stores one copy of each unique string literal.</p>
+  <pre><code><span class="cl">String</span> a = <span class="str">"Hello"</span>;            <span class="cm">// goes to String Pool</span>
+<span class="cl">String</span> b = <span class="str">"Hello"</span>;            <span class="cm">// reuses SAME reference from Pool</span>
+<span class="cl">String</span> c = <span class="kw">new</span> <span class="cl">String</span>(<span class="str">"Hello"</span>); <span class="cm">// creates NEW object on Heap</span>
+
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == b);  <span class="cm">// true  (same reference)</span>
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == c);  <span class="cm">// false (different objects)</span>
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">equals</span>(c)); <span class="cm">// true  (same content)</span>
+
+<span class="cl">String</span> d = c.<span class="fn">intern</span>(); <span class="cm">// puts c into pool, returns pool reference</span>
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == d); <span class="cm">// true</span>
+</code></pre>
+
+  <h2>5. JIT & HotSpot: The Magic of Speed</h2>
+  <div class="box box-insight">
+    <div class="box-title">⚡ The JIT Compiler</div>
+    The JVM doesn't just interpret code. It identifies "Hot Methods" and compiles them into <strong>Native Machine Code</strong>. It performs optimizations like:
+    <ul>
+      <li><strong>Inlining</strong>: Replacing a method call with the method's actual code.</li>
+      <li><strong>Loop Unrolling</strong>: Optimizing loops for CPU branch prediction.</li>
+      <li><strong>Dead Code Elimination</strong>: Removing code that never runs.</li>
+    </ul>
+  </div>
+
+  <h2>6. Reference Reachability (Edge Cases)</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Reference Type</th><th>JVM Behavior</th><th>Architectural Use Case</th></tr>
+    <tr><td><strong>Strong</strong></td><td>The default. Never collected.</td><td>Business logic data.</td></tr>
+    <tr><td><strong>Soft</strong></td><td>Collected ONLY if OOM is imminent.</td><td>Memory-sensitive caches (Image loaders).</td></tr>
+    <tr><td><strong>Weak</strong></td><td>Collected in the NEXT Minor GC.</td><td>WeakHashMap (Thread-locals, metadata).</td></tr>
+    <tr><td><strong>Phantom</strong></td><td>Never de-referenced. Used for cleanup.</td><td>Replacing <code>finalize()</code> for resource management.</td></tr>
+  </table></div>
+
+  <h3>Example: WeakReference for Cache</h3>
+  <pre><code><span class="cm">// WeakReference — object collected at next GC if no strong refs</span>
+<span class="cl">WeakReference</span>&lt;<span class="cl">byte</span>[]&gt; cache = <span class="kw">new</span> <span class="cl">WeakReference</span>&lt;&gt;(
+    <span class="kw">new byte</span>[<span class="num">1024</span> * <span class="num">1024</span>] <span class="cm">// 1MB</span>
+);
+
+<span class="kw">byte</span>[] data = cache.<span class="fn">get</span>(); <span class="cm">// may return null after GC!</span>
+<span class="kw">if</span> (data == <span class="kw">null</span>) {
+    data = <span class="fn">loadFromDisk</span>(); <span class="cm">// reload</span>
+    cache = <span class="kw">new</span> <span class="cl">WeakReference</span>&lt;&gt;(data);
+}
+</code></pre>
+
+  <h2>7. The Memory Leak Checklist</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Warning: The "Unfinished Thread" Leak</div>
+    If a Thread is started but never finished, it keeps its entire <strong>Stack</strong> (1MB) alive. If that thread uses <code>ThreadLocal</code> variables, they will NEVER be GC'd. This is the #1 cause of memory leaks in Tomcat/Spring apps.
+  </div>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 12</div>
+    <ul>
+      <li><strong>Stack is for Context</strong>; <strong>Heap is for Data</strong>.</li>
+      <li><strong>Survivor Rotation</strong> ensures memory is always contiguous.</li>
+      <li><strong>ZGC</strong> is the future of low-latency Java.</li>
+      <li><strong>JIT Inlining</strong> is why Java is often as fast as C++.</li>
+      <li><strong>Off-Heap (Direct Memory)</strong>: Use for large buffers to avoid GC pressure.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 12</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is 'Stop the World' (STW) and why is it dangerous?<span class="arrow">▶</span></div>
+    <div class="qa-a">STW is a pause where the JVM stops all application threads to perform GC. It's dangerous for real-time systems because the app becomes unresponsive. Modern collectors like <strong>ZGC</strong> aim for sub-millisecond STW pauses by performing most work concurrently.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why did Java 8 remove 'PermGen' and introduce 'Metaspace'?<span class="arrow">▶</span></div>
+    <div class="qa-a">PermGen was part of the Heap and had a fixed size, leading to the frequent <code>java.lang.OutOfMemoryError: PermGen space</code>. Metaspace is part of <strong>Native Memory</strong>. It can grow dynamically with the OS, reducing the risk of crashes due to class-loading heavy frameworks.</div>
+  </div>
+</div>

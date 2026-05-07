@@ -1,0 +1,163 @@
+<div id="constructors" class="section">
+  <div class="breadcrumb">handbook / <span>section 03</span></div>
+  <div class="section-eyebrow">The Initialization</div>
+  <h1>Constructors: Mastering Object Birth</h1>
+  <div class="section-desc">We go beyond simple initialization. We look at the bytecode, the security risks of construction, the "Initialization Order," and the strategic use of constructor overloading.</div>
+
+  <h2>1. The Bytecode Secret: &lt;init&gt; vs &lt;clinit&gt;</h2>
+  <p>The JVM doesn't actually see "Constructors." It sees two special methods:</p>
+  <ul>
+    <li><strong>&lt;clinit&gt;</strong>: The "Class Initializer." Runs when the class is loaded. Handles <code>static</code> blocks and variables.</li>
+    <li><strong>&lt;init&gt;</strong>: The "Instance Initializer." This is what your constructor compiles into. It handles the actual object setup.</li>
+  </ul>
+
+  <h2>2. The Mandatory Execution Flow</h2>
+  <p>When you call <code>new Child()</code>, the JVM follows a non-negotiable sequence. Memorize this for LLD interviews:</p>
+  <div class="diagram">
+1. Load Parent Class (if not loaded)
+2. Load Child Class
+3. Execute Parent STATIC blocks
+4. Execute Child STATIC blocks
+5. Allocate Heap memory (set defaults: 0, null)
+6. Execute Parent INSTANCE blocks & fields
+7. Execute Parent CONSTRUCTOR
+8. Execute Child INSTANCE blocks & fields
+9. Execute Child CONSTRUCTOR</div>
+
+  <div class="box box-insight">
+    <div class="box-title">💡 The Default Constructor Rule</div>
+    The compiler only provides a <strong>no-argument default constructor</strong> if you write <strong>zero</strong> constructors yourself. As soon as you add even one constructor (e.g., <code>public User(String name)</code>), the default constructor is <strong>gone</strong>. This often breaks child classes that implicitly call <code>super()</code>.
+  </div>
+<h2>2. Simple Constructor Example</h2>
+<pre><code><span class="kw">public class</span> <span class="cl">Person</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+    <span class="kw">private int</span> age;
+
+    <span class="kw">public Person</span>(<span class="cl">String</span> name, <span class="kw">int</span> age) {
+        <span class="kw">this</span>.<span class="fn">name</span> = name;
+        <span class="kw">this</span>.<span class="fn">age</span> = age;
+    }
+
+    <span class="kw">public void</span> <span class="fn">introduce</span>() {
+        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Hi, I'm "</span> + name + <span class="str">", "</span> + age + <span class="str">" years old."</span>);
+    }
+}
+
+// Usage
+<span class="cl">Person</span> p = <span class="kw">new</span> <span class="cl">Person</span>(<span class="str">"Bob"</span>, <span class="num">28</span>);
+p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 28 years old.</span>
+</code></pre>
+  <div class="box box-danger">
+    <div class="box-title">🚨 The Mortal Sin: Calling Overridable Methods</div>
+    Never call a non-final method inside a constructor.
+    <pre style="margin-top:10px;"><code><span class="kw">class</span> <span class="cl">Parent</span> {
+    <span class="cl">Parent</span>() { <span class="fn">setup</span>(); } <span class="cm">// DANGER!</span>
+    <span class="kw">void</span> <span class="fn">setup</span>() { System.out.println(<span class="str">"Parent"</span>); }
+}
+<span class="kw">class</span> <span class="cl">Child</span> <span class="kw">extends</span> <span class="cl">Parent</span> {
+    <span class="cl">String</span> name = <span class="str">"Child"</span>;
+    <span class="kw">void</span> <span class="fn">setup</span>() { System.out.println(name.length()); } <span class="cm">// NullPointerException!</span>
+}</code></pre>
+    <strong>Why?</strong> Because <code>Parent</code> constructor runs <em>before</em> <code>Child</code> fields are initialized. <code>name</code> is still <code>null</code> when <code>setup()</code> is called.
+  </div>
+
+  <h2>3. Constructor Overloading & this()</h2>
+  <p>Constructor overloading allows you to provide multiple ways to initialize an object. Use <code>this()</code> to avoid code duplication.</p>
+  <pre><code><span class="kw">public class</span> <span class="cl">Product</span> {
+    <span class="kw">private</span> <span class="cl">String</span> id;
+    <span class="kw">private double</span> price;
+
+    <span class="kw">public</span> <span class="cl">Product</span>(<span class="cl">String</span> id) { 
+        <strong>this</strong>(id, <span class="num">0.0</span>); <span class="cm">// Chain to the master constructor</span>
+    }
+
+    <span class="kw">public</span> <span class="cl">Product</span>(<span class="cl">String</span> id, <span class="kw">double</span> price) {
+        this.id = id;
+        this.price = price;
+    }
+}</code></pre>
+
+  <h2>4. Leaking 'this' (Security Risk)</h2>
+  <p>If you pass <code>this</code> to another thread or listener inside a constructor, you are leaking a "partially constructed" object.</p>
+  <pre><code><span class="cm">// DANGEROUS — leaking 'this' before construction is complete</span>
+<span class="kw">public class</span> <span class="cl">EventSource</span> {
+    <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Listener</span>&gt; listeners;
+    <span class="kw">private int</span> value;
+
+    <span class="kw">public</span> <span class="cl">EventSource</span>(<span class="cl">List</span>&lt;<span class="cl">Listener</span>&gt; listeners) {
+        <span class="kw">this</span>.listeners = listeners;
+        listeners.<span class="fn">forEach</span>(l -> l.<span class="fn">onCreated</span>(<span class="kw">this</span>)); <span class="cm">// DANGER! 'value' not set yet!</span>
+        <span class="kw">this</span>.value = <span class="num">42</span>; <span class="cm">// too late — listeners already saw value = 0</span>
+    }
+}
+
+<span class="cm">// SAFE — use a static factory method</span>
+<span class="kw">public class</span> <span class="cl">EventSource</span> {
+    <span class="kw">private</span> <span class="cl">EventSource</span>(<span class="kw">int</span> value) { <span class="kw">this</span>.value = value; }
+
+    <span class="kw">public static</span> <span class="cl">EventSource</span> <span class="fn">create</span>(<span class="kw">int</span> val, <span class="cl">List</span>&lt;<span class="cl">Listener</span>&gt; listeners) {
+        <span class="cl">EventSource</span> es = <span class="kw">new</span> <span class="cl">EventSource</span>(val); <span class="cm">// fully constructed</span>
+        listeners.<span class="fn">forEach</span>(l -> l.<span class="fn">onCreated</span>(es)); <span class="cm">// safe!</span>
+        <span class="kw">return</span> es;
+    }
+}
+</code></pre>
+
+  <h2>5. Copy Constructor (Better than clone())</h2>
+  <pre><code><span class="kw">public class</span> <span class="cl">Address</span> {
+    <span class="kw">private</span> <span class="cl">String</span> city;
+    <span class="kw">private</span> <span class="cl">String</span> zip;
+
+    <span class="kw">public</span> <span class="cl">Address</span>(<span class="cl">String</span> city, <span class="cl">String</span> zip) {
+        <span class="kw">this</span>.city = city;
+        <span class="kw">this</span>.zip = zip;
+    }
+
+    <span class="cm">// COPY CONSTRUCTOR — explicit deep copy</span>
+    <span class="kw">public</span> <span class="cl">Address</span>(<span class="cl">Address</span> other) {
+        <span class="kw">this</span>.city = other.city;
+        <span class="kw">this</span>.zip = other.zip;
+    }
+}
+
+<span class="cl">Address</span> original = <span class="kw">new</span> <span class="cl">Address</span>(<span class="str">"NY"</span>, <span class="str">"10001"</span>);
+<span class="cl">Address</span> copy = <span class="kw">new</span> <span class="cl">Address</span>(original); <span class="cm">// independent copy</span>
+</code></pre>
+
+  <h2>6. Modern Java: Compact Constructors</h2>
+  <p>With <strong>Records</strong> (Java 14+), we use "Compact Constructors" to perform validation without the boilerplate of assignment.</p>
+  <pre><code><span class="kw">public record</span> <span class="cl">User</span>(<span class="kw">String</span> username, <span class="kw">int</span> age) {
+    <span class="kw">public</span> <span class="cl">User</span> {
+        <span class="kw">if</span> (age < <span class="num">18</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>();
+        <span class="cm">// username and age are assigned automatically!</span>
+    }
+}</code></pre>
+
+  <h2>6. Constructor Chaining Strategy</h2>
+  <p>Always have one "Master Constructor" that does the heavy lifting, and have all other constructors (overloads) call it using <code>this()</code>. This ensures validation logic is centralized.</p>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 03</div>
+    <ul>
+      <li><strong>Constructors are not inherited</strong>, but they are chained via <code>super()</code>.</li>
+      <li><strong>Static blocks run once</strong> per classloader, not per object.</li>
+      <li><strong>Private constructors</strong> are for Singletons and Utility classes (prevent <code>new</code>).</li>
+      <li><strong>Throwing exceptions in constructors</strong> is legal and a good way to prevent "Invalid Objects."</li>
+      <li><strong>this() and super()</strong> must be the first line of the constructor.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 03</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can you use <code>this()</code> and <code>super()</code> together in one constructor?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No.</strong> Both must be the first statement in a constructor. Since there can only be one "first" statement, they are mutually exclusive. If you use <code>this()</code>, the <code>super()</code> call will happen in the constructor you chained to.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is a 'Copy Constructor' and why does Java prefer it over <code>clone()</code>?<span class="arrow">▶</span></div>
+    <div class="qa-a">A Copy Constructor takes an instance of the same class as a parameter. It is preferred because <code>clone()</code> is buggy, requires complex error handling, and creates a shallow copy by default. Copy constructors allow you to explicitly control the deep copy of each field and are much more readable.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can a constructor be synchronized?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No.</strong> A constructor cannot be synchronized. Only the thread that creates an object should have access to it while it is being constructed. Synchronization is not needed and will result in a compile-time error.</div>
+  </div>
+</div>

@@ -1,0 +1,133 @@
+<div id="oop-design-thinking" class="section">
+  <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>
+  <div class="section-eyebrow">LLD Framework</div>
+  <h1>OOP Design Thinking: The Architect's Mindset</h1>
+  <div class="section-desc">Design thinking is about decomposing a complex problem into a collection of interacting objects. It’s the first step of any Low-Level Design (LLD) interview. We move from raw requirements to a structured object-oriented system.</div>
+
+  <h2>1. The "Noun-Verb" Strategy</h2>
+  <p>How do you start designing a system? Use the <strong>Grammatical Analysis</strong> of the requirements:</p>
+  <ul>
+    <li><strong>Nouns</strong>: Become Classes (e.g., <code>User</code>, <code>Account</code>, <code>Product</code>).</li>
+    <li><strong>Verbs</strong>: Become Methods (e.g., <code>deposit()</code>, <code>validate()</code>, <code>checkout()</code>).</li>
+    <li><strong>Adjectives</strong>: Become State/Enum values (e.g., <code>ACTIVE</code>, <code>PREMIUM</code>).</li>
+  </ul>
+
+  <h2>2. The LLD Interview Framework</h2>
+  <div class="box box-insight">
+    <div class="box-title">🚀 Step-by-Step Execution</div>
+    <ol>
+      <li><strong>Clarify</strong>: Ask for the scale and scope. (e.g., "Is it a single parking lot or a global chain?")</li>
+      <li><strong>Define Entities</strong>: List all nouns and their properties.</li>
+      <li><strong>Establish Relationships</strong>: Composition, Aggregation, or Inheritance?</li>
+      <li><strong>Design APIs</strong>: Define the public methods and contracts.</li>
+      <li><strong>Deep Dive</strong>: Optimize for performance, concurrency, or extensibility.</li>
+    </ol>
+  </div>
+
+  <h2>3. Modeling Case Studies (Extreme Depth)</h2>
+  
+  <h3>A. ATM System (The State Pattern)</h3>
+  <p>Don't just use <code>if-else</code> for ATM states (Idle, Authenticated, OutOfCash). Use the <strong>State Pattern</strong>.</p>
+  <div class="diagram" style="font-size:12px;">
+[ ATM ] ──► [ INTERFACE: ATMState ]
+                ▲
+     ┌──────────┼──────────┐
+[ IdleState ] [ AuthState ] [ TransactionState ]</div>
+  <ul>
+    <li><strong>CardReader</strong>: Handles hardware signals.</li>
+    <li><strong>CashDispenser</strong>: Managed by a <strong>Chain of Responsibility</strong> (to dispense 2000, 500, 100 notes).</li>
+  </ul>
+
+  <h3>ATM State Pattern Code</h3>
+  <pre><code><span class="kw">public interface</span> <span class="cl">ATMState</span> {
+    <span class="kw">void</span> <span class="fn">insertCard</span>(<span class="cl">ATM</span> atm);
+    <span class="kw">void</span> <span class="fn">enterPin</span>(<span class="cl">ATM</span> atm, <span class="kw">int</span> pin);
+    <span class="kw">void</span> <span class="fn">withdraw</span>(<span class="cl">ATM</span> atm, <span class="kw">double</span> amount);
+}
+
+<span class="kw">public class</span> <span class="cl">IdleState</span> <span class="kw">implements</span> <span class="cl">ATMState</span> {
+    <span class="kw">public void</span> <span class="fn">insertCard</span>(<span class="cl">ATM</span> atm) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Card inserted"</span>);
+        atm.<span class="fn">setState</span>(<span class="kw">new</span> <span class="cl">AuthState</span>());
+    }
+    <span class="kw">public void</span> <span class="fn">enterPin</span>(<span class="cl">ATM</span> atm, <span class="kw">int</span> pin) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Insert card first!"</span>);
+    }
+    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="cl">ATM</span> atm, <span class="kw">double</span> amt) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Insert card first!"</span>);
+    }
+}
+</code></pre>
+
+  <h3>B. Library Management System</h3>
+  <div class="box box-insight">
+    <div class="box-title">💡 Modeling Tip: Don't miss the 'Relation' entities</div>
+    In a Library, a <code>Book</code> and a <code>Member</code> aren't enough. You need a <code>BookLending</code> or <code>Transaction</code> entity to track the <strong>state</strong> of a book being borrowed (who has it, when is it due?).
+  </div>
+  <ul>
+    <li><strong>Classes</strong>: <code>Book</code>, <code>Author</code>, <code>Member</code>, <code>Library</code>, <code>BookItem</code> (specific copy).</li>
+    <li><strong>Abstraction</strong>: <code>SearchService</code> (Interface) -> <code>CategorySearch</code>, <code>TitleSearch</code>.</li>
+  </ul>
+
+  <h3>C. Parking Lot (The LLD Classic)</h3>
+  <ul>
+    <li><strong>Entities</strong>: <code>ParkingLot</code>, <code>Floor</code>, <code>ParkingSpot</code> (Abstract), <code>Vehicle</code> (Abstract).</li>
+    <li><strong>Logic</strong>: A <code>LargeSpot</code> can hold a <code>Truck</code>. A <code>CompactSpot</code> can hold a <code>Car</code>. This is <strong>Polymorphism</strong> in action.</li>
+    <li><strong>Payment</strong>: <code>HourlyStrategy</code> vs <code>FlatStrategy</code> (OCP via Strategy Pattern).</li>
+  </ul>
+
+  <h2>4. High Cohesion & Low Coupling</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Metric</th><th>Goal</th><th>Why?</th></tr>
+    <tr><td><strong>Cohesion</strong></td><td>High</td><td>A class should do one job well. It's easier to understand and test.</td></tr>
+    <tr><td><strong>Coupling</strong></td><td>Low</td><td>Classes should have minimal dependency on each other's internals.</td></tr>
+  </table></div>
+  
+  <p><strong>Example of High Coupling (Bad)</strong>:</p>
+  <pre><code><span class="kw">class</span> <span class="cl">Order</span> {
+    <span class="kw">void</span> <span class="fn">pay</span>() {
+        <span class="cl">Payment</span> p = <span class="kw">new</span> <span class="cl">Payment</span>();
+        p.<span class="fn">process</span>(); <span class="cm">// Order is now TIED to Payment class</span>
+    }
+}</code></pre>
+
+  <p><strong>Fixed — Low Coupling</strong>:</p>
+  <pre><code><span class="kw">class</span> <span class="cl">Order</span> {
+    <span class="kw">private final</span> <span class="cl">PaymentProcessor</span> processor; <span class="cm">// interface!</span>
+
+    <span class="cl">Order</span>(<span class="cl">PaymentProcessor</span> processor) {
+        <span class="kw">this</span>.processor = processor; <span class="cm">// DI</span>
+    }
+
+    <span class="kw">void</span> <span class="fn">pay</span>() {
+        processor.<span class="fn">process</span>(); <span class="cm">// can be any implementation!</span>
+    }
+}
+</code></pre>
+
+  <h2>5. Top-Down vs. Bottom-Up Design</h2>
+  <ul>
+    <li><strong>Top-Down</strong>: Start with the User Interface / API and work down to the database. (Focus on User Experience).</li>
+    <li><strong>Bottom-Up</strong>: Start with the data schema and build logic on top. (Focus on Data Integrity).</li>
+  </ul>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 18</div>
+    <ul>
+      <li><strong>Think in Entities</strong>, not functions.</li>
+      <li><strong>Use Composition</strong> to build complex behaviors from small parts.</li>
+      <li><strong>Design for Change</strong>: Use interfaces for anything that might have multiple implementations.</li>
+      <li><strong>Rich Domain Models</strong> keep logic where the data is.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Questions — Section 18</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">How do you handle "Circular Dependencies" in design?<span class="arrow">▶</span></div>
+    <div class="qa-a">Circular dependency (Class A needs B, and B needs A) is a major design smell. Fix it by: (1) Introducing an <strong>Interface</strong> to break the direct link. (2) Creating a third "Orchestrator" class that manages both. (3) Moving the shared logic into a common base class.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is "Skinny Models, Fat Services" vs "Rich Domain Models"?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Skinny Models</strong> (Anemic Domain Model) have only data, and logic is in Service classes. <strong>Rich Domain Models</strong> put logic inside the entities themselves (true OOP). In complex LLD, Rich Domain Models are usually preferred as they keep the code more organized.</div>
+  </div>
+</div>

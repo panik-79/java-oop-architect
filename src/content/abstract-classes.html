@@ -1,0 +1,143 @@
+<div id="abstract-classes" class="section">
+  <div class="breadcrumb">handbook / <span>section 10</span></div>
+  <div class="section-eyebrow">The Foundations</div>
+  <h1>Abstract Classes: Partial Reality</h1>
+  <div class="section-desc">Abstract classes sit between pure interfaces and concrete classes. They are the primary tool for building <strong>Frameworks</strong>, the <strong>Template Method Pattern</strong>, and defining a shared identity across a hierarchy.</div>
+
+  <h2>1. What is an Abstract Class?</h2>
+  <p>An abstract class is a class that is declared with the <code>abstract</code> keyword. It <strong>cannot be instantiated</strong> but can be used as a base for other classes. It allows you to share both <strong>State</strong> (fields) and <strong>Behavior</strong> (methods).</p>
+
+  <h2>2. The Template Method Pattern (Senior implementation)</h2>
+  <p>This is the most common use case for abstract classes. You define the <strong>Skeleton</strong> of an algorithm in a <code>final</code> method, but leave specific steps as <code>abstract</code> for subclasses to fill in. You can also provide <strong>Hooks</strong> (empty concrete methods).</p>
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">DataProcessor</span> {
+    <span class="cm">// The Template Method (final to prevent overriding)</span>
+    <span class="kw">public final void</span> <span class="fn">process</span>() {
+        <span class="fn">readData</span>();
+        <span class="fn">transformData</span>();
+        <span class="kw">if</span> (<span class="fn">shouldSave</span>()) { <span class="fn">saveData</span>(); } <span class="cm">// Hook</span>
+    }
+    <span class="kw">protected abstract void</span> <span class="fn">readData</span>();
+    <span class="kw">protected abstract void</span> <span class="fn">transformData</span>();
+    <span class="kw">protected boolean</span> <span class="fn">shouldSave</span>() { <span class="kw">return true</span>; } <span class="cm">// Hook with default value</span>
+    <span class="kw">private void</span> <span class="fn">saveData</span>() { ... }
+}</code></pre>
+
+  <h3>Concrete Implementation</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">CsvProcessor</span> <span class="kw">extends</span> <span class="cl">DataProcessor</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">readData</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Reading CSV file..."</span>);
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">transformData</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Parsing CSV rows..."</span>);
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">JsonProcessor</span> <span class="kw">extends</span> <span class="cl">DataProcessor</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">readData</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Reading JSON..."</span>);
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">transformData</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Mapping JSON to objects..."</span>);
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">protected boolean</span> <span class="fn">shouldSave</span>() { <span class="kw">return false</span>; } <span class="cm">// override hook!</span>
+}
+
+<span class="cm">// Usage — the algorithm skeleton is fixed, steps are pluggable</span>
+<span class="cl">DataProcessor</span> p1 = <span class="kw">new</span> <span class="cl">CsvProcessor</span>();
+p1.<span class="fn">process</span>(); <span class="cm">// reads CSV, transforms, then saves</span>
+
+<span class="cl">DataProcessor</span> p2 = <span class="kw">new</span> <span class="cl">JsonProcessor</span>();
+p2.<span class="fn">process</span>(); <span class="cm">// reads JSON, transforms, does NOT save</span>
+</code></pre>
+
+  <h2>3. Why have a Constructor in an Abstract Class?</h2>
+  <p>To initialize the shared state of the parent class. When a child is created, <code>super()</code> runs the abstract parent's constructor.</p>
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">BaseEntity</span> {
+    <span class="kw">private final</span> <span class="cl">String</span> id;
+    <span class="kw">private final</span> <span class="cl">LocalDateTime</span> createdAt;
+
+    <span class="kw">protected</span> <span class="cl">BaseEntity</span>(<span class="cl">String</span> id) {
+        <span class="kw">this</span>.id = id;
+        <span class="kw">this</span>.createdAt = <span class="cl">LocalDateTime</span>.<span class="fn">now</span>();
+    }
+
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getId</span>() { <span class="kw">return</span> id; }
+    <span class="kw">public</span> <span class="cl">LocalDateTime</span> <span class="fn">getCreatedAt</span>() { <span class="kw">return</span> createdAt; }
+}
+
+<span class="kw">public class</span> <span class="cl">User</span> <span class="kw">extends</span> <span class="cl">BaseEntity</span> {
+    <span class="kw">private</span> <span class="cl">String</span> name;
+
+    <span class="kw">public</span> <span class="cl">User</span>(<span class="cl">String</span> id, <span class="cl">String</span> name) {
+        <span class="kw">super</span>(id); <span class="cm">// MUST call abstract parent's constructor</span>
+        <span class="kw">this</span>.name = name;
+    }
+}
+
+<span class="cl">User</span> u = <span class="kw">new</span> <span class="cl">User</span>(<span class="str">"U1"</span>, <span class="str">"Alice"</span>);
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(u.<span class="fn">getId</span>()); <span class="cm">// "U1"</span>
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(u.<span class="fn">getCreatedAt</span>()); <span class="cm">// timestamp set by parent</span>
+</code></pre>
+
+  <h2>4. Abstract Class vs. Interface (The LLD Battle)</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Feature</th><th>Abstract Class</th><th>Interface</th></tr>
+    <tr><td><strong>Core Purpose</strong></td><td>Identity (is-a). Base for a hierarchy.</td><td>Capability (can-do). Contract for behavior.</td></tr>
+    <tr><td><strong>State</strong></td><td>Can have instance fields (state).</td><td>Cannot have instance fields (only static final).</td></tr>
+    <tr><td><strong>Inheritance</strong></td><td>Only one abstract class can be extended.</td><td>Many interfaces can be implemented.</td></tr>
+    <tr><td><strong>Constructors</strong></td><td>Yes, to initialize state.</td><td>No constructors.</td></tr>
+    <tr><td><strong>Access Modifiers</strong></td><td>Any (private, protected, public).</td><td>Default to public. No protected/private state.</td></tr>
+  </table></div>
+
+  <h2>5. The "Abstract Base" Pattern (JDK Level)</h2>
+  <div class="box box-insight">
+    <div class="box-title">💡 The Head Start Pattern</div>
+    A common pattern in the JDK is to have an <code>Interface</code> (e.g., <code>List</code>) defining the API, and an <code>AbstractClass</code> (e.g., <code>AbstractList</code>) that provides a default, partial implementation of that interface. 
+    <br><br>
+    <strong>Benefit</strong>: Users can either implement the interface from scratch (for total control) or extend the abstract class (to save 90% of the work).
+  </div>
+
+  <h2>6. Forced Implementation</h2>
+  <p>If a concrete class inherits from an abstract class, it <strong>must</strong> implement all abstract methods. If it doesn't, that class itself must be declared <code>abstract</code>.</p>
+  <pre><code><span class="cm">// This WON'T compile! Must implement readData() and transformData()</span>
+<span class="cm">// public class BrokenProcessor extends DataProcessor { }</span>
+
+<span class="cm">// This is OK — it's still abstract, so it defers implementation</span>
+<span class="kw">public abstract class</span> <span class="cl">FileProcessor</span> <span class="kw">extends</span> <span class="cl">DataProcessor</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">readData</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Reading file..."</span>);
+    }
+    <span class="cm">// transformData() still abstract — child must implement</span>
+}
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 10</div>
+    <ul>
+      <li><strong>Cannot be instantiated</strong> directly.</li>
+      <li><strong>Supports state and behavior</strong> (unlike pure interfaces).</li>
+      <li><strong>Template Method Pattern</strong> is its primary architectural use.</li>
+      <li><strong>Protected methods</strong> are common for internal "pieces" of the template.</li>
+      <li><strong>Shared Identity</strong>: Use it when the classes are variations of the same "thing."</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 10</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an abstract class be final?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No.</strong> This is a compile-time contradiction. <code>abstract</code> means "must be inherited to be used," and <code>final</code> means "cannot be inherited." You cannot have both.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can we have an abstract class without any abstract methods?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> This is done when you want to prevent direct instantiation of a class (e.g., a base class for generic entities) but it has only concrete methods that you want subclasses to reuse.</div>
+  </div>
+</div>

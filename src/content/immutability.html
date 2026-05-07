@@ -1,0 +1,121 @@
+<div id="immutability" class="section">
+  <div class="breadcrumb">handbook / deep dives / <span>section 13</span></div>
+  <div class="section-eyebrow">The Mastery</div>
+  <h1>Immutability: The Architecture of Truth</h1>
+  <div class="section-desc">An immutable object is one whose state cannot be changed after it is created. In a multi-threaded, complex system, immutability is the ultimate tool for <strong>Reliability</strong>, <strong>Thread Safety</strong>, and <strong>Predictability</strong>.</div>
+
+  <h2>1. How to create an Immutable Class?</h2>
+  <p>To make a class truly immutable, you must follow these 5 rules:</p>
+  <ol>
+    <li><strong>Make the class <code>final</code></strong> (no inheritance to override behavior).</li>
+    <li><strong>Make all fields <code>private</code> and <code>final</code></strong>.</li>
+    <li><strong>No setter methods</strong>.</li>
+    <li><strong>Defensive Copying</strong>: For mutable fields (like <code>Date</code> or <code>List</code>), initialize them with a copy in the constructor and return a copy in the getter.</li>
+    <li><strong>Deep Immutability</strong>: Ensure all child objects are also immutable or deeply copied.</li>
+  </ol>
+
+  <h3>Example: Complete Immutable Class</h3>
+  <pre><code><span class="kw">public final class</span> <span class="cl">Money</span> {
+    <span class="kw">private final</span> <span class="cl">BigDecimal</span> amount;
+    <span class="kw">private final</span> <span class="cl">Currency</span> currency;
+
+    <span class="kw">public</span> <span class="cl">Money</span>(<span class="cl">BigDecimal</span> amount, <span class="cl">Currency</span> currency) {
+        <span class="kw">this</span>.amount = <span class="cl">Objects</span>.<span class="fn">requireNonNull</span>(amount);
+        <span class="kw">this</span>.currency = <span class="cl">Objects</span>.<span class="fn">requireNonNull</span>(currency);
+    }
+
+    <span class="cm">// No setters! Return NEW objects instead.</span>
+    <span class="kw">public</span> <span class="cl">Money</span> <span class="fn">add</span>(<span class="cl">Money</span> other) {
+        <span class="kw">if</span> (!<span class="kw">this</span>.currency.<span class="fn">equals</span>(other.currency))
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Currency mismatch"</span>);
+        <span class="kw">return new</span> <span class="cl">Money</span>(amount.<span class="fn">add</span>(other.amount), currency);
+    }
+
+    <span class="kw">public</span> <span class="cl">BigDecimal</span> <span class="fn">getAmount</span>() { <span class="kw">return</span> amount; }
+    <span class="kw">public</span> <span class="cl">Currency</span> <span class="fn">getCurrency</span>() { <span class="kw">return</span> currency; }
+}
+
+<span class="cm">// Usage — every operation creates a NEW object</span>
+<span class="cl">Money</span> price = <span class="kw">new</span> <span class="cl">Money</span>(<span class="cl">BigDecimal</span>.<span class="fn">valueOf</span>(<span class="num">100</span>), <span class="cl">Currency</span>.USD);
+<span class="cl">Money</span> tax = <span class="kw">new</span> <span class="cl">Money</span>(<span class="cl">BigDecimal</span>.<span class="fn">valueOf</span>(<span class="num">10</span>), <span class="cl">Currency</span>.USD);
+<span class="cl">Money</span> total = price.<span class="fn">add</span>(tax); <span class="cm">// new Money(110, USD)</span>
+<span class="cm">// price is still 100 — UNCHANGED!</span>
+</code></pre>
+
+  <h3>Modern Alternative: Records (Java 14+)</h3>
+  <pre><code><span class="cm">// Records are immutable by default!</span>
+<span class="kw">public record</span> <span class="cl">Coordinate</span>(<span class="kw">double</span> lat, <span class="kw">double</span> lng) {
+    <span class="cm">// compact constructor for validation</span>
+    <span class="kw">public</span> <span class="cl">Coordinate</span> {
+        <span class="kw">if</span> (lat < -<span class="num">90</span> || lat > <span class="num">90</span>)
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Invalid lat"</span>);
+    }
+}
+
+<span class="cl">Coordinate</span> c = <span class="kw">new</span> <span class="cl">Coordinate</span>(<span class="num">40.7128</span>, -<span class="num">74.0060</span>);
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(c.lat()); <span class="cm">// 40.7128 — accessor, no "get" prefix</span>
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(c);       <span class="cm">// Coordinate[lat=40.7128, lng=-74.006]</span>
+</code></pre>
+
+  <h2>2. Defensive Copying: The #1 Senior Mistake</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 The Breach</div>
+    If you have a <code>private final List&lt;String&gt; roles</code>, and you return it directly in a getter, the caller can do <code>getRoles().add("ADMIN")</code>. Your object is no longer immutable!
+    <br><br>
+    <strong>The Fix (Constructor)</strong>: <code>this.roles = List.copyOf(roles);</code> (Creates an immutable copy).
+    <br><strong>The Fix (Getter)</strong>: <code>return roles;</code> (If already immutable) or <code>return Collections.unmodifiableList(roles);</code>.
+  </div>
+
+  <h2>3. View vs. Copy vs. Immutable</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Method</th><th>Type</th><th>Safety</th></tr>
+    <tr><td><code>Collections.unmodifiableList(list)</code></td><td><strong>View</strong></td><td>Medium (Original list can still change)</td></tr>
+    <tr><td><code>List.of(e1, e2)</code></td><td><strong>Immutable</strong></td><td>High (Fixed size, no nulls)</td></tr>
+    <tr><td><code>List.copyOf(list)</code></td><td><strong>Immutable Copy</strong></td><td>High (Independent from original)</td></tr>
+  </table></div>
+
+  <h2>4. Why Immutability? (The Senior Benefits)</h2>
+  <ul>
+    <li><strong>Thread Safety</strong>: Multiple threads can read the same object without any locking or synchronization.</li>
+    <li><strong>Consistent Hashing</strong>: Since the state never changes, the <code>hashCode()</code> never changes. You can <strong>cache the hash code</strong> for massive performance gains in Collections.</li>
+    <li><strong>Predictability</strong>: You can pass an immutable object to any method and be 100% sure it won't be modified.</li>
+    <li><strong>No Null Checks</strong>: Use <strong>Optional</strong> as an immutable container to avoid the Billion Dollar Mistake.</li>
+  </ul>
+
+  <h2>5. The "Wither" Pattern (Immutability with Modification)</h2>
+  <p>How do you "change" an immutable object? You don't. You create a <strong>new</strong> one with the updated value. This is called the <strong>Wither</strong> pattern.</p>
+  <pre><code><span class="kw">public class</span> <span class="cl">User</span> {
+    <span class="kw">private final String</span> name;
+    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">withName</span>(<span class="cl">String</span> newName) {
+        <span class="kw">return new</span> <span class="cl">User</span>(newName); <span class="cm">// Return a new instance</span>
+    }
+}</code></pre>
+
+  <h2>6. Java Records (Modern Immutability)</h2>
+  <p>Introduced in Java 14, <strong>Records</strong> are a concise way to create immutable data carriers. They are <strong>nominal tuples</strong>.</p>
+  <pre><code><span class="kw">public record</span> <span class="cl">Point</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) { }</code></pre>
+
+  <h2>7. Performance Tradeoffs</h2>
+  <p>Immutability can lead to many short-lived objects. However, with modern <strong>G1/ZGC</strong> collectors, this is extremely efficient due to the "Generational Hypothesis" (most objects die young in the Eden space). The gain in <strong>developer productivity and safety</strong> far outweighs the minor GC overhead.</p>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 13</div>
+    <ul>
+      <li><strong>Final class + Final fields</strong> = Immutability.</li>
+      <li><strong>Defensive Copying</strong> is mandatory for collections.</li>
+      <li><strong>Immutability simplifies concurrency</strong>.</li>
+      <li><strong>Records</strong> are the modern standard for immutable data.</li>
+      <li><strong>Cached HashCode</strong>: Immutability allows you to store the hash code after the first calculation.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 13</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Is <code>String</code> a pure immutable class in Java?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> All its fields are private and final (except for a cached <code>hash</code> field). Every method that looks like it modifies the string actually returns a <strong>new</strong> String object.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why should you not use a mutable object as a HashMap key?<span class="arrow">▶</span></div>
+    <div class="qa-a">If the object changes after being put in the Map, its <code>hashCode()</code> will change. When you try to retrieve it, the Map will look in the <strong>wrong bucket</strong> and fail to find it, even though the object is still in the map! This is a "Memory Leak" equivalent in Java.</div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div id="final-keyword" class="section">
+  <div class="breadcrumb">handbook / <span>section 08</span></div>
+  <div class="section-eyebrow">The Constraints</div>
+  <h1>Final: Immutability and Security</h1>
+  <div class="section-desc">The <code>final</code> keyword is a tool for <strong>Intent</strong>. It tells the compiler and other developers: "This must not change." We explore how it affects memory visibility, performance, and class design.</div>
+
+  <h2>1. Final Variables: Constants and more</h2>
+  <ul>
+    <li><strong>Primitives</strong>: The value cannot change.</li>
+    <li><strong>Objects</strong>: The <strong>Reference</strong> cannot change. You can still modify the internal state of the object!</li>
+  </ul>
+  <pre><code><span class="kw">final</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+names.<span class="fn">add</span>(<span class="str">"Java"</span>); <span class="cm">// Legal! The object is modified.</span>
+names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;(); <span class="cm">// Illegal! The reference is final.</span></code></pre>
+
+  <h2>2. Final Methods: Performance and Safety</h2>
+  <p>A <code>final</code> method cannot be overridden. This has two benefits:</p>
+  <ol>
+    <li><strong>Security</strong>: You guarantee that critical logic (e.g., authentication) isn't subverted by a malicious subclass.</li>
+    <li><strong>Performance</strong>: Because the method cannot be overridden, the JIT compiler can safely <strong>Inline</strong> the method code, removing the overhead of the vtable lookup entirely. This is known as <strong>Devirtualization</strong>.</li>
+  </ol>
+
+  <h2>3. Final Classes: No Inheritance</h2>
+  <p>If a class is <code>final</code>, it cannot be extended.</p>
+  <pre><code><span class="kw">public final class</span> <span class="cl">ImmutablePoint</span> {
+    <span class="kw">private final int</span> x, y;
+
+    <span class="kw">public</span> <span class="cl">ImmutablePoint</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) {
+        <span class="kw">this</span>.x = x;
+        <span class="kw">this</span>.y = y;
+    }
+
+    <span class="kw">public int</span> <span class="fn">getX</span>() { <span class="kw">return</span> x; }
+    <span class="kw">public int</span> <span class="fn">getY</span>() { <span class="kw">return</span> y; }
+}
+
+<span class="cm">// class ExtendedPoint extends ImmutablePoint {} // COMPILE ERROR!</span>
+</code></pre>
+  <p><strong>Senior Fact</strong>: Many core Java classes like <code>String</code>, <code>Integer</code>, and <code>Math</code> are final for security and immutability. Java 17 <strong>Sealed Classes</strong> provide a middle ground.</p>
+
+  <h2>4. The Java Memory Model (JMM) Guarantee</h2>
+  <div class="box box-insight">
+    <div class="box-title">🚀 Senior Fact: Safe Publication</div>
+    The <code>final</code> keyword provides a unique thread-safety guarantee. Under the JMM, if an object is constructed correctly (without leaking <code>this</code>), any thread that sees the object is <strong>guaranteed</strong> to see the correctly initialized values of its <code>final</code> fields. 
+    <br><br>
+    <strong>The Magic</strong>: The JVM inserts a "StoreStore" barrier at the end of the constructor to ensure all final field writes are visible to other CPUs before the object reference itself is published.
+  </div>
+
+  <h2>5. Effectively Final (Java 8+)</h2>
+  <p>If you have a local variable that is never changed after its initial assignment, Java treats it as "Effectively Final." This allows you to use it inside a <strong>Lambda</strong> or <strong>Anonymous Inner Class</strong>.</p>
+  <pre><code><span class="cl">String</span> greeting = <span class="str">"Hello"</span>; <span class="cm">// effectively final (never reassigned)</span>
+
+<span class="cl">Runnable</span> r = () -> <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(greeting); <span class="cm">// OK!</span>
+
+<span class="cm">// greeting = "Bye"; // if you uncomment this, the lambda above won't compile!</span>
+</code></pre>
+
+  <h2>6. Blanket Final vs. Initializer</h2>
+  <p>A final field can be initialized in the <strong>Constructor</strong> ("Blank Final").</p>
+  <pre><code><span class="kw">public class</span> <span class="cl">Connection</span> {
+    <span class="kw">private final</span> <span class="cl">String</span> url; <span class="cm">// blank final</span>
+
+    <span class="kw">public</span> <span class="cl">Connection</span>(<span class="cl">String</span> url) {
+        <span class="kw">this</span>.url = url; <span class="cm">// initialized here, constant for life</span>
+    }
+}
+
+<span class="cl">Connection</span> c1 = <span class="kw">new</span> <span class="cl">Connection</span>(<span class="str">"jdbc:mysql://prod"</span>);
+<span class="cl">Connection</span> c2 = <span class="kw">new</span> <span class="cl">Connection</span>(<span class="str">"jdbc:mysql://dev"</span>);
+<span class="cm">// Each has a DIFFERENT but IMMUTABLE url</span>
+</code></pre>
+
+  <h2>7. Final Parameters</h2>
+  <p>Marking method parameters as <code>final</code> prevents accidental reassignment inside the method.</p>
+  <pre><code><span class="kw">public void</span> <span class="fn">save</span>(<span class="kw">final</span> <span class="cl">User</span> user) {
+    <span class="cm">// user = new User(); // COMPILE ERROR! Can't reassign</span>
+    user.<span class="fn">setName</span>(<span class="str">"Updated"</span>); <span class="cm">// OK! You can modify the object's state</span>
+    repository.<span class="fn">save</span>(user);
+}
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 08</div>
+    <ul>
+      <li><strong>Final Fields</strong> enforce constant references.</li>
+      <li><strong>Final Methods</strong> allow JIT inlining and devirtualization.</li>
+      <li><strong>Final Classes</strong> prevent the "Fragile Base Class" problem.</li>
+      <li><strong>JMM Guarantee</strong>: Final fields are essential for thread-safe publication.</li>
+      <li><strong>Blank Final</strong> allows constructor-driven constant state.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 08</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can a 'final' method be overloaded?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> Overloading is about different method signatures. A <code>final</code> method just cannot be <strong>overridden</strong> (same signature in a subclass). You can have multiple final methods with the same name but different parameters in the same class.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Difference between 'final', 'finally', and 'finalize'? (The Classic)<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Final</strong> is a modifier (for variables/methods/classes). <strong>Finally</strong> is a block in try-catch-finally for cleanup. <strong>Finalize</strong> is a (deprecated) method in the Object class for pre-GC cleanup. They are unrelated except for their names.</div>
+  </div>
+</div>

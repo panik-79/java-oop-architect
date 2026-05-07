@@ -1,0 +1,183 @@
+<div id="solid-principles" class="section">
+  <div class="breadcrumb">handbook / <span>section 17</span></div>
+  <div class="section-eyebrow">The Architecture</div>
+  <h1>SOLID Principles: The Engineering Compass</h1>
+  <div class="section-desc">SOLID is the difference between "code that works" and "code that lasts." These five principles are the foundation of scalable, maintainable, and testable software systems.</div>
+
+  <h2>1. S: Single Responsibility (SRP)</h2>
+  <p><strong>"A class should have only one reason to change."</strong></p>
+  <div class="box box-insight">
+    <div class="box-title">🏛️ Architect's Tip: The 'Conway's Law' Link</div>
+    SRP isn't just about code; it's about people. If two different departments (e.g., Finance and HR) ask for changes to the same class, you have violated SRP. Each class should serve exactly one stakeholder.
+  </div>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label compare-bad">❌ Bad: God Class</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Invoice</span> {
+  <span class="kw">void</span> <span class="fn">calculate</span>() { ... }
+  <span class="kw">void</span> <span class="fn">saveToDb</span>() { ... }
+  <span class="kw">void</span> <span class="fn">emailUser</span>() { ... }
+}</code></pre>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label compare-good">✅ Good: Decoupled</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">InvoiceCalculator</span> { ... }
+<span class="kw">class</span> <span class="cl">InvoiceRepository</span> { ... }
+<span class="kw">class</span> <span class="cl">NotificationService</span> { ... }</code></pre>
+    </div>
+  </div>
+
+  <h2>2. O: Open/Closed Principle (OCP)</h2>
+  <p><strong>"Open for extension, Closed for modification."</strong></p>
+  <p>You should be able to add a new "Discount Type" without opening the <code>DiscountService.java</code> file and adding an <code>if-else</code> or <code>switch</code> block.</p>
+  <div class="diagram">
+[ CLIENT ] ──► [ INTERFACE: DiscountStrategy ]
+                       ▲
+          ┌────────────┴────────────┐
+    [ StudentDiscount ]      [ VIPDiscount ]
+
+To add 'BlackFridayDiscount', just implement the interface. 
+The CLIENT code stays exactly the same.</div>
+
+  <h3>Example: OCP with Strategy Pattern</h3>
+  <pre><code><span class="kw">public interface</span> <span class="cl">DiscountStrategy</span> {
+    <span class="kw">double</span> <span class="fn">apply</span>(<span class="kw">double</span> price);
+}
+
+<span class="kw">public class</span> <span class="cl">StudentDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.8</span>; }
+}
+
+<span class="kw">public class</span> <span class="cl">VIPDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.7</span>; }
+}
+
+<span class="cm">// Adding new discount — NO modification to existing code!</span>
+<span class="kw">public class</span> <span class="cl">BlackFridayDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.5</span>; }
+}
+
+<span class="cm">// Client code is CLOSED for modification</span>
+<span class="kw">public class</span> <span class="cl">PriceCalculator</span> {
+    <span class="kw">public double</span> <span class="fn">finalPrice</span>(<span class="kw">double</span> price, <span class="cl">DiscountStrategy</span> strategy) {
+        <span class="kw">return</span> strategy.<span class="fn">apply</span>(price);
+    }
+}
+
+<span class="cl">PriceCalculator</span> calc = <span class="kw">new</span> <span class="cl">PriceCalculator</span>();
+calc.<span class="fn">finalPrice</span>(<span class="num">100</span>, <span class="kw">new</span> <span class="cl">VIPDiscount</span>());          <span class="cm">// 70.0</span>
+calc.<span class="fn">finalPrice</span>(<span class="num">100</span>, <span class="kw">new</span> <span class="cl">BlackFridayDiscount</span>()); <span class="cm">// 50.0</span>
+</code></pre>
+
+  <h2>3. L: Liskov Substitution (LSP)</h2>
+  <p><strong>"Subtypes must be substitutable for their base types without breaking behavior."</strong></p>
+  <div class="box box-danger">
+    <div class="box-title">🚨 The LSP Test: The "Duck" Rule</div>
+    "If it looks like a duck and quacks like a duck but needs batteries, you probably have the wrong abstraction."
+    <br><br>
+    If you override a method to throw <code>UnsupportedOperationException</code>, you have violated LSP. A subclass should never "do less" than its parent.
+  </div>
+
+  <div class="box box-warning">
+    <div class="box-title">⚠️ The Square-Rectangle Problem</div>
+    If <code>Square</code> inherits from <code>Rectangle</code>, and <code>Rectangle</code> has <code>setWidth()</code> and <code>setHeight()</code>, the <code>Square</code> override must set <strong>both</strong> to the same value to stay a square. But a user of <code>Rectangle</code> expects to set width without changing height! This is an LSP violation.
+    <br><strong>Solution</strong>: Inheritance isn't always the answer. Use a common <code>Shape</code> interface instead.
+  </div>
+
+  <h2>4. I: Interface Segregation (ISP)</h2>
+  <p><strong>"Clients should not be forced to depend on methods they do not use."</strong></p>
+  <p>Fat interfaces lead to <strong>Rigid Coupling</strong>. Break them down into specific, atomic capabilities.</p>
+  <pre><code><span class="cm">// BAD: Fat Interface</span>
+<span class="kw">interface</span> <span class="cl">SmartDevice</span> { <span class="kw">void</span> <span class="fn">print</span>(); <span class="kw">void</span> <span class="fn">fax</span>(); <span class="kw">void</span> <span class="fn">scan</span>(); }
+
+<span class="cm">// GOOD: Segregated Interfaces</span>
+<span class="kw">interface</span> <span class="cl">Printer</span> { <span class="kw">void</span> <span class="fn">print</span>(); }
+<span class="kw">interface</span> <span class="cl">Scanner</span> { <span class="kw">void</span> <span class="fn">scan</span>(); }</code></pre>
+
+  <h2>5. D: Dependency Inversion (DIP)</h2>
+  <p><strong>"Depend on abstractions, not concretions."</strong></p>
+  <p>High-level modules (Business Logic) should not depend on low-level modules (Database/API). Both should depend on Interfaces.</p>
+  <div class="box box-insight">
+    <div class="box-title">💡 Spring Framework Perspective</div>
+    DIP is what makes <strong>Dependency Injection</strong> possible. Spring injects the concrete implementation into your constructor based on the interface. This allows you to swap a <code>MockDatabase</code> for a <code>RealDatabase</code> during testing without changing a single line of code.
+  </div>
+
+  <h3>Example: DIP with Constructor Injection</h3>
+  <pre><code><span class="cm">// ABSTRACTION (Port)</span>
+<span class="kw">public interface</span> <span class="cl">MessageSender</span> {
+    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body);
+}
+
+<span class="cm">// LOW-LEVEL (Adapter 1)</span>
+<span class="kw">public class</span> <span class="cl">EmailSender</span> <span class="kw">implements</span> <span class="cl">MessageSender</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Email to "</span> + to + <span class="str">": "</span> + body);
+    }
+}
+
+<span class="cm">// LOW-LEVEL (Adapter 2 — for testing)</span>
+<span class="kw">public class</span> <span class="cl">MockSender</span> <span class="kw">implements</span> <span class="cl">MessageSender</span> {
+    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; sent = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body) {
+        sent.<span class="fn">add</span>(to + <span class="str">":"</span> + body);
+    }
+}
+
+<span class="cm">// HIGH-LEVEL — depends on ABSTRACTION, not concrete</span>
+<span class="kw">public class</span> <span class="cl">NotificationService</span> {
+    <span class="kw">private final</span> <span class="cl">MessageSender</span> sender; <span class="cm">// interface!</span>
+
+    <span class="kw">public</span> <span class="cl">NotificationService</span>(<span class="cl">MessageSender</span> sender) {
+        <span class="kw">this</span>.sender = sender;
+    }
+
+    <span class="kw">public void</span> <span class="fn">notifyUser</span>(<span class="cl">String</span> userId) {
+        sender.<span class="fn">send</span>(userId, <span class="str">"Your order has shipped!"</span>);
+    }
+}
+
+<span class="cm">// PRODUCTION</span>
+<span class="kw">new</span> <span class="cl">NotificationService</span>(<span class="kw">new</span> <span class="cl">EmailSender</span>()).<span class="fn">notifyUser</span>(<span class="str">"alice"</span>);
+
+<span class="cm">// TESTING — swap implementation, zero code changes!</span>
+<span class="cl">MockSender</span> mock = <span class="kw">new</span> <span class="cl">MockSender</span>();
+<span class="kw">new</span> <span class="cl">NotificationService</span>(mock).<span class="fn">notifyUser</span>(<span class="str">"bob"</span>);
+assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>());
+</code></pre>
+
+
+  <h2>6. SOLID vs. YAGNI/KISS</h2>
+  <p>While SOLID is powerful, it can lead to <strong>Over-Engineering</strong> if misapplied. A senior dev balances these with:</p>
+  <ul>
+    <li><strong>KISS (Keep It Simple, Stupid)</strong>: Don't use 5 interfaces if 1 simple class will suffice for the next 2 years.</li>
+    <li><strong>YAGNI (You Ain't Gonna Need It)</strong>: Don't build an OCP-compliant pluggable system for a feature that will never change.</li>
+  </ul>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 17</div>
+    <ul>
+      <li><strong>SOLID is about Managing Change.</strong></li>
+      <li><strong>SRP</strong> reduces the scope of bugs.</li>
+      <li><strong>OCP</strong> allows the system to grow safely.</li>
+      <li><strong>LSP</strong> ensures inheritance is used correctly.</li>
+      <li><strong>ISP</strong> keeps interfaces lean and relevant.</li>
+      <li><strong>DIP</strong> enables loose coupling and testability.</li>
+      <li><strong>Balance is key</strong>: Don't over-engineer for scenarios that don't exist.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 17</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Is SOLID always necessary for small projects?<span class="arrow">▶</span></div>
+    <div class="qa-a">No. Over-applying SOLID to a 100-line script is <strong>Over-Engineering</strong>. SOLID is a defense mechanism against the complexity of <strong>Scale</strong>. It comes at the cost of more classes and files. A senior dev knows when to keep it simple and when to pull out the SOLID "big guns."</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the "Dependency Inversion" vs "Dependency Injection"?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Dependency Inversion</strong> is the <em>Principle</em> (The Goal: decouple). <strong>Dependency Injection</strong> is the <em>Pattern</em> (The Tool: passing dependencies via constructor/setter). DI is how we achieve DIP.</div>
+  </div>
+</div>

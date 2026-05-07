@@ -1,0 +1,116 @@
+<div id="interfaces" class="section">
+  <div class="breadcrumb">handbook / <span>section 09</span></div>
+  <div class="section-eyebrow">The Contracts</div>
+  <h1>Interfaces: Defining Capability</h1>
+  <div class="section-desc">Interfaces are the backbone of decoupled architecture. They define <strong>What</strong> an object can do without caring about <strong>How</strong> it does it. We explore their evolution from pure abstractions to functional powerhouses and the JVM-level itables.</div>
+
+  <h2>1. The Evolution of Interfaces</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Java Version</th><th>Feature Added</th></tr>
+    <tr><td><strong>Java 7 & below</strong></td><td>Purely Abstract (only public abstract methods and constants).</td></tr>
+    <tr><td><strong>Java 8</strong></td><td><code>default</code> and <code>static</code> methods (allowing evolution without breaking code).</td></tr>
+    <tr><td><strong>Java 9</strong></td><td><code>private</code> methods (helper logic shared between default methods).</td></tr>
+  </table></div>
+
+  <h2>2. Default Methods: Multiple Inheritance of Behavior</h2>
+  <p>Default methods allowed Java to add new functionality to interfaces (like <code>forEach</code> in <code>Iterable</code>) without breaking existing implementations. 
+  <br><strong>The Diamond Problem</strong>: If a class implements <code>InterfaceA</code> and <code>InterfaceB</code>, and both have the same <code>default void log()</code>, the compiler forces the class to override <code>log()</code> and manually choose: <code>InterfaceA.super.log()</code>.</p>
+
+  <h3>Example: Default Methods &amp; Diamond Resolution</h3>
+  <pre><code><span class="kw">interface</span> <span class="cl">Printable</span> {
+    <span class="kw">default void</span> <span class="fn">log</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Printable log"</span>);
+    }
+}
+
+<span class="kw">interface</span> <span class="cl">Loggable</span> {
+    <span class="kw">default void</span> <span class="fn">log</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Loggable log"</span>);
+    }
+}
+
+<span class="cm">// Must resolve the diamond manually!</span>
+<span class="kw">class</span> <span class="cl">Report</span> <span class="kw">implements</span> <span class="cl">Printable</span>, <span class="cl">Loggable</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">log</span>() {
+        <span class="cl">Printable</span>.<span class="kw">super</span>.<span class="fn">log</span>(); <span class="cm">// explicitly choose</span>
+    }
+}
+
+<span class="kw">new</span> <span class="cl">Report</span>().<span class="fn">log</span>(); <span class="cm">// prints "Printable log"</span>
+</code></pre>
+
+  <h2>3. Functional Interfaces & Lambdas</h2>
+  <p>An interface with exactly one abstract method is a <strong>Functional Interface</strong> (SAM - Single Abstract Method). These enable Java's functional programming support.</p>
+  <pre><code><span class="kw">@FunctionalInterface</span>
+<span class="kw">public interface</span> <span class="cl">Validator</span> {
+    <span class="kw">boolean</span> <span class="fn">isValid</span>(<span class="kw">String</span> input);
+}
+<span class="cm">// Used as:</span>
+<span class="cl">Validator</span> v = (s) -> s.<span class="fn">length</span>() > <span class="num">5</span>;</code></pre>
+
+  <h2>4. Marker Interfaces vs. Annotations</h2>
+  <p><strong>Marker Interfaces</strong> (e.g., <code>Serializable</code>) have zero methods and tag a class. 
+  <br><strong>Modern Shift</strong>: Annotations (<code>@Entity</code>, <code>@Component</code>) are preferred as they are more flexible and don't affect the type hierarchy. However, <code>instanceof Serializable</code> is still faster than reading an annotation via reflection.</p>
+
+  <h2>5. Interface vs. Abstract Class (LLD Choice)</h2>
+  <div class="box box-insight">
+    <div class="box-title">🏛️ Architect's Decision Matrix</div>
+    <ul>
+      <li>Use an <strong>Interface</strong> for <strong>Behavior</strong> ("Can-Do"). Unrelated classes (e.g., <code>Car</code> and <code>Fan</code>) can both be <code>Switchable</code>.</li>
+      <li>Use an <strong>Abstract Class</strong> for <strong>Identity</strong> ("Kind-Of"). Shared state (fields) and partial implementation (Base logic).</li>
+    </ul>
+    <strong>Senior Tip</strong>: "Program to an interface, not an implementation." This is the key to <strong>Unit Testing</strong> and <strong>Dependency Injection</strong>.
+  </div>
+
+  <h2>6. Internal: The itable (Interface Table)</h2>
+  <p>While classes use a vtable with fixed offsets, the JVM uses an <strong>itable</strong> for interface calls. Because a class can implement many interfaces, the JVM must search the itable at runtime to find the method pointer. 
+  <br><strong>Performance</strong>: <code>invokeinterface</code> is slightly slower than <code>invokevirtual</code> because the offset isn't constant across all classes implementing the interface.</p>
+
+  <h2>7. Sealed Interfaces (Java 17+)</h2>
+  <p>Just like sealed classes, <strong>Sealed Interfaces</strong> allow you to define exactly which classes or interfaces can implement them.</p>
+  <pre><code><span class="kw">public sealed interface</span> <span class="cl">Payment</span>
+    <span class="kw">permits</span> <span class="cl">CreditCard</span>, <span class="cl">UPI</span>, <span class="cl">BankTransfer</span> {
+    <span class="kw">double</span> <span class="fn">amount</span>();
+}
+
+<span class="kw">public record</span> <span class="cl">CreditCard</span>(<span class="kw">double</span> amount, <span class="cl">String</span> cardNum)
+    <span class="kw">implements</span> <span class="cl">Payment</span> {}
+
+<span class="kw">public record</span> <span class="cl">UPI</span>(<span class="kw">double</span> amount, <span class="cl">String</span> upiId)
+    <span class="kw">implements</span> <span class="cl">Payment</span> {}
+
+<span class="kw">public record</span> <span class="cl">BankTransfer</span>(<span class="kw">double</span> amount, <span class="cl">String</span> ifsc)
+    <span class="kw">implements</span> <span class="cl">Payment</span> {}
+
+<span class="cm">// Exhaustive switch (Java 21)</span>
+<span class="cl">String</span> <span class="fn">process</span>(<span class="cl">Payment</span> p) {
+    <span class="kw">return switch</span> (p) {
+        <span class="kw">case</span> <span class="cl">CreditCard</span> cc  -> <span class="str">"Charging card "</span> + cc.<span class="fn">cardNum</span>();
+        <span class="kw">case</span> <span class="cl">UPI</span> upi        -> <span class="str">"UPI to "</span> + upi.<span class="fn">upiId</span>();
+        <span class="kw">case</span> <span class="cl">BankTransfer</span> bt -> <span class="str">"NEFT via "</span> + bt.<span class="fn">ifsc</span>();
+    };
+}
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 09</div>
+    <ul>
+      <li><strong>Interfaces decouple</strong> the caller from the implementation.</li>
+      <li><strong>Default methods</strong> allow "Multiple Inheritance of Behavior" safely.</li>
+      <li><strong>Functional interfaces</strong> are the foundation of Lambdas and Streams.</li>
+      <li><strong>Private methods</strong> (Java 9) allow sharing code between default methods without exposing it.</li>
+      <li><strong>Itables</strong> handle the dynamic lookup for interface calls.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 09</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an interface have a constructor?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No.</strong> Interfaces cannot have state (instance fields) and cannot be instantiated directly, so they have no need for constructors. Abstract classes DO have constructors to initialize their shared state.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the 'Three-Tier Architecture' link?<span class="arrow">▶</span></div>
+    <div class="qa-a">In professional backend development, we use <strong>Interfaces</strong> to separate layers: <code>Controller</code> -> <code>IService</code> -> <code>IRepository</code>. This allows us to change the implementation of the Service or Repository (e.g., swapping a Database for a Mock) without affecting other layers.</div>
+  </div>
+</div>

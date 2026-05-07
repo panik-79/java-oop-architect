@@ -1,0 +1,127 @@
+<div id="static-keyword" class="section">
+  <div class="breadcrumb">handbook / <span>section 07</span></div>
+  <div class="section-eyebrow">The Shared State</div>
+  <h1>Static: Class-Level Mechanics</h1>
+  <div class="section-desc">The <code>static</code> keyword takes a member out of the instance lifecycle and attaches it to the class itself. We explore the memory implications, the "Hiding" behavior, and the critical execution order of initializers.</div>
+
+  <h2>1. Memory: Where does Static live?</h2>
+  <p>Historically, static members lived in the "PermGen." Since Java 8, they live in the <strong>Metaspace</strong> (for metadata) and the <strong>Heap</strong> (for actual static objects). They are loaded when the class is first accessed by the ClassLoader.</p>
+  
+  <div class="diagram">
+[ HEAP ]
+   ├─ [ Object 1 ]
+   ├─ [ Object 2 ]
+   └─ [ Static Field Value ] <── Shared by all objects!
+
+[ METASPACE ]
+   └─ [ Class Metadata: Methods, vtable, etc. ]</div>
+
+  <h2>2. The Static Initialization Order (Master Table)</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Order</th><th>Construct</th><th>Scope</th><th>Frequency</th></tr>
+    <tr><td>1</td><td><strong>Static Variables</strong></td><td>Class</td><td>Once</td></tr>
+    <tr><td>2</td><td><strong>Static Blocks</strong></td><td>Class</td><td>Once</td></tr>
+    <tr><td>3</td><td><strong>Instance Variables</strong></td><td>Instance</td><td>Every 'new'</td></tr>
+    <tr><td>4</td><td><strong>Instance Blocks</strong></td><td>Instance</td><td>Every 'new'</td></tr>
+    <tr><td>5</td><td><strong>Constructor</strong></td><td>Instance</td><td>Every 'new'</td></tr>
+  </table></div>
+
+  <div class="box box-warning">
+    <div class="box-title">🚨 Execution Secret</div>
+    Static blocks run when the class is loaded, <strong>even if you never create an object</strong>. Instance blocks run right before the constructor but <strong>after</strong> the <code>super()</code> call.
+  </div>
+
+  <h3>Example: Initialization Order</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">InitDemo</span> {
+    <span class="kw">static</span> <span class="cl">String</span> s = <span class="fn">print</span>(<span class="str">"1. Static field"</span>);
+    <span class="kw">static</span> { <span class="fn">print</span>(<span class="str">"2. Static block"</span>); }
+
+    <span class="cl">String</span> i = <span class="fn">print</span>(<span class="str">"3. Instance field"</span>);
+    { <span class="fn">print</span>(<span class="str">"4. Instance block"</span>); }
+
+    <span class="kw">public</span> <span class="cl">InitDemo</span>() { <span class="fn">print</span>(<span class="str">"5. Constructor"</span>); }
+
+    <span class="kw">static</span> <span class="cl">String</span> <span class="fn">print</span>(<span class="cl">String</span> msg) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(msg);
+        <span class="kw">return</span> msg;
+    }
+}
+
+<span class="cm">// Output when running: new InitDemo()</span>
+<span class="cm">// 1. Static field</span>
+<span class="cm">// 2. Static block</span>
+<span class="cm">// 3. Instance field</span>
+<span class="cm">// 4. Instance block</span>
+<span class="cm">// 5. Constructor</span>
+</code></pre>
+
+  <h2>3. Static Methods: Hiding, not Overriding</h2>
+  <p>Static methods use <strong>Early Binding (Static Binding)</strong>. The JVM decides which method to call based on the <strong>Reference Type</strong> at compile time, not the object type at runtime.</p>
+  <pre><code><span class="kw">class</span> <span class="cl">Parent</span> { <span class="kw">static void</span> <span class="fn">show</span>() { ... } }
+<span class="kw">class</span> <span class="cl">Child</span> <span class="kw">extends</span> <span class="cl">Parent</span> { <span class="kw">static void</span> <span class="fn">show</span>() { ... } }
+
+<span class="cl">Parent</span> p = <span class="kw">new</span> <span class="cl">Child</span>();
+p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This is "Method Hiding."</span></code></pre>
+
+  <h2>4. Static in Interfaces (Java 8+)</h2>
+  <p>Interfaces can now have static methods. They are <strong>not inherited</strong> by implementing classes.</p>
+  <pre><code><span class="kw">public interface</span> <span class="cl">StringUtils</span> {
+    <span class="kw">static boolean</span> <span class="fn">isBlank</span>(<span class="cl">String</span> s) {
+        <span class="kw">return</span> s == <span class="kw">null</span> || s.<span class="fn">trim</span>().<span class="fn">isEmpty</span>();
+    }
+}
+
+<span class="cm">// Must use InterfaceName.method() — NOT inherited</span>
+<span class="cl">StringUtils</span>.<span class="fn">isBlank</span>(<span class="str">""</span>); <span class="cm">// true</span>
+</code></pre>
+
+  <h2>5. The "Bill Pugh" Singleton Pattern</h2>
+  <p>The most efficient way to implement a Singleton in Java is using a <strong>Static Inner Class</strong>. It provides "Lazy Initialization" and is thread-safe without any <code>synchronized</code> keyword.</p>
+  <pre><code><span class="kw">public class</span> <span class="cl">Singleton</span> {
+    <span class="kw">private</span> <span class="cl">Singleton</span>() {}
+    <span class="kw">private static class</span> <span class="cl">Holder</span> {
+        <span class="kw">private static final</span> <span class="cl">Singleton</span> INSTANCE = <span class="kw">new</span> <span class="cl">Singleton</span>();
+    }
+    <span class="kw">public static</span> <span class="cl">Singleton</span> <span class="fn">getInstance</span>() { return <span class="cl">Holder</span>.INSTANCE; }
+}</code></pre>
+
+  <h2>6. Thread Safety and Statics</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 The Shared State Trap</div>
+    Since <code>static</code> fields are shared by all threads in the JVM, any modification to a static variable must be <strong>Thread-Safe</strong>.
+  </div>
+  <pre><code><span class="cm">// BAD — race condition</span>
+<span class="kw">public class</span> <span class="cl">Counter</span> {
+    <span class="kw">private static int</span> count = <span class="num">0</span>;
+    <span class="kw">public static void</span> <span class="fn">increment</span>() { count++; } <span class="cm">// NOT thread-safe!</span>
+}
+
+<span class="cm">// GOOD — use AtomicInteger</span>
+<span class="kw">public class</span> <span class="cl">SafeCounter</span> {
+    <span class="kw">private static final</span> <span class="cl">AtomicInteger</span> count = <span class="kw">new</span> <span class="cl">AtomicInteger</span>(<span class="num">0</span>);
+    <span class="kw">public static int</span> <span class="fn">increment</span>() {
+        <span class="kw">return</span> count.<span class="fn">incrementAndGet</span>(); <span class="cm">// atomic, thread-safe</span>
+    }
+}
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 07</div>
+    <ul>
+      <li><strong>One copy per classloader</strong>, not per instance.</li>
+      <li><strong>Early Binding</strong>: Decisions are made at compile time based on the reference type.</li>
+      <li><strong>Static blocks</strong> are for complex class-level initialization (e.g., loading native libraries).</li>
+      <li><strong>Static Nested Classes</strong> prevent memory leaks by not holding an outer reference.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 07</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can we override the 'main' method?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No.</strong> Since <code>main</code> is static, it can only be <strong>hidden</strong>, not overridden. The JVM will always call the <code>main</code> method of the specific class you provide in the command line.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why is a static method faster than an instance method?<span class="arrow">▶</span></div>
+    <div class="qa-a">Because the JVM doesn't have to perform a vtable lookup (Dynamic Dispatch). It knows the exact address of the static method at compile time. However, with JIT optimizations, the difference is negligible in modern Java.</div>
+  </div>
+</div>

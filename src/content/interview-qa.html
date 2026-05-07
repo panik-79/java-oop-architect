@@ -1,0 +1,82 @@
+<div id="interview-qa" class="section">
+  <div class="breadcrumb">handbook / <span>section 19</span></div>
+  <div class="section-eyebrow">The Senior Engineer's Guide</div>
+  <h1>The Interview Masterclass: FAANG-Level Deep Dives</h1>
+  <div class="section-desc">FAANG-level interviews don't ask for definitions. They ask for architectural decisions, JVM internals, and the 'Why' behind every design choice. We've tiered these answers to help you reach the L6/Senior level.</div>
+
+  <h2>1. Core Concepts (Tricky Edition)</h2>
+  
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an Interface have private methods?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes, since Java 9.</strong> Private methods are used to share code between <code>default</code> methods within the same interface without exposing that helper logic to implementing classes. It keeps the interface clean while avoiding code duplication.</div>
+  </div>
+
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if you don't override <code>hashCode()</code> but override <code>equals()</code>?<span class="arrow">▶</span></div>
+    <div class="qa-a">This is a <strong>Major Bug</strong>. Objects that are equal (<code>equals()</code> returns true) will have different hashes (based on memory address). If you put them in a <code>HashMap</code>, you might never find them again because the map looks in the wrong bucket. <strong>The Contract is broken.</strong> 
+    <br><strong>L6 Insight</strong>: Always use <code>Objects.hash(field1, field2)</code> to ensure consistency and avoid the "Unequal objects in same bucket" performance degradation.</div>
+  </div>
+
+  <h2>2. Architectural Tradeoffs & Patterns</h2>
+
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why is 'Composition over Inheritance' a rule of thumb?<span class="arrow">▶</span></div>
+    <div class="qa-a">Inheritance is <strong>White-box Reuse</strong>: the child sees the internals of the parent, creating tight coupling. It's static. <strong>Composition</strong> is <strong>Black-box Reuse</strong>: you only see the public interface of the contained object. It allows you to change behavior at runtime (Dependency Injection) and keeps the class hierarchy flat and manageable. 
+    <br><strong>Senior Tip</strong>: Use inheritance for <strong>Structural</strong> IS-A (Base class provides a framework) and composition for <strong>Functional</strong> HAS-A (Injecting behaviors).</div>
+  </div>
+
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">When would you use an Abstract Class instead of an Interface in Java 17?<span class="arrow">▶</span></div>
+    <div class="qa-a">Even though Interfaces have <code>default</code> methods, I would use an <strong>Abstract Class</strong> if I need: 
+    <ul>
+      <li><strong>State</strong> (non-static, non-final fields).</li>
+      <li><strong>Non-public methods</strong> (protected or package-private).</li>
+      <li><strong>Constructors</strong> to ensure the base state is initialized in a specific way.</li>
+    </ul>
+    If it's purely for behavior/contract, interfaces are superior.</div>
+  </div>
+
+  <h2>3. JVM, Memory & Concurrency</h2>
+
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is 'Type Erasure' in Java and how does it relate to OOP?<span class="arrow">▶</span></div>
+    <div class="qa-a">Type Erasure means that Generic type info (e.g., <code>&lt;String&gt;</code>) is only available at compile time. At runtime, the JVM treats it as <code>Object</code>. This affects polymorphism: you can't have overloaded methods like <code>doWork(List&lt;String&gt; list)</code> and <code>doWork(List&lt;Integer&gt; list)</code> because their runtime signatures are identical. 
+    <br><strong>Workaround</strong>: Use <strong>Type Tokens</strong> or <strong>Reified Types</strong> (via anonymous inner classes) to capture type info at runtime.</div>
+  </div>
+
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">How does 'Upcasting' affect method access?<span class="arrow">▶</span></div>
+    <div class="qa-a">Upcasting changes the <strong>Scope</strong> but not the <strong>Behavior</strong>. <code>Animal a = new Dog();</code> allows access only to methods defined in <code>Animal</code>. However, if <code>Dog</code> overrides <code>makeSound()</code>, calling <code>a.makeSound()</code> will still execute the <code>Dog</code> version because of <strong>Dynamic Method Dispatch</strong>.</div>
+  </div>
+
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Are Immutable objects thread-safe? (The Trap)<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes, but with a caveat.</strong> The object itself is thread-safe because its state cannot change. However, the <strong>reference</strong> to that object is NOT thread-safe. If one thread is reading the reference and another is swapping it with a new immutable object, you still need <code>volatile</code> or synchronization on the reference itself.</div>
+  </div>
+
+  <h2>4. Scenario-Based Design (LLD Prep)</h2>
+
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Design Question: "How would you implement a Logging library that supports multiple outputs (File, Console, Cloud)?"<span class="arrow">▶</span></div>
+    <div class="qa-a">I would use the <strong>Observer Pattern</strong> or a simple <strong>Strategy Pattern</strong>. The <code>Logger</code> class maintains a list of <code>LogAppender</code> interfaces. When a message is logged, it iterates through the list and calls <code>append(msg)</code> on each. This allows users to add new appenders without modifying the core Logger. 
+    <br><strong>Architect Detail</strong>: I'd add an <strong>AsyncAppender</strong> (using a Queue) to ensure logging doesn't block the main application thread.</div>
+  </div>
+
+  <div class="box box-interview">
+    <div class="box-title">🎯 The "Senior" Answer Format</div>
+    When answering, use this structure:
+    1. <strong>Direct Answer</strong> (Yes/No/Definition).
+    2. <strong>The 'Why'</strong> (Tradeoffs/Reasoning).
+    3. <strong>The Caveat</strong> (When it fails/Edge cases).
+    4. <strong>Real-world Example</strong> (How you've used it).
+  </div>
+
+  <div class="takeaways">
+    <div class="takeaways-title">The Interview Mindset</div>
+    <ul>
+      <li>Never just say "what" something is; always say <strong>"why"</strong> it was designed that way.</li>
+      <li>Mention <strong>Tradeoffs</strong>. (e.g., "This pattern increases flexibility but adds class explosion.")</li>
+      <li>Reference <strong>JVM behavior</strong> for extra points.</li>
+    </ul>
+  </div>
+</div>

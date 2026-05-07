@@ -1,0 +1,99 @@
+<div id="enums" class="section">
+  <div class="breadcrumb">handbook / deep dives / <span>section 15</span></div>
+  <div class="section-eyebrow">The Special Classes</div>
+  <h1>Enums: More than just Constants</h1>
+  <div class="section-desc">In Java, an <code>Enum</code> is a full-featured class. We explore how to add behavior to constants, the "Enum Singleton" pattern, and the high-performance collections built specifically for enums.</div>
+
+  <h2>1. Enums are Classes</h2>
+  <p>Every enum in Java extends <code>java.lang.Enum</code>. You can add fields, constructors, and methods. Enum constants are essentially <code>public static final</code> instances of the enum class.</p>
+  <pre><code><span class="kw">public enum</span> <span class="cl">Status</span> {
+    <span class="cl">OPEN</span>(<span class="num">1</span>), <span class="cl">CLOSED</span>(<span class="num">0</span>);
+    <span class="kw">private final int</span> code;
+    <span class="cl">Status</span>(<span class="kw">int</span> code) { this.code = code; }
+    <span class="kw">public int</span> <span class="fn">getCode</span>() { <span class="kw">return</span> code; }
+}</code></pre>
+
+  <h2>2. The "Enum Singleton" (The Ultimate Pattern)</h2>
+  <div class="box box-insight">
+    <div class="box-title">🏆 Joshua Bloch's Advice</div>
+    "A single-element enum type is the best way to implement a singleton." 
+    <br><br>
+    <strong>Why?</strong> It is thread-safe, handles serialization automatically, and is protected against reflection attacks.
+  </div>
+  <pre><code><span class="kw">public enum</span> <span class="cl">AppConfig</span> {
+    INSTANCE;
+
+    <span class="kw">private</span> <span class="cl">String</span> dbUrl;
+
+    <span class="kw">public void</span> <span class="fn">setDbUrl</span>(<span class="cl">String</span> url) { <span class="kw">this</span>.dbUrl = url; }
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getDbUrl</span>() { <span class="kw">return</span> dbUrl; }
+}
+
+<span class="cm">// Usage — guaranteed single instance</span>
+<span class="cl">AppConfig</span>.INSTANCE.<span class="fn">setDbUrl</span>(<span class="str">"jdbc:mysql://prod"</span>);
+<span class="cl">String</span> url = <span class="cl">AppConfig</span>.INSTANCE.<span class="fn">getDbUrl</span>();
+</code></pre>
+
+  <h2>3. Enums with Behavior (Strategy Pattern)</h2>
+  <p>You can define an abstract method in an enum and have each constant provide its own implementation. This is the cleanest way to implement the <strong>Strategy Pattern</strong> when the strategies are fixed.</p>
+  <pre><code><span class="kw">public enum</span> <span class="cl">Operation</span> {
+    <span class="cl">PLUS</span> { <span class="kw">double</span> <span class="fn">apply</span>(<span class="kw">double</span> x, <span class="kw">double</span> y) { <span class="kw">return</span> x + y; } },
+    <span class="cl">MINUS</span> { <span class="kw">double</span> <span class="fn">apply</span>(<span class="kw">double</span> x, <span class="kw">double</span> y) { <span class="kw">return</span> x - y; } };
+    <span class="kw">abstract double</span> <span class="fn">apply</span>(<span class="kw">double</span> x, <span class="kw">double</span> y);
+}</code></pre>
+
+  <h2>4. The values() Performance Trap</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Performance Fact</div>
+    The <code>values()</code> method in an enum returns a <strong>new array</strong> every time it is called. The JVM does this for <strong>Defensive Copying</strong> (to prevent you from modifying the internal array of constants). 
+    <br><br>
+    <strong>The Fix</strong>: If you need to iterate over enums in a high-frequency loop, cache the result of <code>values()</code> in a static final field or use a <code>List</code>.
+  </div>
+
+  <h2>5. High-Performance: EnumSet & EnumMap</h2>
+  <p>Don't use <code>HashSet</code> or <code>HashMap</code> for enums. Use <code>EnumSet</code> and <code>EnumMap</code>. 
+  <ul>
+    <li><strong>EnumSet</strong>: Represented as a <code>long</code> bit-vector. Adding, removing, and checking for existence are <strong>O(1)</strong> and incredibly fast.</li>
+    <li><strong>EnumMap</strong>: Represented as a simple array. No hashing overhead.</li>
+  </ul></p>
+  <pre><code><span class="cm">// EnumSet — blazing fast O(1) operations</span>
+<span class="cl">EnumSet</span>&lt;<span class="cl">Status</span>&gt; activeStatuses = <span class="cl">EnumSet</span>.<span class="fn">of</span>(<span class="cl">Status</span>.OPEN);
+<span class="cl">EnumSet</span>&lt;<span class="cl">Status</span>&gt; all = <span class="cl">EnumSet</span>.<span class="fn">allOf</span>(<span class="cl">Status</span>.<span class="kw">class</span>);
+
+<span class="cm">// EnumMap — faster than HashMap for enum keys</span>
+<span class="cl">EnumMap</span>&lt;<span class="cl">OrderState</span>, <span class="cl">String</span>&gt; labels = <span class="kw">new</span> <span class="cl">EnumMap</span>&lt;&gt;(<span class="cl">OrderState</span>.<span class="kw">class</span>);
+labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.NEW, <span class="str">"Just created"</span>);
+labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <span class="str">"On the way"</span>);
+</code></pre>
+
+  <h2>6. Enums as State Machines</h2>
+  <p>Enums are perfect for modeling finite state machines. Each constant can transition to another constant based on an input.</p>
+  <pre><code><span class="kw">public enum</span> <span class="cl">OrderState</span> {
+    <span class="cl">NEW</span> { <span class="kw">public</span> <span class="cl">OrderState</span> <span class="fn">next</span>() { <span class="kw">return</span> <span class="cl">PAID</span>; } },
+    <span class="cl">PAID</span> { <span class="kw">public</span> <span class="cl">OrderState</span> <span class="fn">next</span>() { <span class="kw">return</span> <span class="cl">SHIPPED</span>; } },
+    <span class="cl">SHIPPED</span> { <span class="kw">public</span> <span class="cl">OrderState</span> <span class="fn">next</span>() { <span class="kw">return</span> <span class="cl">DELIVERED</span>; } },
+    <span class="cl">DELIVERED</span> { <span class="kw">public</span> <span class="cl">OrderState</span> <span class="fn">next</span>() { <span class="kw">return</span> this; } };
+    <span class="kw">public abstract</span> <span class="cl">OrderState</span> <span class="fn">next</span>();
+}</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 15</div>
+    <ul>
+      <li><strong>Enums are classes</strong> with a fixed set of instances.</li>
+      <li><strong>Enum Singleton</strong> is the safest way to implement Singletons.</li>
+      <li><strong>Use EnumSet/EnumMap</strong> for maximum performance.</li>
+      <li><strong>Enums can have state and behavior</strong> and can implement interfaces.</li>
+      <li><strong>Avoid values() in loops</strong> to prevent unnecessary object allocation.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 15</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can we use Enums in a Switch statement?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> This is one of the primary use cases. Modern Java (17+) also supports Switch Expressions with Enums, which are more concise and don't require <code>break</code>.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why is it better to use an Enum instead of 'static final int' constants?<span class="arrow">▶</span></div>
+    <div class="qa-a">1. <strong>Type Safety</strong>: You cannot pass an arbitrary integer to a method that expects an enum. 2. <strong>Namespace</strong>: Constants are grouped logically. 3. <strong>Behavior</strong>: You can add methods and logic directly to the enum. 4. <strong>Serialization</strong>: Enums handle serialization and deserialization safely by default.</div>
+  </div>
+</div>

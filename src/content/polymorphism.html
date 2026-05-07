@@ -1,0 +1,211 @@
+<div id="polymorphism" class="section">
+  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04D</span></div>
+  <div class="section-eyebrow">The Mastery</div>
+  <h1>Polymorphism: The Power of Many Forms</h1>
+  <div class="section-desc">Polymorphism is the ability of an object to take on many forms. We explore bytecode instructions, vtable internals, and JVM optimizations that make polymorphism surprisingly fast.</div>
+
+  <h2>1. Static vs. Dynamic Polymorphism</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Type</th><th>Mechanism</th><th>Binding Time</th></tr>
+    <tr><td><strong>Static</strong></td><td>Method Overloading</td><td>Compile Time (Early Binding)</td></tr>
+    <tr><td><strong>Dynamic</strong></td><td>Method Overriding</td><td>Runtime (Late Binding)</td></tr>
+  </table></div>
+
+  <h3>Example: Method Overloading (Static Polymorphism)</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">MathUtils</span> {
+    <span class="cm">// Same name, different parameter types = overloading</span>
+    <span class="kw">public int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) { <span class="kw">return</span> a + b; }
+    <span class="kw">public double</span> <span class="fn">add</span>(<span class="kw">double</span> a, <span class="kw">double</span> b) { <span class="kw">return</span> a + b; }
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">add</span>(<span class="cl">String</span> a, <span class="cl">String</span> b) { <span class="kw">return</span> a + b; }
+}
+
+<span class="cl">MathUtils</span> m = <span class="kw">new</span> <span class="cl">MathUtils</span>();
+m.<span class="fn">add</span>(<span class="num">1</span>, <span class="num">2</span>);           <span class="cm">// calls int version</span>
+m.<span class="fn">add</span>(<span class="num">1.5</span>, <span class="num">2.5</span>);       <span class="cm">// calls double version</span>
+m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">" World"</span>); <span class="cm">// calls String version</span>
+</code></pre>
+
+  <h3>Example: Method Overriding (Dynamic Polymorphism)</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">Shape</span> {
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="num">0</span>; }
+}
+
+<span class="kw">public class</span> <span class="cl">Circle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
+    <span class="kw">private double</span> radius;
+    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> r) { <span class="kw">this</span>.radius = r; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }
+}
+
+<span class="kw">public class</span> <span class="cl">Square</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
+    <span class="kw">private double</span> side;
+    <span class="kw">public</span> <span class="cl">Square</span>(<span class="kw">double</span> s) { <span class="kw">this</span>.side = s; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> side * side; }
+}
+
+<span class="cm">// Dynamic dispatch — JVM decides at RUNTIME</span>
+<span class="cl">List</span>&lt;<span class="cl">Shape</span>&gt; shapes = <span class="cl">List</span>.<span class="fn">of</span>(
+    <span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">5</span>),
+    <span class="kw">new</span> <span class="cl">Square</span>(<span class="num">4</span>),
+    <span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">3</span>)
+);
+
+<span class="kw">for</span> (<span class="cl">Shape</span> s : shapes) {
+    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Area: "</span> + s.<span class="fn">area</span>()); <span class="cm">// correct method called!</span>
+}
+</code></pre>
+
+  <h2>2. Bytecode: invokevirtual vs invokespecial</h2>
+  <ul>
+    <li><strong>invokestatic</strong>: Static methods (fixed at compile time).</li>
+    <li><strong>invokespecial</strong>: Constructors, private methods, super (fixed at compile time).</li>
+    <li><strong>invokevirtual</strong>: Public/protected instance methods. <strong>Dynamic Dispatch</strong>.</li>
+    <li><strong>invokeinterface</strong>: Interface methods. Slightly slower (itable lookup).</li>
+    <li><strong>invokedynamic</strong>: Lambdas, var-args (Java 7+). Bootstrap method resolves target.</li>
+  </ul>
+
+  <h2>3. Internal Wiring: vtable vs itable</h2>
+  <div class="diagram">
+[ CLASS: ANIMAL ]          [ CLASS: DOG ]
+vtable:                    vtable:
+0: Object.toString()       0: Object.toString()
+1: Animal.makeSound()      1: Dog.makeSound() <── (OVERRIDDEN)
+                           2: Dog.wagTail()   <── (NEW)</div>
+
+  <div class="box box-insight">
+    <div class="box-title">🚀 JIT Optimization: Devirtualization</div>
+    If the JIT compiler notices a specific call site always calls the same class (<strong>Monomorphic Call Site</strong>), it "devirtualizes" the call — removing the vtable lookup and inlining the method code directly. This is why polymorphism in modern Java has almost zero overhead.
+  </div>
+
+  <h2>4. Interface-Based Polymorphism (The Professional Way)</h2>
+  <pre><code><span class="kw">public interface</span> <span class="cl">Notifier</span> {
+    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> message, <span class="cl">String</span> recipient);
+}
+
+<span class="kw">public class</span> <span class="cl">EmailNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Email to "</span> + to + <span class="str">": "</span> + msg);
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">SmsNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"SMS to "</span> + to + <span class="str">": "</span> + msg);
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">SlackNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Slack to #"</span> + to + <span class="str">": "</span> + msg);
+    }
+}
+
+<span class="cm">// SERVICE — depends on abstraction, not concrete classes</span>
+<span class="kw">public class</span> <span class="cl">AlertService</span> {
+    <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers;
+
+    <span class="kw">public</span> <span class="cl">AlertService</span>(<span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers) {
+        <span class="kw">this</span>.notifiers = notifiers;
+    }
+
+    <span class="kw">public void</span> <span class="fn">alert</span>(<span class="cl">String</span> msg) {
+        notifiers.<span class="fn">forEach</span>(n -> n.<span class="fn">send</span>(msg, <span class="str">"admin"</span>));
+    }
+}
+
+<span class="cm">// USAGE — add new notifiers without changing AlertService!</span>
+<span class="cl">AlertService</span> svc = <span class="kw">new</span> <span class="cl">AlertService</span>(<span class="cl">List</span>.<span class="fn">of</span>(
+    <span class="kw">new</span> <span class="cl">EmailNotifier</span>(),
+    <span class="kw">new</span> <span class="cl">SmsNotifier</span>(),
+    <span class="kw">new</span> <span class="cl">SlackNotifier</span>()
+));
+svc.<span class="fn">alert</span>(<span class="str">"Server is down!"</span>);
+</code></pre>
+
+  <h2>5. Method Hiding vs Overriding</h2>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label compare-bad">Static: Method Hiding</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">A</span> { <span class="kw">static void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"A"</span>); } }
+<span class="kw">class</span> <span class="cl">B</span> <span class="kw">extends</span> <span class="cl">A</span> { <span class="kw">static void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"B"</span>); } }
+<span class="cl">A</span> obj = <span class="kw">new</span> <span class="cl">B</span>();
+obj.<span class="fn">go</span>(); <span class="cm">// Calls A.go()!</span></code></pre>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label compare-good">Instance: Overriding</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">A</span> { <span class="kw">void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"A"</span>); } }
+<span class="kw">class</span> <span class="cl">B</span> <span class="kw">extends</span> <span class="cl">A</span> { <span class="kw">void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"B"</span>); } }
+<span class="cl">A</span> obj = <span class="kw">new</span> <span class="cl">B</span>();
+obj.<span class="fn">go</span>(); <span class="cm">// Calls B.go()!</span></code></pre>
+    </div>
+  </div>
+
+  <h2>6. Rules for Method Overriding</h2>
+  <ul>
+    <li><strong>Access Level</strong>: Cannot be more restrictive than parent.</li>
+    <li><strong>Return Type</strong>: Must be same or a <strong>Covariant Type</strong> (subtype).</li>
+    <li><strong>Exceptions</strong>: Can throw fewer/narrower checked exceptions, never more.</li>
+    <li><strong>Final/Static</strong>: Cannot be overridden.</li>
+  </ul>
+
+  <h2>7. The 'instanceof' Evolution + Downcasting</h2>
+  <pre><code><span class="cm">// OLD WAY (pre-Java 16)</span>
+<span class="kw">if</span> (animal <span class="kw">instanceof</span> <span class="cl">Dog</span>) {
+    <span class="cl">Dog</span> dog = (<span class="cl">Dog</span>) animal; <span class="cm">// manual cast</span>
+    dog.<span class="fn">bark</span>();
+}
+
+<span class="cm">// MODERN WAY (Java 16+) — Pattern Matching</span>
+<span class="kw">if</span> (animal <span class="kw">instanceof</span> <span class="cl">Dog</span> dog) {
+    dog.<span class="fn">bark</span>(); <span class="cm">// already cast — no ClassCastException risk!</span>
+}
+
+<span class="cm">// SWITCH PATTERN (Java 21)</span>
+<span class="cl">String</span> <span class="fn">describe</span>(<span class="cl">Shape</span> s) {
+    <span class="kw">return switch</span> (s) {
+        <span class="kw">case</span> <span class="cl">Circle</span> c -> <span class="str">"Circle r="</span> + c.<span class="fn">getRadius</span>();
+        <span class="kw">case</span> <span class="cl">Square</span> sq -> <span class="str">"Square s="</span> + sq.<span class="fn">getSide</span>();
+        <span class="kw">default</span> -> <span class="str">"Unknown shape"</span>;
+    };
+}
+</code></pre>
+
+  <h2>8. Covariant Return Types</h2>
+  <pre><code><span class="kw">interface</span> <span class="cl">Provider</span> { <span class="cl">Connection</span> <span class="fn">get</span>(); }
+<span class="kw">class</span> <span class="cl">MySQLProvider</span> <span class="kw">implements</span> <span class="cl">Provider</span> {
+    <span class="cl">MySQLConnection</span> <span class="fn">get</span>() { <span class="kw">return new</span> <span class="cl">MySQLConnection</span>(); }
+    <span class="cm">// Valid! MySQLConnection IS-A Connection</span>
+}
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 04D</div>
+    <ul>
+      <li><strong>Polymorphism</strong> is enabled by <strong>Dynamic Dispatch</strong> (invokevirtual).</li>
+      <li><strong>vtable</strong> is the primary mechanism for method lookup.</li>
+      <li><strong>JIT Devirtualization</strong> makes polymorphic code run at native speed.</li>
+      <li><strong>Static methods cannot be overridden</strong> (they are hidden).</li>
+      <li><strong>Interface-based polymorphism</strong> is the professional way to write extensible systems.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 04D</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is a 'Megamorphic' call site?<span class="arrow">▶</span></div>
+    <div class="qa-a">A call site where many different subclasses are being called. The JVM cannot optimize this easily via devirtualization, and must fall back to slower vtable lookup. Senior devs avoid this in tight, high-performance loops.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why is 'invokeinterface' slower than 'invokevirtual'?<span class="arrow">▶</span></div>
+    <div class="qa-a">Because a class can implement multiple interfaces, the method offset can change between classes. <code>invokeinterface</code> must search the <strong>itable</strong>, whereas <code>invokevirtual</code> has a fixed offset in the vtable.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can we override a private method?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No.</strong> Private methods are not visible to subclasses. A method with the same signature in the subclass is a completely <strong>new</strong> method, not an override.</div>
+  </div>
+</div>

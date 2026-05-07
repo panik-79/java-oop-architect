@@ -1,0 +1,179 @@
+<div id="encapsulation" class="section">
+  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04A</span></div>
+  <div class="section-eyebrow">The First Pillar</div>
+  <h1>Encapsulation: Protecting the Invariants</h1>
+  <div class="section-desc">We move beyond "making fields private." Encapsulation is about <strong>Information Hiding</strong> and maintaining the internal consistency (Invariants) of an object at all costs.</div>
+
+  <h2>1. Encapsulation vs. Information Hiding</h2>
+  <ul>
+    <li><strong>Encapsulation</strong>: Bundling data (fields) and methods (behavior) together into a single unit (Class).</li>
+    <li><strong>Information Hiding</strong>: Preventing the outside world from seeing or modifying internal state directly via <strong>Access Modifiers</strong>.</li>
+  </ul>
+
+  <h3>Example: Complete Encapsulated Class</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">BankAccount</span> {
+    <span class="kw">private</span> <span class="cl">String</span> accountId;
+    <span class="kw">private double</span> balance;
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; transactionHistory = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+
+    <span class="kw">public</span> <span class="cl">BankAccount</span>(<span class="cl">String</span> accountId, <span class="kw">double</span> initialBalance) {
+        <span class="kw">if</span> (initialBalance < <span class="num">0</span>)
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Cannot start negative"</span>);
+        <span class="kw">this</span>.accountId = accountId;
+        <span class="kw">this</span>.balance = initialBalance;
+        <span class="fn">logTransaction</span>(<span class="str">"Account opened with $"</span> + initialBalance);
+    }
+
+    <span class="kw">public void</span> <span class="fn">deposit</span>(<span class="kw">double</span> amount) {
+        <span class="kw">if</span> (amount <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Must be positive"</span>);
+        balance += amount;
+        <span class="fn">logTransaction</span>(<span class="str">"Deposited $"</span> + amount);
+    }
+
+    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="kw">double</span> amount) {
+        <span class="kw">if</span> (amount <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Must be positive"</span>);
+        <span class="kw">if</span> (amount > balance) <span class="kw">throw new</span> <span class="cl">IllegalStateException</span>(<span class="str">"Insufficient funds"</span>);
+        balance -= amount;
+        <span class="fn">logTransaction</span>(<span class="str">"Withdrew $"</span> + amount);
+    }
+
+    <span class="kw">public double</span> <span class="fn">getBalance</span>() { <span class="kw">return</span> balance; }
+
+    <span class="cm">// DEFENSIVE COPY — never return the real list!</span>
+    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getTransactionHistory</span>() {
+        <span class="kw">return</span> <span class="cl">Collections</span>.<span class="fn">unmodifiableList</span>(transactionHistory);
+    }
+
+    <span class="kw">private void</span> <span class="fn">logTransaction</span>(<span class="cl">String</span> msg) {
+        transactionHistory.<span class="fn">add</span>(<span class="cl">LocalDateTime</span>.<span class="fn">now</span>() + <span class="str">": "</span> + msg);
+    }
+}
+
+<span class="cm">// Usage — all access goes through controlled methods</span>
+<span class="cl">BankAccount</span> acc = <span class="kw">new</span> <span class="cl">BankAccount</span>(<span class="str">"ACC-001"</span>, <span class="num">1000</span>);
+acc.<span class="fn">deposit</span>(<span class="num">500</span>);
+acc.<span class="fn">withdraw</span>(<span class="num">200</span>);
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(acc.<span class="fn">getBalance</span>()); <span class="cm">// 1300.0</span>
+<span class="cm">// acc.balance = -9999; // COMPILE ERROR — field is private!</span>
+</code></pre>
+
+  <h2>2. The "Invariant" Mastery</h2>
+  <p>An <strong>Invariant</strong> is a condition that must always be true for an object to be valid.</p>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-label compare-bad">❌ Bad: Naked Fields</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Account</span> {
+    <span class="kw">public double</span> balance;
+}
+<span class="cm">// External code can do:</span>
+account.balance = -<span class="num">100000</span>; <span class="cm">// BROKEN</span></code></pre>
+    </div>
+    <div class="compare-col">
+      <div class="compare-label compare-good">✅ Good: Encapsulated</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Account</span> {
+    <span class="kw">private double</span> balance;
+    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="kw">double</span> amt) {
+        <span class="kw">if</span>(amt > <span class="num">0</span> && amt <= balance)
+            balance -= amt;
+    }
+}</code></pre>
+    </div>
+  </div>
+
+  <h2>3. Defensive Copying</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Senior Trap: Leaking the Reference</div>
+    If your private field is a mutable object (like a <code>Date</code> or <code>List</code>), returning it via a getter <strong>breaks encapsulation</strong>.
+  </div>
+  <pre><code><span class="cm">// BAD — leaks internal state</span>
+<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {
+    <span class="kw">return</span> roles; <span class="cm">// caller can do getRoles().clear()!</span>
+}
+
+<span class="cm">// GOOD — defensive copy</span>
+<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {
+    <span class="kw">return new</span> <span class="cl">ArrayList</span>&lt;&gt;(roles); <span class="cm">// return a COPY</span>
+}
+
+<span class="cm">// BEST — unmodifiable view (no memory copy)</span>
+<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {
+    <span class="kw">return</span> <span class="cl">Collections</span>.<span class="fn">unmodifiableList</span>(roles);
+}
+
+<span class="cm">// Also defend on INPUT (setter/constructor)</span>
+<span class="kw">public void</span> <span class="fn">setRoles</span>(<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; roles) {
+    <span class="kw">this</span>.roles = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;(roles); <span class="cm">// copy input too!</span>
+}
+</code></pre>
+
+  <h2>4. Tell, Don't Ask (Law of Demeter)</h2>
+  <p>You shouldn't ask an object about its state to make a decision; you should tell the object what to do.</p>
+  <pre><code><span class="cm">// BAD — asking for state, then deciding externally</span>
+<span class="kw">if</span> (user.<span class="fn">getAddress</span>().<span class="fn">getCity</span>().<span class="fn">equals</span>(<span class="str">"NY"</span>)) {
+    <span class="fn">applyNYTax</span>(order);
+}
+
+<span class="cm">// GOOD — tell the object to handle it</span>
+<span class="kw">if</span> (user.<span class="fn">isResidentOf</span>(<span class="str">"NY"</span>)) {
+    <span class="fn">applyNYTax</span>(order);
+}
+
+<span class="cm">// EVEN BETTER — the order handles its own tax</span>
+order.<span class="fn">applyTaxFor</span>(user);
+</code></pre>
+
+  <h2>5. Validation in Setters (Self-Defense)</h2>
+  <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {
+    <span class="kw">private</span> <span class="cl">String</span> email;
+    <span class="kw">private int</span> age;
+
+    <span class="kw">public void</span> <span class="fn">setEmail</span>(<span class="cl">String</span> email) {
+        <span class="kw">if</span> (email == <span class="kw">null</span> || !email.<span class="fn">contains</span>(<span class="str">"@"</span>))
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Invalid email"</span>);
+        <span class="kw">this</span>.email = email;
+    }
+
+    <span class="kw">public void</span> <span class="fn">setAge</span>(<span class="kw">int</span> age) {
+        <span class="kw">if</span> (age < <span class="num">18</span> || age > <span class="num">65</span>)
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Age must be 18-65"</span>);
+        <span class="kw">this</span>.age = age;
+    }
+}
+</code></pre>
+
+  <h2>6. Reflection: The Encapsulation Breaker</h2>
+  <pre><code><span class="cm">// Reflection can bypass private — DON'T do this in production!</span>
+<span class="cl">Field</span> balanceField = <span class="cl">BankAccount</span>.<span class="kw">class</span>.<span class="fn">getDeclaredField</span>(<span class="str">"balance"</span>);
+balanceField.<span class="fn">setAccessible</span>(<span class="kw">true</span>); <span class="cm">// bypasses private!</span>
+balanceField.<span class="fn">setDouble</span>(account, <span class="num">999999</span>);
+
+<span class="cm">// Java 9+ modules can prevent this:</span>
+<span class="cm">// module-info.java does NOT 'open' the package</span>
+<span class="cm">// → IllegalAccessException at runtime</span>
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 04A</div>
+    <ul>
+      <li><strong>Bundle state and behavior</strong> to control access.</li>
+      <li><strong>Defensive Copying</strong> is mandatory for mutable fields.</li>
+      <li><strong>Invariants</strong> are business rules that the class must protect.</li>
+      <li><strong>Law of Demeter</strong> prevents "Feature Envy" and reduces coupling.</li>
+      <li><strong>Strong Encapsulation</strong> (Java 9+) protects even against Reflection.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 04A</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why are getters/setters considered a "necessary evil"?<span class="arrow">▶</span></div>
+    <div class="qa-a">Too many getters/setters make the data public again. You have an "Anemic Domain Model." True OOP favors methods that perform <strong>Business Actions</strong> (like <code>withdraw()</code>) rather than just setting raw values (like <code>setBalance()</code>).</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the "Data Clump" smell?<span class="arrow">▶</span></div>
+    <div class="qa-a">When a group of variables (e.g., <code>startDate</code>, <code>endDate</code>) always appear together. Encapsulate them into a <code>DateRange</code> object with behavior like <code>isOverlapping()</code>.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is 'Strong Encapsulation' in Java 17?<span class="arrow">▶</span></div>
+    <div class="qa-a">Project Jigsaw means even Reflection cannot access internal classes unless explicitly <code>exported</code> or <code>opened</code> in <code>module-info.java</code>.</div>
+  </div>
+</div>

@@ -1,0 +1,236 @@
+<div id="access-modifiers" class="section">
+  <div class="breadcrumb">handbook / <span>section 06</span></div>
+  <div class="section-eyebrow">The Gatekeepers</div>
+  <h1>Access Modifiers: Architectural Gates</h1>
+  <div class="section-desc">Access modifiers are not just about security; they are about <strong>API Surface Area</strong>. The smaller your surface area, the easier it is to maintain and refactor your system.</div>
+
+  <h2>1. The Visibility Matrix</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Modifier</th><th>Class</th><th>Package</th><th>Subclass</th><th>World</th></tr>
+    <tr><td><strong>public</strong></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+    <tr><td><strong>protected</strong></td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+    <tr><td><strong>(default)</strong></td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+    <tr><td><strong>private</strong></td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+  </table></div>
+
+  <h3>Example: All Four Modifiers in Action</h3>
+  <pre><code><span class="kw">package</span> com.example.banking;
+
+<span class="kw">public class</span> <span class="cl">BankAccount</span> {
+    <span class="kw">public</span> <span class="cl">String</span> accountType;         <span class="cm">// visible everywhere</span>
+    <span class="kw">protected</span> <span class="cl">String</span> bankBranch;       <span class="cm">// visible to subclasses + same package</span>
+    <span class="cl">String</span> internalCode;               <span class="cm">// package-private (default)</span>
+    <span class="kw">private double</span> balance;            <span class="cm">// ONLY this class</span>
+
+    <span class="kw">public double</span> <span class="fn">getBalance</span>() {
+        <span class="kw">return</span> balance;
+    }
+
+    <span class="kw">public void</span> <span class="fn">deposit</span>(<span class="kw">double</span> amount) {
+        <span class="kw">if</span> (amount <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Must be positive"</span>);
+        <span class="kw">this</span>.balance += amount;
+    }
+
+    <span class="kw">private void</span> <span class="fn">logTransaction</span>(<span class="cl">String</span> msg) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"[LOG] "</span> + msg);
+    }
+}
+</code></pre>
+
+  <h2>2. The "Default" (Package-Private) Power</h2>
+  <p>In many frameworks (like Spring), the "default" access modifier is highly underrated. It allows you to create classes that are visible within your module but completely hidden from the outside world. This is the first line of defense in <strong>Modular Design</strong>.</p>
+
+  <h3>Example: Package-Private for Internal Services</h3>
+  <pre><code><span class="kw">package</span> com.example.order.internal;
+
+<span class="cm">// Package-private! Not visible outside this package.</span>
+<span class="kw">class</span> <span class="cl">OrderValidator</span> {
+    <span class="kw">boolean</span> <span class="fn">isValid</span>(<span class="cl">Order</span> order) {
+        <span class="kw">return</span> order.<span class="fn">getItems</span>().<span class="fn">size</span>() > <span class="num">0</span>
+            && order.<span class="fn">getTotal</span>() > <span class="num">0</span>;
+    }
+}
+
+<span class="cm">// Public facade — the only entry point</span>
+<span class="kw">public class</span> <span class="cl">OrderService</span> {
+    <span class="kw">private final</span> <span class="cl">OrderValidator</span> validator = <span class="kw">new</span> <span class="cl">OrderValidator</span>();
+
+    <span class="kw">public void</span> <span class="fn">placeOrder</span>(<span class="cl">Order</span> order) {
+        <span class="kw">if</span> (!validator.<span class="fn">isValid</span>(order)) {
+            <span class="kw">throw new</span> <span class="cl">IllegalStateException</span>(<span class="str">"Invalid order"</span>);
+        }
+        <span class="cm">// proceed with order...</span>
+    }
+}
+</code></pre>
+
+  <div class="box box-insight">
+    <div class="box-title">💡 Architect's Rule: Tighten by Default</div>
+    Always start with <code>private</code>. If it needs to be visible in the package, go to <code>default</code>. Only go to <code>protected</code> or <code>public</code> if there is a clear, documented need for external access.
+  </div>
+
+  <h2>3. The "Protected" Trap</h2>
+  <p>A <code>protected</code> member is visible to subclasses <strong>AND</strong> to other classes in the same package. This "package access" often leads to accidental exposure. Senior devs use <code>protected</code> sparingly, mainly for <strong>Template Method Patterns</strong> where a subclass <em>must</em> override a specific piece of logic.</p>
+
+  <h3>Example: Protected in Template Method Pattern</h3>
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">DataExporter</span> {
+    <span class="cm">// Template method — defines the algorithm skeleton</span>
+    <span class="kw">public final void</span> <span class="fn">export</span>(<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; data) {
+        <span class="cl">String</span> header = <span class="fn">getHeader</span>();
+        <span class="cl">String</span> formatted = <span class="fn">formatData</span>(data);
+        <span class="cl">String</span> footer = <span class="fn">getFooter</span>();
+        <span class="fn">writeToFile</span>(header + <span class="str">"\n"</span> + formatted + <span class="str">"\n"</span> + footer);
+    }
+
+    <span class="cm">// Protected hooks — subclasses MUST override these</span>
+    <span class="kw">protected abstract</span> <span class="cl">String</span> <span class="fn">getHeader</span>();
+    <span class="kw">protected abstract</span> <span class="cl">String</span> <span class="fn">formatData</span>(<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; data);
+    <span class="kw">protected abstract</span> <span class="cl">String</span> <span class="fn">getFooter</span>();
+
+    <span class="kw">private void</span> <span class="fn">writeToFile</span>(<span class="cl">String</span> content) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Writing: "</span> + content);
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">CsvExporter</span> <span class="kw">extends</span> <span class="cl">DataExporter</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">protected</span> <span class="cl">String</span> <span class="fn">getHeader</span>() { <span class="kw">return</span> <span class="str">"name,age,city"</span>; }
+
+    <span class="kw">@Override</span>
+    <span class="kw">protected</span> <span class="cl">String</span> <span class="fn">formatData</span>(<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; data) {
+        <span class="kw">return</span> <span class="cl">String</span>.<span class="fn">join</span>(<span class="str">"\n"</span>, data);
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">protected</span> <span class="cl">String</span> <span class="fn">getFooter</span>() { <span class="kw">return</span> <span class="str">"--- END ---"</span>; }
+}
+
+<span class="cm">// Usage</span>
+<span class="cl">DataExporter</span> exporter = <span class="kw">new</span> <span class="cl">CsvExporter</span>();
+exporter.<span class="fn">export</span>(<span class="cl">List</span>.<span class="fn">of</span>(<span class="str">"Alice,30,NY"</span>, <span class="str">"Bob,25,LA"</span>));
+</code></pre>
+
+  <h2>4. Strong Encapsulation (Project Jigsaw)</h2>
+  <div class="box box-danger">
+    <div class="box-title">🚨 Java 9+ Module Access</div>
+    Even if a class is <code>public</code>, it is <strong>not visible</strong> to other modules unless the package is explicitly <code>exported</code> in the <code>module-info.java</code>. This added a 5th level of access: <strong>Module-Internal Public</strong>.
+  </div>
+
+  <h3>Example: module-info.java</h3>
+  <pre><code><span class="cm">// module-info.java</span>
+<span class="kw">module</span> com.example.banking {
+    <span class="kw">exports</span> com.example.banking.api;     <span class="cm">// public to the world</span>
+    <span class="cm">// com.example.banking.internal is NOT exported</span>
+    <span class="cm">// Even public classes there are invisible to other modules!</span>
+
+    <span class="kw">requires</span> java.sql;                   <span class="cm">// this module depends on java.sql</span>
+    <span class="kw">opens</span> com.example.banking.model <span class="kw">to</span> hibernate.core; <span class="cm">// reflection access</span>
+}
+</code></pre>
+
+  <h2>5. Private Methods in Interfaces (Java 9+)</h2>
+  <p>Java 9 introduced <strong>private methods in interfaces</strong>. These allow you to share code between default methods without exposing it.</p>
+  <pre><code><span class="kw">public interface</span> <span class="cl">Loggable</span> {
+    <span class="kw">default void</span> <span class="fn">logInfo</span>(<span class="cl">String</span> msg) {
+        <span class="fn">log</span>(<span class="str">"INFO"</span>, msg);
+    }
+
+    <span class="kw">default void</span> <span class="fn">logError</span>(<span class="cl">String</span> msg) {
+        <span class="fn">log</span>(<span class="str">"ERROR"</span>, msg);
+    }
+
+    <span class="cm">// Private helper — shared by default methods, hidden from implementors</span>
+    <span class="kw">private void</span> <span class="fn">log</span>(<span class="cl">String</span> level, <span class="cl">String</span> msg) {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"["</span> + level + <span class="str">"] "</span> + msg);
+    }
+}
+</code></pre>
+
+  <h2>6. Testing Private Methods?</h2>
+  <p>There is a massive debate: Should you test private methods?</p>
+  <ul>
+    <li><strong>The "Purist" View</strong>: No. Test the public API; if the private method has a bug, the public API test will fail. Testing privates makes tests fragile during refactoring.</li>
+    <li><strong>The "Pragmatist" View</strong>: Sometimes. If a private method has complex logic, it might be worth making it <code>package-private</code> (or using <code>@VisibleForTesting</code> in Google Guava) to test it in isolation.</li>
+  </ul>
+
+  <h3>Example: @VisibleForTesting Pattern</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">PriceCalculator</span> {
+    <span class="kw">public double</span> <span class="fn">calculateTotal</span>(<span class="cl">List</span>&lt;<span class="cl">Item</span>&gt; items) {
+        <span class="kw">double</span> subtotal = items.<span class="fn">stream</span>()
+            .<span class="fn">mapToDouble</span>(<span class="cl">Item</span>::getPrice)
+            .<span class="fn">sum</span>();
+        <span class="kw">return</span> <span class="fn">applyDiscount</span>(subtotal);
+    }
+
+    <span class="cm">// Package-private instead of private — testable!</span>
+    <span class="cm">// @VisibleForTesting</span>
+    <span class="kw">double</span> <span class="fn">applyDiscount</span>(<span class="kw">double</span> subtotal) {
+        <span class="kw">if</span> (subtotal > <span class="num">100</span>) <span class="kw">return</span> subtotal * <span class="num">0.9</span>;
+        <span class="kw">if</span> (subtotal > <span class="num">50</span>) <span class="kw">return</span> subtotal * <span class="num">0.95</span>;
+        <span class="kw">return</span> subtotal;
+    }
+}
+
+<span class="cm">// Test class in same package can access applyDiscount()</span>
+<span class="kw">class</span> <span class="cl">PriceCalculatorTest</span> {
+    <span class="kw">@Test</span>
+    <span class="kw">void</span> <span class="fn">testDiscount</span>() {
+        <span class="cl">PriceCalculator</span> calc = <span class="kw">new</span> <span class="cl">PriceCalculator</span>();
+        assertEquals(<span class="num">90.0</span>, calc.<span class="fn">applyDiscount</span>(<span class="num">100.0</span>));
+    }
+}
+</code></pre>
+
+  <h2>7. Member-Level vs. Class-Level</h2>
+  <p>Remember: Outer classes can only be <code>public</code> or <code>default</code>. Only <strong>Inner Classes</strong> can be <code>private</code> or <code>protected</code>.</p>
+
+  <h3>Example: Private Inner Class</h3>
+  <pre><code><span class="kw">public class</span> <span class="cl">LinkedList</span>&lt;<span class="cl">T</span>&gt; {
+    <span class="kw">private</span> <span class="cl">Node</span>&lt;<span class="cl">T</span>&gt; head;
+
+    <span class="cm">// Private inner class — completely hidden from the outside world</span>
+    <span class="kw">private static class</span> <span class="cl">Node</span>&lt;<span class="cl">T</span>&gt; {
+        <span class="cl">T</span> data;
+        <span class="cl">Node</span>&lt;<span class="cl">T</span>&gt; next;
+
+        <span class="cl">Node</span>(<span class="cl">T</span> data, <span class="cl">Node</span>&lt;<span class="cl">T</span>&gt; next) {
+            <span class="kw">this</span>.data = data;
+            <span class="kw">this</span>.next = next;
+        }
+    }
+
+    <span class="kw">public void</span> <span class="fn">addFirst</span>(<span class="cl">T</span> item) {
+        head = <span class="kw">new</span> <span class="cl">Node</span>&lt;&gt;(item, head);
+    }
+
+    <span class="kw">public</span> <span class="cl">T</span> <span class="fn">getFirst</span>() {
+        <span class="kw">return</span> head != <span class="kw">null</span> ? head.data : <span class="kw">null</span>;
+    }
+}
+</code></pre>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways — Section 06</div>
+    <ul>
+      <li><strong>Public is forever</strong>: Once it's public, you can't change it without breaking others.</li>
+      <li><strong>Private is safe</strong>: You can delete/rename private members with zero fear.</li>
+      <li><strong>Default</strong> is perfect for internal module logic.</li>
+      <li><strong>Protected</strong> is for inheritance-based hooks (Template Method).</li>
+      <li><strong>Java 9 modules</strong> add a 5th level: module-internal public.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive — Section 06</h2>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can a subclass reduce the visibility of an inherited method?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No.</strong> This is a rule of Polymorphism. If a parent method is <code>public</code>, the override in the subclass must also be <code>public</code>. You can <em>increase</em> visibility (e.g., overriding a <code>protected</code> method as <code>public</code>), but you can never decrease it. Doing so would break the "IS-A" contract.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Why is there no 'private protected' in Java?<span class="arrow">▶</span></div>
+    <div class="qa-a">It actually existed in very early versions of Java (1.0) but was removed. It meant "visible only to subclasses, but not to the package." It was considered too complex and rarely used, so it was pruned to keep the language simpler.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can a constructor be private? When would you use that?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> Private constructors are used in three key patterns: <strong>1) Singleton</strong> — prevent external instantiation. <strong>2) Utility class</strong> — prevent instantiation entirely (e.g., <code>java.util.Collections</code>). <strong>3) Static Factory Method</strong> — control object creation through named methods like <code>of()</code>, <code>valueOf()</code>, or <code>newInstance()</code>.</div>
+  </div>
+</div>

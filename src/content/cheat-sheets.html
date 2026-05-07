@@ -1,0 +1,73 @@
+<div id="cheat-sheets" class="section">
+  <div class="breadcrumb">handbook / <span>section 20</span></div>
+  <div class="section-eyebrow">The Mastery Roadmap</div>
+  <h1>The Senior Developer's Cheat Sheet</h1>
+  <div class="section-desc">A high-density reference for the modern Java architect. Bytecode, JVM versions, SOLID principles, and the "Design for Change" checklist.</div>
+
+  <h2>1. Bytecode: The Language of the JVM</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Instruction</th><th>Usage</th><th>Dispatch Type</th></tr>
+    <tr><td><code>invokevirtual</code></td><td>Standard instance methods.</td><td>Dynamic (vtable)</td></tr>
+    <tr><td><code>invokeinterface</code></td><td>Interface methods.</td><td>Dynamic (itable)</td></tr>
+    <tr><td><code>invokestatic</code></td><td>Static methods.</td><td>Static (Direct)</td></tr>
+    <tr><td><code>invokespecial</code></td><td>Private methods, constructors, super.</td><td>Static (Direct)</td></tr>
+    <tr><td><code>invokedynamic</code></td><td>Lambdas and dynamic languages.</td><td>Runtime Bootstrap</td></tr>
+  </table></div>
+
+  <h2>2. Modern Java Evolution (8 → 21)</h2>
+  <ul>
+    <li><strong>Java 8</strong>: Lambdas, Streams, Optional, Default methods.</li>
+    <li><strong>Java 11</strong>: Local variable type inference (<code>var</code>), HTTP Client.</li>
+    <li><strong>Java 17</strong>: <strong>Sealed Classes</strong>, <strong>Records</strong>, Pattern Matching for <code>switch</code>.</li>
+    <li><strong>Java 21</strong>: <strong>Virtual Threads (Loom)</strong>, Record Patterns, Sequenced Collections.</li>
+  </ul>
+
+  <h2>3. SOLID in 5 Sentences</h2>
+  <ol>
+    <li><strong>S</strong>: A class should have <strong>only one reason to change</strong>.</li>
+    <li><strong>O</strong>: Software entities should be <strong>open for extension, but closed for modification</strong>.</li>
+    <li><strong>L</strong>: Subtypes must be <strong>completely substitutable</strong> for their base types.</li>
+    <li><strong>I</strong>: Many <strong>specific interfaces</strong> are better than one general-purpose interface.</li>
+    <li><strong>D</strong>: Depend on <strong>Abstractions</strong>, not on concretions.</li>
+  </ol>
+
+  <h2>4. The "Senior" Design Checklist</h2>
+  <div class="box box-insight">
+    <div class="box-title">⚖️ The Quality Checklist</div>
+    <ul>
+      <li><strong>Is it Extendable?</strong> (Can I add a new type without changing existing code? -> OCP).</li>
+      <li><strong>Is it Testable?</strong> (Can I mock the dependencies? -> DIP).</li>
+      <li><strong>Is it Readable?</strong> (Do the names reflect the business domain? -> DDD).</li>
+      <li><strong>Is it Consistent?</strong> (Does it handle errors and invariants predictably? -> Encapsulation).</li>
+    </ul>
+  </div>
+
+  <h2>5. Common Anti-Patterns & Fixes</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Smell</th><th>Problem</th><th>The OOP Fix</th></tr>
+    <tr><td><strong>God Class</strong></td><td>One class does everything.</td><td>Break into smaller, cohesive classes (SRP).</td></tr>
+    <tr><td><strong>Shotgun Surgery</strong></td><td>Changing one thing requires changes everywhere.</td><td>Encapsulate the changing logic in its own class.</td></tr>
+    <tr><td><strong>Anemic Domain</strong></td><td>Classes are just data buckets (getters/setters only).</td><td>Move behavior into the domain classes.</td></tr>
+    <tr><td><strong>Feature Envy</strong></td><td>Class A uses too many methods of Class B.</td><td>Move the method from A to B (Tell, Don't Ask).</td></tr>
+  </table></div>
+
+  <div class="box box-success">
+    <div class="box-title">💡 Final Senior Wisdom</div>
+    Great design is not about using as many patterns as possible. It is about choosing the <strong>simplest</strong> structure that solves the problem while remaining flexible for the future. Over-engineering is just as dangerous as under-engineering.
+  </div>
+
+  <div class="takeaways">
+    <div class="takeaways-title">Your Next Steps</div>
+    <ul>
+      <li><strong>Profile Your Code</strong>: Use JProfiler or VisualVM to see vtable overhead.</li>
+      <li><strong>Read the JDK</strong>: Study <code>java.util.Collections</code> for static factory design.</li>
+      <li><strong>Practice Refactoring</strong>: Take a "God Class" and break it down using the bridge pattern.</li>
+    </ul>
+  </div>
+
+  <div class="hero-tags" style="justify-content:center;margin-top:40px;">
+    <span class="tag tag-purple">Handbook Mastery</span>
+    <span class="tag tag-green">Senior Perspective</span>
+    <span class="tag tag-teal">Architect Ready</span>
+  </div>
+</div>
