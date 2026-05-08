@@ -83,12 +83,8 @@ export function showSection(id) {
 
   // Update visibility
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.home-section').forEach(s => {
-    if (id === 'home') s.classList.remove('hidden');
-    else s.classList.add('hidden');
-  });
 
-  if (id !== 'home' && sectionEl) {
+  if (sectionEl) {
     sectionEl.classList.add('active');
   }
 
