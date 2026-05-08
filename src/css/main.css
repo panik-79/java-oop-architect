@@ -893,15 +893,7 @@ html, body {
   width: 100%;
 }
 
-/* ─── MAIN CONTENT ─── */
-.main {
-  flex: 1;
-  width: 100%;
-  min-width: 0; /* Allow flex children to shrink */
-  padding-bottom: 6rem;
-  position: relative;
-  z-index: 1;
-}
+
 
 /* ─── BOTTOM NAVIGATION ─── */
 .bottom-nav {
@@ -1008,7 +1000,7 @@ code {
     box-shadow: 20px 0 60px rgba(0,0,0,0.8);
   }
   
-  .main { width: 100%; }
+  .main { width: 100%; margin-left: 0; }
   
   .content {
     width: 100%;
