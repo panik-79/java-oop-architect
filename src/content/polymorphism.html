@@ -26,35 +26,38 @@ m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">"
 </code></pre>
 
   <h3>Example: Method Overriding (Dynamic Polymorphism)</h3>
-  <pre><code><span class="kw">public class</span> <span class="cl">Shape</span> {
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="num">0</span>; }
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">Logger</span> {
+    <span class="kw">public abstract void</span> <span class="fn">write</span>(<span class="cl">String</span> log);
 }
 
-<span class="kw">public class</span> <span class="cl">Circle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
-    <span class="kw">private double</span> radius;
-    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> r) { <span class="kw">this</span>.radius = r; }
+<span class="kw">public class</span> <span class="cl">FileLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {
+    <span class="kw">private</span> <span class="cl">String</span> filePath;
+    <span class="kw">public</span> <span class="cl">FileLogger</span>(<span class="cl">String</span> path) { <span class="kw">this</span>.filePath = path; }
 
     <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }
+    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { 
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Appending to file "</span> + filePath + <span class="str">": "</span> + log); 
+    }
 }
 
-<span class="kw">public class</span> <span class="cl">Square</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
-    <span class="kw">private double</span> side;
-    <span class="kw">public</span> <span class="cl">Square</span>(<span class="kw">double</span> s) { <span class="kw">this</span>.side = s; }
+<span class="kw">public class</span> <span class="cl">CloudLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {
+    <span class="kw">private</span> <span class="cl">String</span> bucketUrl;
+    <span class="kw">public</span> <span class="cl">CloudLogger</span>(<span class="cl">String</span> url) { <span class="kw">this</span>.bucketUrl = url; }
 
     <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> side * side; }
+    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { 
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Sending over network to "</span> + bucketUrl + <span class="str">": "</span> + log); 
+    }
 }
 
 <span class="cm">// Dynamic dispatch — JVM decides at RUNTIME</span>
-<span class="cl">List</span>&lt;<span class="cl">Shape</span>&gt; shapes = <span class="cl">List</span>.<span class="fn">of</span>(
-    <span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">5</span>),
-    <span class="kw">new</span> <span class="cl">Square</span>(<span class="num">4</span>),
-    <span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">3</span>)
+<span class="cl">List</span>&lt;<span class="cl">Logger</span>&gt; loggers = <span class="cl">List</span>.<span class="fn">of</span>(
+    <span class="kw">new</span> <span class="cl">FileLogger</span>(<span class="str">"/var/logs/app.log"</span>),
+    <span class="kw">new</span> <span class="cl">CloudLogger</span>(<span class="str">"s3://bucket/logs"</span>)
 );
 
-<span class="kw">for</span> (<span class="cl">Shape</span> s : shapes) {
-    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Area: "</span> + s.<span class="fn">area</span>()); <span class="cm">// correct method called!</span>
+<span class="kw">for</span> (<span class="cl">Logger</span> logger : loggers) {
+    logger.<span class="fn">write</span>(<span class="str">"System booted."</span>); <span class="cm">// Correct method called via vtable</span>
 }
 </code></pre>
 
@@ -67,13 +70,19 @@ m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">"
     <li><strong>invokedynamic</strong>: Lambdas, var-args (Java 7+). Bootstrap method resolves target.</li>
   </ul>
 
-  <h2>3. Internal Wiring: vtable vs itable</h2>
-  <div class="diagram">
-[ CLASS: ANIMAL ]          [ CLASS: DOG ]
+  <h2>3. Internal Wiring: How the JVM Thinks</h2>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    Juniors think polymorphism is "magic." Seniors know it's just a pointer lookup. Every object has a hidden header pointing to its class's <strong>vtable</strong> (Virtual Method Table). At runtime, <code>logger.write()</code> looks up index 1 in the vtable and jumps to that memory address.
+  </div>
+
+  <div class="ascii-diagram">
+[ CLASS: LOGGER ]          [ CLASS: FILELOGGER ]
 vtable:                    vtable:
 0: Object.toString()       0: Object.toString()
-1: Animal.makeSound()      1: Dog.makeSound() <── (OVERRIDDEN)
-                           2: Dog.wagTail()   <── (NEW)</div>
+1: Logger.write()          1: FileLogger.write() <── (OVERRIDDEN)
+                           2: FileLogger.rotate() <── (NEW)
+  </div>
 
   <div class="box box-insight">
     <div class="box-title">🚀 JIT Optimization: Devirtualization</div>
@@ -81,6 +90,11 @@ vtable:                    vtable:
   </div>
 
   <h2>4. Interface-Based Polymorphism (The Professional Way)</h2>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Strategy Pattern</div>
+    Polymorphism is the engine behind the <strong>Strategy Pattern</strong>. By programming to an interface (<code>Notifier</code>), the <code>AlertService</code> is completely decoupled from the specific transport mechanism. This makes the code highly testable (via Mocks) and extensible.
+  </div>
+
   <pre><code><span class="kw">public interface</span> <span class="cl">Notifier</span> {
     <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> message, <span class="cl">String</span> recipient);
 }
@@ -99,17 +113,11 @@ vtable:                    vtable:
     }
 }
 
-<span class="kw">public class</span> <span class="cl">SlackNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Slack to #"</span> + to + <span class="str">": "</span> + msg);
-    }
-}
-
 <span class="cm">// SERVICE — depends on abstraction, not concrete classes</span>
 <span class="kw">public class</span> <span class="cl">AlertService</span> {
     <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers;
 
+    <span class="cm">// Dependency Injection via Constructor</span>
     <span class="kw">public</span> <span class="cl">AlertService</span>(<span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers) {
         <span class="kw">this</span>.notifiers = notifiers;
     }
@@ -122,8 +130,7 @@ vtable:                    vtable:
 <span class="cm">// USAGE — add new notifiers without changing AlertService!</span>
 <span class="cl">AlertService</span> svc = <span class="kw">new</span> <span class="cl">AlertService</span>(<span class="cl">List</span>.<span class="fn">of</span>(
     <span class="kw">new</span> <span class="cl">EmailNotifier</span>(),
-    <span class="kw">new</span> <span class="cl">SmsNotifier</span>(),
-    <span class="kw">new</span> <span class="cl">SlackNotifier</span>()
+    <span class="kw">new</span> <span class="cl">SmsNotifier</span>()
 ));
 svc.<span class="fn">alert</span>(<span class="str">"Server is down!"</span>);
 </code></pre>

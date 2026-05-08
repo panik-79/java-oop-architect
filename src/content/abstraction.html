@@ -105,9 +105,9 @@ stack.<span class="fn">push</span>(<span class="str">"World"</span>);
 <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(stack.<span class="fn">pop</span>()); <span class="cm">// "World"</span>
 </code></pre>
 
-  <div class="box box-insight">
-    <div class="box-title">💡 Architect's Insight: Pluggable Architecture (Repository Pattern)</div>
-    By abstracting the database layer behind a <code>Repository</code> interface, you make your business logic "database agnostic." You can swap PostgreSQL for MongoDB by simply changing the implementation class. This is the heart of <strong>Hexagonal Architecture (Ports and Adapters)</strong>.
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: Hexagonal Architecture (Ports & Adapters)</div>
+    By abstracting the database layer behind a <code>Repository</code> interface (The Port), you make your business logic "database agnostic." You can swap PostgreSQL for MongoDB by simply changing the implementation class (The Adapter). This is how FAANG companies migrate databases with zero downtime.
   </div>
 
   <h3>Example: Repository Pattern (Hexagonal Architecture)</h3>
@@ -172,11 +172,11 @@ stack.<span class="fn">push</span>(<span class="str">"World"</span>);
   </ol>
 
   <h2>4. The "Leaky Abstraction" Problem</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Concept: Joel Spolsky's Law</div>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Joel Spolsky's Law</div>
     "All non-trivial abstractions, to some degree, are leaky." 
     <br><br>
-    Example: <code>Hibernate</code> abstracts SQL. But if you don't understand how SQL joins work, you will create a "N+1 Query Problem" that kills performance. The abstraction <em>leaks</em> the underlying complexity. A senior dev knows the abstraction but understands the layer beneath it.
+    Example: <code>Hibernate/JPA</code> abstracts SQL away. But if you don't understand how SQL joins work underneath, you will create a "N+1 Query Problem" that kills production performance. The abstraction <em>leaks</em> the underlying complexity. A senior dev trusts the abstraction but intimately understands the layer beneath it.
   </div>
 
   <h3>Example: The N+1 Problem (Leaky Abstraction)</h3>

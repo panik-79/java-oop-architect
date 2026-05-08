@@ -39,11 +39,16 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
   <p><strong>Senior Fact</strong>: Many core Java classes like <code>String</code>, <code>Integer</code>, and <code>Math</code> are final for security and immutability. Java 17 <strong>Sealed Classes</strong> provide a middle ground.</p>
 
   <h2>4. The Java Memory Model (JMM) Guarantee</h2>
-  <div class="box box-insight">
-    <div class="box-title">🚀 Senior Fact: Safe Publication</div>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Safe Publication</div>
     The <code>final</code> keyword provides a unique thread-safety guarantee. Under the JMM, if an object is constructed correctly (without leaking <code>this</code>), any thread that sees the object is <strong>guaranteed</strong> to see the correctly initialized values of its <code>final</code> fields. 
     <br><br>
-    <strong>The Magic</strong>: The JVM inserts a "StoreStore" barrier at the end of the constructor to ensure all final field writes are visible to other CPUs before the object reference itself is published.
+    <strong>The Magic</strong>: The JVM inserts a "StoreStore" barrier at the end of the constructor to ensure all final field writes are flushed to main memory before the object reference itself is published.
+  </div>
+
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: Immutability First</div>
+    "Classes should be immutable unless there's a very good reason to make them mutable." (Effective Java Item 17). Immutable objects (where all fields are final) are inherently thread-safe. They require no synchronization. This is why <code>String</code> is immutable, and why <code>record</code> classes in Java 14+ are the preferred way to model Data Transfer Objects (DTOs).
   </div>
 
   <h2>5. Effectively Final (Java 8+)</h2>

@@ -5,17 +5,41 @@
   <div class="section-desc">We move beyond "Stack vs Heap." We explore the TLABs, the Survivor space rotation, the ZGC revolution, and the memory regions that make Java's Garbage Collector one of the most advanced in the world.</div>
 
   <h2>1. The "Big Three" Regions</h2>
-  <div class="diagram">
-[ JVM PROCESS ]
-├─ METASPACE (Native) ──► Class Metadata, Method vtables, Static Fields
-├─ STACK (Private)    ──► Thread-local storage, LIFO, Primitive data
-└─ HEAP (Shared)      ──► The dynamic playground of all objects
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    Juniors memorize "Objects go on the Heap, primitives on the Stack." Seniors know that <strong>reachability is everything</strong>. Memory leaks happen when a long-lived object (like a static Map) holds a strong reference to a short-lived object, preventing the GC from reclaiming the Heap space.
+  </div>
 
-   [ HEAP ANATOMY ]
-   ┌─────────────┬─────────────┬─────────────┐
-   │ YOUNG GEN   │ OLD GEN     │ HUMONGOUS   │ (G1 Layout)
-   │ [E][S0][S1] │ [Tenured]   │ [Regions]   │
-   └─────────────┴─────────────┴─────────────┘</div>
+  <div class="ascii-diagram">
+[ THE JVM MEMORY MAP ]
+
+   STACK (Thread-Local)                      HEAP (Shared)
+  +--------------------+                 +----------------------+
+  |                    |                 |                      |
+  | personRef ---------+---------------->| 0xA123: Person       |
+  |                    |                 |  |- name = "Pujan"   |
+  | count = 42         |                 |  |- age  = 22        |
+  |                    |                 |                      |
+  | listRef -----------+----------+      | 0xB456: ArrayList    |
+  |                    |          +----->|  |- size = 1         |
+  +--------------------+                 |  |- elementData      |
+                                         +----------------------+
+  * Primitives & References              * Actual Object Data
+  * LIFO execution context               * GC Managed Area
+  * Dies when method returns             * Dies when unreachable
+  </div>
+
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection</div>
+    When designing a high-throughput system (like a Trading Engine or a WebSocket server), understanding the Heap is critical. You use <strong>Object Pooling</strong> or <strong>Off-Heap Memory</strong> (like ByteBuffer) to completely bypass the Garbage Collector and ensure zero-latency execution.
+  </div>
+
+  <div class="diagram">
+[ HEAP ANATOMY ]
++-------------+-------------+-------------+
+| YOUNG GEN   | OLD GEN     | HUMONGOUS   | (G1 Layout)
+| [E][S0][S1] | [Tenured]   | [Regions]   |
++-------------+-------------+-------------+</div>
 
   <h2>2. The Generational Hypothesis</h2>
   <p>The entire memory system is built on one observation: <strong>"Most objects die young."</strong></p>

@@ -98,11 +98,16 @@ p2.<span class="fn">process</span>(); <span class="cm">// reads JSON, transforms
   </table></div>
 
   <h2>5. The "Abstract Base" Pattern (JDK Level)</h2>
-  <div class="box box-insight">
-    <div class="box-title">💡 The Head Start Pattern</div>
-    A common pattern in the JDK is to have an <code>Interface</code> (e.g., <code>List</code>) defining the API, and an <code>AbstractClass</code> (e.g., <code>AbstractList</code>) that provides a default, partial implementation of that interface. 
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Spring Framework</div>
+    A common architectural pattern in FAANG is to have an <code>Interface</code> (e.g., <code>Filter</code>) defining the API, and an <code>AbstractClass</code> (e.g., <code>OncePerRequestFilter</code> in Spring) that provides a robust, thread-safe partial implementation.
     <br><br>
-    <strong>Benefit</strong>: Users can either implement the interface from scratch (for total control) or extend the abstract class (to save 90% of the work).
+    <strong>Benefit</strong>: Users can either implement the interface from scratch (for total control) or extend the abstract class (to save 90% of the boilerplate).
+  </div>
+  
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: The God Base Class</div>
+    Beware the <code>BaseController</code> or <code>BaseEntity</code> that has 50 protected methods. This violates the Single Responsibility Principle. If a base class is constantly changing, it creates a <strong>Fragile Base Class</strong> where an update breaks every subclass in the system. Use Composition for shared utilities (e.g., <code>SecurityUtils</code>), not Inheritance.
   </div>
 
   <h2>6. Forced Implementation</h2>

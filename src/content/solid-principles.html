@@ -10,6 +10,10 @@
     <div class="box-title">🏛️ Architect's Tip: The 'Conway's Law' Link</div>
     SRP isn't just about code; it's about people. If two different departments (e.g., Finance and HR) ask for changes to the same class, you have violated SRP. Each class should serve exactly one stakeholder.
   </div>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: The God Object & Shotgun Surgery</div>
+    If a class is 2,000 lines long and handles validation, database access, and UI formatting, it is a <strong>God Object</strong>. When you have to change 5 different files to add one tiny feature, you are suffering from <strong>Shotgun Surgery</strong> (a clear violation of SRP).
+  </div>
   <div class="compare">
     <div class="compare-col">
       <div class="compare-label compare-bad">❌ Bad: God Class</div>
@@ -152,7 +156,11 @@ assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>(
 
 
   <h2>6. SOLID vs. YAGNI/KISS</h2>
-  <p>While SOLID is powerful, it can lead to <strong>Over-Engineering</strong> if misapplied. A senior dev balances these with:</p>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    Junior devs read about SOLID and instantly create 5 interfaces, 3 abstract classes, and a factory for a script that just reads a CSV file. Senior devs balance SOLID against practical delivery. Over-abstracting code before the requirements demand it is called <strong>Premature Optimization</strong>.
+  </div>
+  <p>While SOLID is powerful, it can lead to <strong>Over-Engineering</strong> if misapplied. Balance these with:</p>
   <ul>
     <li><strong>KISS (Keep It Simple, Stupid)</strong>: Don't use 5 interfaces if 1 simple class will suffice for the next 2 years.</li>
     <li><strong>YAGNI (You Ain't Gonna Need It)</strong>: Don't build an OCP-compliant pluggable system for a feature that will never change.</li>

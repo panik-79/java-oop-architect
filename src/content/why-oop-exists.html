@@ -26,6 +26,10 @@
   </div>
 
   <h2>2. Procedure-Centric vs. Data-Centric</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: The Anemic Domain Model</div>
+    If your objects are just "bags of getters and setters" (e.g., a User class with 15 fields but zero business logic), and all the logic lives in a massive <code>UserService</code> class, you aren't doing OOP. You are doing Procedural Programming in Java. This anti-pattern is called the <strong>Anemic Domain Model</strong>.
+  </div>
   <p>Procedural programming is <strong>Procedure-Centric</strong> (verbs take priority). OOP is <strong>Data-Centric</strong> (nouns take priority). In a procedural world, a 'Save' function knows about Users, Orders, and Products. In OOP, the <code>User</code> knows how to save itself.</p>
 
   <h2>3. The OOP Mental Model: Entities as Sovereigns</h2>
@@ -47,6 +51,10 @@
   </table></div>
 
   <h2>5. The Expression Problem</h2>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Visitor Pattern</div>
+    The Visitor Pattern is the classic OOP workaround for the Expression Problem. It allows you to add new behaviors (operations) to a hierarchy of objects without modifying the classes themselves, effectively giving OOP languages the functional power of "adding behavior easily."
+  </div>
   <p>In software engineering, the <strong>Expression Problem</strong> asks: How easy is it to add new data types vs. new behaviors?</p>
   <ul>
     <li><strong>OOP excels at adding new types</strong>: Just create a new subclass. You don't have to touch existing code.</li>

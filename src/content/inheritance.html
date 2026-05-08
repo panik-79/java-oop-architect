@@ -5,56 +5,65 @@
   <div class="section-desc">Inheritance represents the <strong>IS-A</strong> relationship. While powerful, it is the most dangerous tool in OOP due to tight coupling. We explore the memory layout, the dangers of deep hierarchies, and the modern transition to <strong>Composition</strong> and <strong>Sealed Classes</strong>.</div>
 
   <h2>1. IS-A vs. HAS-A (The Golden Rule)</h2>
-  <p>Use inheritance only if you can say "A [Subclass] IS-A [Superclass]."</p>
+  <p>Use inheritance only if you can say "A [Subclass] IS-A [Superclass]." However, even when true, you must ask if it's the <em>right</em> abstraction.</p>
   <ul>
-    <li><code>Dog</code> <strong>IS-A</strong> <code>Animal</code> (Inheritance).</li>
-    <li><code>Car</code> <strong>HAS-A</strong> <code>Engine</code> (Composition).</li>
+    <li><code>CreditCardProcessor</code> <strong>IS-A</strong> <code>PaymentProcessor</code> (Inheritance).</li>
+    <li><code>PaymentService</code> <strong>HAS-A</strong> <code>PaymentProcessor</code> (Composition).</li>
   </ul>
 
-  <h3>Example: Basic Inheritance</h3>
-  <pre><code><span class="kw">public class</span> <span class="cl">Animal</span> {
-    <span class="kw">protected</span> <span class="cl">String</span> name;
+  <div class="box box-insight">
+    <div class="box-title">🤔 Why This Exists</div>
+    Inheritance exists because large systems repeat behavior. Without it, you would copy-paste the "Connect to Payment Gateway" code 50 times. <strong>But inheritance also creates tight coupling</strong>, which is why modern systems often prefer composition to share behavior.
+  </div>
 
-    <span class="kw">public</span> <span class="cl">Animal</span>(<span class="cl">String</span> name) { <span class="kw">this</span>.name = name; }
+  <h3>Example: Enterprise Payment Architecture</h3>
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">PaymentProcessor</span> {
+    <span class="kw">protected</span> <span class="cl">String</span> transactionId;
 
-    <span class="kw">public void</span> <span class="fn">eat</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" is eating"</span>);
+    <span class="kw">public</span> <span class="cl">PaymentProcessor</span>(<span class="cl">String</span> txId) { 
+        <span class="kw">this</span>.transactionId = txId; 
     }
 
-    <span class="kw">public void</span> <span class="fn">sleep</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" is sleeping"</span>);
+    <span class="cm">// Concrete behavior shared by all subclasses</span>
+    <span class="kw">public void</span> <span class="fn">logAudit</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"[AUDIT] Processing: "</span> + transactionId);
+    }
+
+    <span class="cm">// Abstract behavior enforced on subclasses</span>
+    <span class="kw">public abstract void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount);
+}
+
+<span class="kw">public class</span> <span class="cl">StripeProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {
+    <span class="kw">private</span> <span class="cl">String</span> apiKey;
+
+    <span class="kw">public</span> <span class="cl">StripeProcessor</span>(<span class="cl">String</span> txId, <span class="cl">String</span> apiKey) {
+        <span class="kw">super</span>(txId); <span class="cm">// MUST call parent constructor</span>
+        <span class="kw">this</span>.apiKey = apiKey;
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {
+        <span class="fn">logAudit</span>(); <span class="cm">// Inherited method</span>
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Calling Stripe API with key... Amount: $"</span> + amount);
     }
 }
 
-<span class="kw">public class</span> <span class="cl">Dog</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
-    <span class="kw">private</span> <span class="cl">String</span> breed;
+<span class="kw">public class</span> <span class="cl">CryptoProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {
+    <span class="kw">public</span> <span class="cl">CryptoProcessor</span>(<span class="cl">String</span> txId) { <span class="kw">super</span>(txId); }
 
-    <span class="kw">public</span> <span class="cl">Dog</span>(<span class="cl">String</span> name, <span class="cl">String</span> breed) {
-        <span class="kw">super</span>(name); <span class="cm">// MUST call parent constructor</span>
-        <span class="kw">this</span>.breed = breed;
-    }
-
-    <span class="kw">public void</span> <span class="fn">bark</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" says Woof!"</span>);
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {
+        <span class="fn">logAudit</span>();
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Validating blockchain transaction... Amount: "</span> + amount + <span class="str">" ETH"</span>);
     }
 }
 
-<span class="kw">public class</span> <span class="cl">Cat</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
-    <span class="kw">public</span> <span class="cl">Cat</span>(<span class="cl">String</span> name) { <span class="kw">super</span>(name); }
+<span class="cm">// Usage — Polymorphism in action</span>
+<span class="cl">PaymentProcessor</span> p1 = <span class="kw">new</span> <span class="cl">StripeProcessor</span>(<span class="str">"TX-991"</span>, <span class="str">"sk_live_123"</span>);
+p1.<span class="fn">processPayment</span>(<span class="num">150.00</span>); <span class="cm">// Triggers Stripe implementation</span>
 
-    <span class="kw">public void</span> <span class="fn">purr</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" purrs..."</span>);
-    }
-}
-
-<span class="cm">// Usage</span>
-<span class="cl">Dog</span> dog = <span class="kw">new</span> <span class="cl">Dog</span>(<span class="str">"Rex"</span>, <span class="str">"German Shepherd"</span>);
-dog.<span class="fn">eat</span>();   <span class="cm">// inherited from Animal</span>
-dog.<span class="fn">bark</span>();  <span class="cm">// own method</span>
-
-<span class="cl">Animal</span> a = <span class="kw">new</span> <span class="cl">Cat</span>(<span class="str">"Whiskers"</span>); <span class="cm">// polymorphic reference</span>
-a.<span class="fn">eat</span>();    <span class="cm">// works — inherited method</span>
-<span class="cm">// a.purr(); // ERROR — Animal ref doesn't know about purr()</span>
+<span class="cl">PaymentProcessor</span> p2 = <span class="kw">new</span> <span class="cl">CryptoProcessor</span>(<span class="str">"TX-992"</span>);
+p2.<span class="fn">processPayment</span>(<span class="num">0.05</span>); <span class="cm">// Triggers Crypto implementation</span>
 </code></pre>
 
   <h2>2. Memory Layout: The Layered Object</h2>
@@ -133,41 +142,52 @@ a.<span class="fn">eat</span>();    <span class="cm">// works — inherited meth
 d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "Swimming"</span>
 </code></pre>
 
-  <h2>5. The "Fragile Base Class" Problem</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Trap: The Semantic Break</div>
-    If you add a new method to a Base class, you might unknowingly break a Subclass that already has a method with the same name but different logic.
-    <br><br>
-    <strong>Solution</strong>: Keep inheritance hierarchies shallow (max 2-3 levels). If deeper, you need Composition.
+  <h2>5. The "Fragile Base Class" Problem (Design Smell)</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Deep Inheritance Tree</div>
+    If your class hierarchy is <code>Object -> Entity -> User -> AdminUser -> SuperAdminUser</code>, you have a <strong>Fragile Base Class</strong>. Changing one method in <code>Entity</code> will inadvertently break <code>SuperAdminUser</code>.
   </div>
 
-  <h2>6. Composition Over Inheritance</h2>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    "Prefer Composition over Inheritance." Juniors use inheritance for code reuse. Seniors use it ONLY for polymorphic behavior substitution. If you just want to reuse a database connection, inject it (Composition). Don't inherit from <code>BaseDatabaseEntity</code>.
+  </div>
+
+  <h2>6. Bad Code → Good Code: The Composition Shift</h2>
+  <p>Let's fix a classic architectural mistake.</p>
   <div class="compare">
     <div class="compare-col">
-      <div class="compare-label compare-bad">❌ Inheritance (Static)</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Bird</span> { <span class="kw">void</span> <span class="fn">fly</span>() { ... } }
-<span class="kw">class</span> <span class="cl">Ostrich</span> <span class="kw">extends</span> <span class="cl">Bird</span> {
-   <span class="cm">// Breaks LSP: Ostriches can't fly!</span>
-}</code></pre>
+      <div class="compare-label compare-bad">❌ Bad: Inheritance (Rigid)</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Notification</span> { 
+    <span class="kw">void</span> <span class="fn">send</span>() { ... } 
+}
+<span class="kw">class</span> <span class="cl">EmailNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }
+<span class="kw">class</span> <span class="cl">SMSNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }
+
+<span class="cm">// Requirements change: User wants BOTH Email and SMS!
+// Now what? EmailAndSMSNotification? (Explosion of classes)</span></code></pre>
     </div>
     <div class="compare-col">
-      <div class="compare-label compare-good">✅ Composition (Dynamic)</div>
-      <pre style="font-size:11px;"><code><span class="kw">interface</span> <span class="cl">FlyBehavior</span> {
-   <span class="kw">void</span> <span class="fn">fly</span>();
+      <div class="compare-label compare-good">✅ Good: Composition (Flexible)</div>
+      <pre style="font-size:11px;"><code><span class="kw">interface</span> <span class="cl">MessageChannel</span> {
+    <span class="kw">void</span> <span class="fn">deliver</span>();
 }
-<span class="kw">class</span> <span class="cl">CanFly</span> <span class="kw">implements</span> <span class="cl">FlyBehavior</span> {
-   <span class="kw">public void</span> <span class="fn">fly</span>() { <span class="cm">/*soar*/</span> }
-}
-<span class="kw">class</span> <span class="cl">NoFly</span> <span class="kw">implements</span> <span class="cl">FlyBehavior</span> {
-   <span class="kw">public void</span> <span class="fn">fly</span>() { <span class="cm">/*noop*/</span> }
-}
-<span class="kw">class</span> <span class="cl">Bird</span> {
-   <span class="cl">FlyBehavior</span> flyBehavior;
-   <span class="kw">void</span> <span class="fn">performFly</span>() {
-       flyBehavior.<span class="fn">fly</span>();
-   }
+<span class="kw">class</span> <span class="cl">EmailChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }
+<span class="kw">class</span> <span class="cl">SMSChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }
+
+<span class="kw">class</span> <span class="cl">NotificationService</span> {
+    <span class="cm">// HAS-A relationship. We can inject a List of channels!</span>
+    <span class="cl">List</span>&lt;<span class="cl">MessageChannel</span>&gt; channels;
+    
+    <span class="kw">void</span> <span class="fn">sendAll</span>() {
+        channels.<span class="fn">forEach</span>(<span class="cl">MessageChannel</span>::deliver);
+    }
 }</code></pre>
     </div>
+  </div>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection</div>
+    <strong>Composition</strong> enables the Strategy Pattern. By injecting <code>MessageChannel</code> dependencies at runtime (via Spring or manually), you achieve <strong>Loose Coupling</strong>. You can swap out an SMS provider without touching the <code>NotificationService</code> class.
   </div>
 
   <h2>7. Sealed Classes (Java 17)</h2>

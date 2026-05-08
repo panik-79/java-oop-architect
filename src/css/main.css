@@ -467,6 +467,31 @@ p { margin-bottom: 1.5rem; color: var(--text-dim); font-size: 1.1rem; }
 .box-interview { border: 2px solid var(--accent); background: rgba(99, 102, 241, 0.05); }
 .box-interview .box-title { color: var(--accent); }
 
+.box-senior { border-left: 4px solid var(--purple); }
+.box-senior .box-title { color: var(--purple); }
+
+.box-lld { border-left: 4px solid var(--accent); }
+.box-lld .box-title { color: var(--accent); }
+
+.box-smell { border-left: 4px solid var(--rose); background: rgba(244, 63, 94, 0.05); }
+.box-smell .box-title { color: var(--rose); }
+
+/* ASCII Diagrams */
+.ascii-diagram {
+  background: #0d1117;
+  color: #a5d6ff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  margin: 1.5rem 0;
+  white-space: pre;
+}
+
+
 /* Code Blocks */
 pre {
   background: #0d1117;

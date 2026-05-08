@@ -61,8 +61,16 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
     <strong>Why?</strong> Because <code>Parent</code> constructor runs <em>before</em> <code>Child</code> fields are initialized. <code>name</code> is still <code>null</code> when <code>setup()</code> is called.
   </div>
 
-  <h2>3. Constructor Overloading & this()</h2>
-  <p>Constructor overloading allows you to provide multiple ways to initialize an object. Use <code>this()</code> to avoid code duplication.</p>
+  <h2>3. Constructor Overloading & Telescoping Constructors</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Telescoping Constructors</div>
+    If you have a class with 5 different constructors, each taking one more parameter than the last, you have a <strong>Telescoping Constructor</strong> anti-pattern. It makes the code unreadable (e.g., <code>new User("Alice", null, 0, false, null)</code>).
+  </div>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Builder Pattern</div>
+    To fix telescoping constructors, Senior Engineers use the <strong>Builder Pattern</strong> (Effective Java Item 2). It allows you to construct complex objects step-by-step and makes the client code infinitely more readable.
+  </div>
+  <p>Constructor overloading allows you to provide multiple ways to initialize an object. If you must use it, use <code>this()</code> to avoid code duplication and centralize validation.</p>
   <pre><code><span class="kw">public class</span> <span class="cl">Product</span> {
     <span class="kw">private</span> <span class="cl">String</span> id;
     <span class="kw">private double</span> price;
@@ -78,7 +86,10 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
 }</code></pre>
 
   <h2>4. Leaking 'this' (Security Risk)</h2>
-  <p>If you pass <code>this</code> to another thread or listener inside a constructor, you are leaking a "partially constructed" object.</p>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Escape Before Construction</div>
+    If you pass <code>this</code> to another thread or listener inside a constructor, you are leaking a "partially constructed" object. Other threads might access the object before its <code>final</code> fields are fully initialized, breaking the Java Memory Model guarantees.
+  </div>
   <pre><code><span class="cm">// DANGEROUS — leaking 'this' before construction is complete</span>
 <span class="kw">public class</span> <span class="cl">EventSource</span> {
     <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Listener</span>&gt; listeners;

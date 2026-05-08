@@ -26,9 +26,14 @@
     <tr><td>5</td><td><strong>Constructor</strong></td><td>Instance</td><td>Every 'new'</td></tr>
   </table></div>
 
-  <div class="box box-warning">
+  <div class="box box-insight">
     <div class="box-title">🚨 Execution Secret</div>
     Static blocks run when the class is loaded, <strong>even if you never create an object</strong>. Instance blocks run right before the constructor but <strong>after</strong> the <code>super()</code> call.
+  </div>
+  
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Global Mutable State</div>
+    Senior developers hate <code>public static</code> variables. Why? Because they represent <strong>Global Mutable State</strong>. If a static variable is changed by Thread A, Thread B instantly sees the corrupted state. It also makes <strong>Unit Testing</strong> impossible because tests running in parallel will overwrite each other's data. If you need shared state, use Dependency Injection to pass a Singleton object.
   </div>
 
   <h3>Example: Initialization Order</h3>
@@ -64,15 +69,23 @@
 p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This is "Method Hiding."</span></code></pre>
 
   <h2>4. Static in Interfaces (Java 8+)</h2>
-  <p>Interfaces can now have static methods. They are <strong>not inherited</strong> by implementing classes.</p>
-  <pre><code><span class="kw">public interface</span> <span class="cl">StringUtils</span> {
-    <span class="kw">static boolean</span> <span class="fn">isBlank</span>(<span class="cl">String</span> s) {
-        <span class="kw">return</span> s == <span class="kw">null</span> || s.<span class="fn">trim</span>().<span class="fn">isEmpty</span>();
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: Static Factory Methods</div>
+    "Consider static factory methods instead of constructors." (Effective Java Item 1). Static methods in interfaces allow you to create clean factory methods that return specific implementations without exposing the implementation classes.
+  </div>
+  <pre><code><span class="kw">public interface</span> <span class="cl">DatabaseConnection</span> {
+    <span class="kw">void</span> <span class="fn">connect</span>();
+    
+    <span class="cm">// Factory method hides the concrete classes!</span>
+    <span class="kw">static</span> <span class="cl">DatabaseConnection</span> <span class="fn">create</span>(<span class="cl">String</span> url) {
+        <span class="kw">if</span> (url.<span class="fn">startsWith</span>(<span class="str">"jdbc:mysql"</span>)) <span class="kw">return new</span> <span class="cl">MySqlConnection</span>();
+        <span class="kw">if</span> (url.<span class="fn">startsWith</span>(<span class="str">"jdbc:postgres"</span>)) <span class="kw">return new</span> <span class="cl">PostgresConnection</span>();
+        <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Unsupported DB"</span>);
     }
 }
 
-<span class="cm">// Must use InterfaceName.method() — NOT inherited</span>
-<span class="cl">StringUtils</span>.<span class="fn">isBlank</span>(<span class="str">""</span>); <span class="cm">// true</span>
+<span class="cm">// Client Code</span>
+<span class="cl">DatabaseConnection</span> conn = <span class="cl">DatabaseConnection</span>.<span class="fn">create</span>(<span class="str">"jdbc:mysql://..."</span>);
 </code></pre>
 
   <h2>5. The "Bill Pugh" Singleton Pattern</h2>

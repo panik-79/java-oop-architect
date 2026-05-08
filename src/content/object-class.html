@@ -22,12 +22,17 @@
     </ol>
   </div>
 
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Trap: HashMap Buckets</div>
-    When you put an object in a HashMap:<br>
-    1. The Map uses <code>hashCode()</code> to find the correct <strong>Bucket</strong>.<br>
-    2. If there are multiple objects in that bucket, it uses <code>equals()</code> to find the <strong>Exact Match</strong>.<br>
-    If equal objects have different hashes, the Map will look in the wrong bucket and never find your object!
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Hash Mutation</div>
+    If you use mutable fields in your <code>hashCode()</code> (e.g., a <code>List</code> or a mutable <code>String</code> name) and you change that field <strong>after</strong> adding the object to a <code>HashSet</code>, the object's hash changes. The Set will never find it again, creating a silent <strong>Memory Leak</strong>.
+  </div>
+
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: HashMap Internals</div>
+    When you put an object in a HashMap:
+    <br>1. The Map uses <code>hashCode()</code> to find the correct <strong>Bucket</strong>.
+    <br>2. If there are multiple objects in that bucket, it uses <code>equals()</code> to find the <strong>Exact Match</strong>.
+    <br>If equal objects have different hashes, the Map will look in the wrong bucket and never find your object.
   </div>
 
   <h3>Example: Correct equals() and hashCode()</h3>
@@ -74,12 +79,15 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
   <p>Returns the <code>Class</code> object that represents the runtime class of the object. Unlike <code>instanceof</code>, <code>getClass() == Other.class</code> is <strong>Strict</strong>; it doesn't return true for subclasses. </p>
 
   <h2>4. clone(): The "Shallow" Heritage</h2>
-  <p>The <code>clone()</code> method is widely considered "broken" in Java. It requires the <code>Cloneable</code> interface (a marker interface) but doesn't actually define it. 
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: The Broken Clone Contract</div>
+    The <code>clone()</code> method is universally considered broken by Java architects. It requires implementing the <code>Cloneable</code> marker interface, but doesn't actually define the method. It bypasses constructors, which breaks invariants and <code>final</code> field guarantees.
+  </div>
   <ul>
     <li><strong>Shallow Copy</strong>: Copies field values. If a field is a reference, both objects point to the same child.</li>
     <li><strong>Deep Copy</strong>: Requires manual implementation to clone every child object.</li>
   </ul>
-  <strong>Senior Recommendation</strong>: Use <strong>Copy Constructors</strong> or <strong>Serialization</strong> for deep copying. Avoid <code>clone()</code>.</p>
+  <p><strong>Senior Recommendation</strong>: Use <strong>Copy Constructors</strong> or <strong>Serialization</strong> (like JSON mapping) for deep copying. Avoid <code>clone()</code>.</p>
 
   <h2>5. finalize(): The Deprecated Reaper</h2>
   <p>Historically used for cleanup before GC. However, it is unpredictable, slow, and can lead to memory leaks. 

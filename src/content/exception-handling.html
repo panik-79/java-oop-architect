@@ -43,6 +43,10 @@
 </code></pre>
 
   <h2>3. The "Fail-Fast" Principle</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Swallowing Exceptions</div>
+    <code>try { risky(); } catch (Exception e) {}</code> is the most dangerous line of code you can write. It hides failures, corrupts state, and makes debugging impossible. Always log or rethrow. If you <em>must</em> ignore it, name the variable <code>ignored</code> to signal intent.
+  </div>
   <pre><code><span class="cm">// BAD — null propagates, crashes deep in the stack</span>
 <span class="kw">public void</span> <span class="fn">processOrder</span>(<span class="cl">Order</span> order) {
     <span class="cm">// ... 50 lines later ...</span>
@@ -104,6 +108,10 @@
 </code></pre>
 
   <h2>6. Creating Custom Exception Hierarchies</h2>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: API Error Handling</div>
+    In a REST API, you shouldn't return Java stack traces to the client. You map <code>DomainExceptions</code> to HTTP Status Codes. In Spring Boot, this is done using <code>@RestControllerAdvice</code> to catch domain exceptions globally and return standardized JSON error responses.
+  </div>
   <pre><code><span class="cm">// Base exception for your domain</span>
 <span class="kw">public abstract class</span> <span class="cl">DomainException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
     <span class="kw">private final</span> <span class="cl">String</span> errorCode;
@@ -138,8 +146,8 @@
 </code></pre>
 
   <h2>7. Performance: fillInStackTrace() Cost</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Fact: Exception Performance</div>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Exception Performance</div>
     Creating an exception is expensive because <code>fillInStackTrace()</code> walks the entire call stack. In high-frequency validation (e.g., parsing 1M records), use return codes or <code>Optional</code> instead of exceptions for flow control.
     <pre style="margin-top:10px;"><code><span class="cm">// High-performance: skip stack trace for expected validation failures</span>
 <span class="kw">public class</span> <span class="cl">ValidationException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {

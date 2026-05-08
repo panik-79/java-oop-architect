@@ -107,6 +107,10 @@ account.balance = -<span class="num">100000</span>; <span class="cm">// BROKEN</
 </code></pre>
 
   <h2>4. Tell, Don't Ask (Law of Demeter)</h2>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: Feature Envy</div>
+    If an object is constantly asking another object for its data to perform an operation, it's called <strong>Feature Envy</strong>. The logic should be moved to the object that owns the data. This keeps objects highly cohesive.
+  </div>
   <p>You shouldn't ask an object about its state to make a decision; you should tell the object what to do.</p>
   <pre><code><span class="cm">// BAD — asking for state, then deciding externally</span>
 <span class="kw">if</span> (user.<span class="fn">getAddress</span>().<span class="fn">getCity</span>().<span class="fn">equals</span>(<span class="str">"NY"</span>)) {
@@ -123,20 +127,17 @@ order.<span class="fn">applyTaxFor</span>(user);
 </code></pre>
 
   <h2>5. Validation in Setters (Self-Defense)</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Primitive Obsession</div>
+    Using a raw <code>String</code> for an Email or a raw <code>int</code> for an Age forces every layer of your application to validate it. Instead, encapsulate it into a <strong>Value Object</strong> (e.g., an <code>EmailAddress</code> class) that validates itself exactly once during construction.
+  </div>
   <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {
-    <span class="kw">private</span> <span class="cl">String</span> email;
-    <span class="kw">private int</span> age;
+    <span class="kw">private</span> <span class="cl">EmailAddress</span> email; <span class="cm">// Strongly typed, guaranteed valid</span>
+    <span class="kw">private</span> <span class="cl">Age</span> age;
 
-    <span class="kw">public void</span> <span class="fn">setEmail</span>(<span class="cl">String</span> email) {
-        <span class="kw">if</span> (email == <span class="kw">null</span> || !email.<span class="fn">contains</span>(<span class="str">"@"</span>))
-            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Invalid email"</span>);
+    <span class="kw">public void</span> <span class="fn">setEmail</span>(<span class="cl">EmailAddress</span> email) {
+        <span class="cm">// No regex needed here! EmailAddress handles its own validation.</span>
         <span class="kw">this</span>.email = email;
-    }
-
-    <span class="kw">public void</span> <span class="fn">setAge</span>(<span class="kw">int</span> age) {
-        <span class="kw">if</span> (age < <span class="num">18</span> || age > <span class="num">65</span>)
-            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Age must be 18-65"</span>);
-        <span class="kw">this</span>.age = age;
     }
 }
 </code></pre>

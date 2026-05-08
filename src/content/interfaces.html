@@ -53,19 +53,28 @@
   <p><strong>Marker Interfaces</strong> (e.g., <code>Serializable</code>) have zero methods and tag a class. 
   <br><strong>Modern Shift</strong>: Annotations (<code>@Entity</code>, <code>@Component</code>) are preferred as they are more flexible and don't affect the type hierarchy. However, <code>instanceof Serializable</code> is still faster than reading an annotation via reflection.</p>
 
-  <h2>5. Interface vs. Abstract Class (LLD Choice)</h2>
-  <div class="box box-insight">
-    <div class="box-title">🏛️ Architect's Decision Matrix</div>
-    <ul>
-      <li>Use an <strong>Interface</strong> for <strong>Behavior</strong> ("Can-Do"). Unrelated classes (e.g., <code>Car</code> and <code>Fan</code>) can both be <code>Switchable</code>.</li>
-      <li>Use an <strong>Abstract Class</strong> for <strong>Identity</strong> ("Kind-Of"). Shared state (fields) and partial implementation (Base logic).</li>
-    </ul>
-    <strong>Senior Tip</strong>: "Program to an interface, not an implementation." This is the key to <strong>Unit Testing</strong> and <strong>Dependency Injection</strong>.
+  <h2>5. Interface vs. Abstract Class (The LLD Choice)</h2>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    Juniors use abstract classes to avoid writing the same code twice. Seniors know that interfaces define <strong>System Boundaries (APIs)</strong>, while abstract classes define <strong>Domain Taxonomies</strong>. You expose the Interface to the world, and you hide the Abstract Class as an internal base implementation.
   </div>
 
-  <h2>6. Internal: The itable (Interface Table)</h2>
-  <p>While classes use a vtable with fixed offsets, the JVM uses an <strong>itable</strong> for interface calls. Because a class can implement many interfaces, the JVM must search the itable at runtime to find the method pointer. 
-  <br><strong>Performance</strong>: <code>invokeinterface</code> is slightly slower than <code>invokevirtual</code> because the offset isn't constant across all classes implementing the interface.</p>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Plugin Architecture</div>
+    Every massive software system (IntelliJ, VSCode, Chrome) is a microkernel surrounded by plugins. How do plugins work? <strong>Interfaces.</strong> The core system exposes an <code>ExtensionPoint</code> interface. Third-party developers implement it. The core system loads them dynamically at runtime (via SPI or classloaders) without knowing <em>anything</em> about the concrete classes.
+  </div>
+
+  <h2>6. Internal: The itable (How JVM Handles Interfaces)</h2>
+  <p>While classes use a vtable with fixed offsets, the JVM uses an <strong>itable</strong> for interface calls. Because a class can implement many interfaces, the JVM must search the itable at runtime to find the method pointer.</p>
+  <div class="ascii-diagram">
+[ CLASS: PAYMENT PROCESSOR ]
+vtable: 0x1A2B (Fixed offsets for class methods)
+itable: [
+   interface: Payable   -> offset: 12
+   interface: Auditable -> offset: 24
+] (JVM must search this list at runtime!)
+  </div>
+  <p><strong>Performance</strong>: <code>invokeinterface</code> is slightly slower than <code>invokevirtual</code> because of this search step, although modern JIT compilers optimize it heavily.</p>
 
   <h2>7. Sealed Interfaces (Java 17+)</h2>
   <p>Just like sealed classes, <strong>Sealed Interfaces</strong> allow you to define exactly which classes or interfaces can implement them.</p>
