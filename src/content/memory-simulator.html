@@ -1,0 +1,164 @@
+<div id="memory-simulator" class="section">
+  <div class="breadcrumb">architect / tools / <span>memory simulator</span></div>
+  <div class="section-eyebrow">Visual Engineering</div>
+  <h1>Interactive Memory Simulator</h1>
+  <div class="section-desc">Understand how the JVM manages the Stack and Heap. Select a scenario and step through the execution to see object allocation, reference assignment, and scope cleanup.</div>
+
+  <div class="box box-senior">
+    <div class="box-title">🧠 Senior Mental Model: Memory as a Graph</div>
+    Don't think of memory as a list of variables. Think of it as a <strong>Directed Graph</strong> where roots (Stack) point to nodes (Heap). Garbage Collection is simply removing nodes that are no longer reachable from any root.
+  </div>
+
+  <div class="simulator-container">
+    <div class="simulator-controls">
+      <div class="sim-scenario-selector">
+        <label><i class="ri-settings-4-line"></i> Select Scenario:</label>
+        <select id="simScenario" onchange="loadScenario(this.value)">
+          <option value="constructor">Object Construction</option>
+          <option value="reference">Reference Assignment</option>
+          <option value="stringpool">String Pool Internals</option>
+          <option value="passbyvalue">Pass By Value (Reference)</option>
+        </select>
+      </div>
+      <div class="sim-playback">
+        <button onclick="prevSimStep()" class="btn-premium">← Back</button>
+        <div id="simStepCounter">Step 1 / 5</div>
+        <button onclick="nextSimStep()" class="btn-premium">Next →</button>
+      </div>
+    </div>
+
+    <div class="sim-workspace">
+      <div class="sim-panel sim-code-panel">
+        <div class="panel-label">Source Code</div>
+        <pre id="simCodeDisplay"><code></code></pre>
+      </div>
+      <div class="sim-visuals">
+        <div class="sim-panel sim-stack">
+          <div class="panel-label"><i class="ri-stack-line"></i> Stack (LIFO)</div>
+          <div id="stackContainer" class="memory-grid"></div>
+        </div>
+        <div class="sim-panel sim-heap">
+          <div class="panel-label"><i class="ri-bubble-chart-line"></i> Heap (Dynamic)</div>
+          <div id="heapContainer" class="memory-grid"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="sim-explanation" id="simExplanation">
+      Selecting scenario...
+    </div>
+  </div>
+
+  <style>
+    .simulator-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .simulator-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sim-playback { display: flex; align-items: center; gap: 1.5rem; }
+    .sim-playback span { font-family: var(--font-mono); font-size: 14px; color: var(--text-dim); }
+    
+    .sim-workspace {
+      display: grid;
+      grid-template-columns: 1.2fr 2fr;
+      gap: 1.5rem;
+      height: 550px;
+    }
+    .sim-panel {
+      background: var(--bg-sidebar);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+    }
+    [data-theme="dark"] .sim-panel {
+      background: rgba(13, 17, 23, 0.6);
+    }
+    .panel-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sim-visuals {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 1.5rem;
+    }
+    .memory-grid {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    .mem-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 12px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      color: var(--text);
+    }
+    .mem-block::before {
+      content: attr(data-addr);
+      position: absolute;
+      top: -8px;
+      right: 8px;
+      font-size: 9px;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 0 4px;
+    }
+    .mem-block.highlight { 
+      border-color: var(--accent); 
+      background: var(--accent-glow);
+      transform: scale(1.02);
+    }
+    .mem-block.pointer { 
+      border-color: var(--purple); 
+      color: var(--purple);
+      background: rgba(139, 92, 246, 0.05);
+    }
+    .sim-explanation {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: var(--accent-glow);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    #simCodeDisplay { font-size: 13px; line-height: 1.5; }
+    .line-highlight { 
+      background: var(--accent); 
+      color: white;
+      margin: 0 -1.5rem;
+      padding: 0 1.5rem;
+    }
+  </style>
+</div>

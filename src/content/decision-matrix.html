@@ -1,0 +1,113 @@
+<div id="decision-matrix" class="section">
+  <div class="breadcrumb">architect / tools / <span>decision matrix</span></div>
+  <div class="section-eyebrow">Architectural Reasoning</div>
+  <h1>Architect's Decision Matrix</h1>
+  <div class="section-desc">Stop guessing. Use this matrix to determine the best design pattern or OOP approach based on your specific system constraints and business requirements.</div>
+
+  <div class="matrix-grid">
+    <div class="matrix-input">
+      <h3>1. Identify Your Problem</h3>
+      <div class="input-group">
+        <label>Primary Goal:</label>
+        <select id="matrixGoal" onchange="runMatrix()">
+          <option value="">-- Select Goal --</option>
+          <option value="extensibility">Add new types easily (Extensibility)</option>
+          <option value="behavior">Add new behaviors without modifying code</option>
+          <option value="decoupling">Decouple components (Loose Coupling)</option>
+          <option value="state">Manage complex object states</option>
+          <option value="creation">Simplify complex object creation</option>
+          <option value="wrapping">Modify/Extend behavior of existing objects</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>System Constraint:</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="constraint" value="immutable" onchange="runMatrix()"> Immutable Objects</label>
+          <label><input type="checkbox" name="constraint" value="distributed" onchange="runMatrix()"> Distributed / Async</label>
+          <label><input type="checkbox" name="constraint" value="lowmemory" onchange="runMatrix()"> Low Memory Footprint</label>
+          <label><input type="checkbox" name="constraint" value="dynamic" onchange="runMatrix()"> Change behavior at Runtime</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="matrix-result">
+      <h3>Recommended Architecture</h3>
+      <div id="matrixResultContent" class="result-placeholder">
+        Select your goals and constraints to see the architect's recommendation...
+      </div>
+    </div>
+  </div>
+
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Note: Trade-offs (No Silver Bullet)</div>
+    Every pattern adds a layer of abstraction. If your system is small, applying complex patterns is <strong>Over-Engineering</strong>. Use this matrix as a guide, but always prioritize <strong>KISS (Keep It Simple, Stupid)</strong>.
+  </div>
+
+  <style>
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .matrix-input h3, .matrix-result h3 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .input-group { margin-bottom: 2rem; }
+    .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); }
+    .input-group select {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--bg-sidebar);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+    }
+    .checkbox-group { display: flex; flex-direction: column; gap: 0.75rem; }
+    .checkbox-group label { font-weight: 400; font-size: 14px; color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem; }
+    
+    .matrix-result {
+      background: rgba(13, 17, 23, 0.4);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      border-radius: 24px;
+      min-height: 350px;
+      display: flex;
+      flex-direction: column;
+    }
+    .result-card {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(139, 92, 246, 0.1));
+      border: 1px solid var(--accent);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);
+      animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .result-pattern { 
+      font-family: var(--font-serif); 
+      font-size: 1.8rem; 
+      color: var(--text); 
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    .result-why { font-size: 15px; color: var(--text); margin-bottom: 1.5rem; line-height: 1.6; }
+    .result-tradeoff { 
+      font-size: 13px; 
+      padding: 1rem; 
+      background: rgba(244, 63, 94, 0.08); 
+      border-radius: 12px; 
+      color: #fda4af; 
+      border: 1px solid rgba(244, 63, 94, 0.2); 
+    }
+    
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</div>

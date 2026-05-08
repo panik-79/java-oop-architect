@@ -30,7 +30,16 @@
 
     <div class="search-box">
       <span class="search-icon">⌕</span>
-      <input type="text" placeholder="Search topics..." id="searchInput" oninput="filterNav(this.value)">
+      <input type="text" placeholder="Search architect notes..." id="searchInput">
+      <div id="searchResults" class="search-results-dropdown hidden"></div>
+    </div>
+
+    <div class="sidebar-rank" id="sidebarRank">
+      <div class="rank-label">Architect Rank</div>
+      <div class="rank-value">Junior Dev</div>
+      <div class="rank-progress-bg">
+        <div class="rank-progress-fill" id="rankProgress"></div>
+      </div>
     </div>
 
     <div id="navContent">
@@ -77,6 +86,11 @@
         <div class="nav-item" onclick="showSection('solid-principles')"><span class="nav-num">17</span>SOLID Principles</div>
         <div class="nav-item" onclick="showSection('oop-lld-bridge')"><span class="nav-num">18</span>OOP → LLD Bridge</div>
         <div class="nav-item" onclick="showSection('oop-design-thinking')"><span class="nav-num">19</span>Design Thinking</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Architectural Tools</div>
+        <div class="nav-item" onclick="showSection('memory-simulator')"><i class="ri-pulse-line"></i>Memory Simulator</div>
+        <div class="nav-item" onclick="showSection('decision-matrix')"><i class="ri-node-tree"></i>Decision Matrix</div>
       </div>
       <div class="nav-section">
         <div class="nav-section-label">Interview Prep</div>

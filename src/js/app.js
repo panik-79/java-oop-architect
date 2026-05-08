@@ -1,4 +1,9 @@
+import { initSearch } from './search.js';
+import { initMemorySim } from './memory-sim.js';
+import { initMatrix } from './matrix.js';
+
 const sections = {};
+const completedSections = JSON.parse(localStorage.getItem('completedSections') || '[]');
 
 // The ordered list of section IDs matching sidebar navigation order
 const sectionOrder = [
@@ -25,6 +30,8 @@ const sectionOrder = [
   'solid-principles',
   'oop-lld-bridge',
   'oop-design-thinking',
+  'memory-simulator',
+  'decision-matrix',
   'interview-qa',
   'cheat-sheets',
 ];
@@ -54,6 +61,8 @@ const sectionNames = {
   'solid-principles': 'SOLID Principles',
   'oop-lld-bridge': 'OOP → LLD Bridge',
   'oop-design-thinking': 'Design Thinking',
+  'memory-simulator': 'Memory Simulator',
+  'decision-matrix': 'Decision Matrix',
   'interview-qa': 'Interview Q&A',
   'cheat-sheets': 'Quick Review Sheet',
 };
@@ -79,6 +88,10 @@ export function showSection(id) {
     sectionEl = temp.firstElementChild;
     mainContent.appendChild(sectionEl);
     addCopyButtons(sectionEl);
+    
+    // Initialize tool logic if it's a tool section
+    if (id === 'memory-simulator') initMemorySim();
+    if (id === 'decision-matrix') initMatrix();
   }
 
   // Update visibility
@@ -107,6 +120,9 @@ export function showSection(id) {
   
   // Update reading time
   updateReadingTime(sectionEl);
+
+  // Update Rank
+  updateRank();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -227,6 +243,82 @@ function updateBottomNav() {
   }
   
   nav.classList.toggle('hidden', currentSection === 'home');
+  
+  // Add Complete Button
+  if (currentSection !== 'home') {
+    const isCompleted = completedSections.includes(currentSection);
+    
+    // Remove old button if it exists anywhere
+    const existing = document.querySelector('.complete-btn');
+    if (existing) existing.remove();
+
+    const btn = document.createElement('button');
+    btn.className = `complete-btn ${isCompleted ? 'completed' : ''} floating-mastery`;
+    btn.innerHTML = `<i class="ri-checkbox-circle-line"></i> ${isCompleted ? 'Mastered' : 'Mark as Mastered'}`;
+    btn.onclick = () => toggleComplete(currentSection, btn);
+    
+    // Append to main content or a container
+    document.querySelector('.main').appendChild(btn);
+  }
+}
+
+function toggleComplete(id, btn) {
+  const idx = completedSections.indexOf(id);
+  if (idx > -1) {
+    completedSections.splice(idx, 1);
+    btn.classList.remove('completed');
+    btn.innerHTML = `<i class="ri-checkbox-circle-line"></i> Mark as Mastered`;
+  } else {
+    completedSections.push(id);
+    btn.classList.add('completed');
+    btn.innerHTML = `<i class="ri-checkbox-circle-line"></i> Mastered`;
+  }
+  localStorage.setItem('completedSections', JSON.stringify(completedSections));
+  updateRank();
+  updateSidebarMastery();
+}
+
+function updateSidebarMastery() {
+  const items = document.querySelectorAll('.nav-item');
+  items.forEach(item => {
+    const sectionId = item.getAttribute('onclick').match(/'([^']+)'/)[1];
+    const isCompleted = completedSections.includes(sectionId);
+    
+    let badge = item.querySelector('.mastery-badge');
+    if (isCompleted) {
+      if (!badge) {
+        badge = document.createElement('i');
+        badge.className = 'ri-checkbox-circle-fill mastery-badge';
+        item.appendChild(badge);
+      }
+    } else {
+      if (badge) badge.remove();
+    }
+  });
+}
+
+const ranks = [
+  { limit: 0, name: 'Junior Dev', color: '#94a3b8' },
+  { limit: 5, name: 'Mid-Level Engineer', color: '#10b981' },
+  { limit: 12, name: 'Senior Architect', color: '#8b5cf6' },
+  { limit: 20, name: 'Distinguished Engineer', color: '#f43f5e' }
+];
+
+function updateRank() {
+  const count = completedSections.length;
+  const total = sectionOrder.length - 1; // excluding home
+  const percent = (count / total) * 100;
+
+  const progressFill = document.getElementById('rankProgress');
+  const rankValue = document.querySelector('.rank-value');
+  
+  if (progressFill) progressFill.style.width = `${percent}%`;
+  
+  if (rankValue) {
+    const rank = [...ranks].reverse().find(r => count >= r.limit);
+    rankValue.textContent = rank.name;
+    rankValue.style.color = rank.color;
+  }
 }
 
 // ─── READING TIME ───
@@ -299,6 +391,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show initial section
     showSection('home');
+    
+    // Init Search
+    initSearch(sections);
+    
+    // Update Rank
+    updateRank();
+
+    // Update Sidebar
+    updateSidebarMastery();
     
     // Post-boot theme sync
     const savedTheme = localStorage.getItem('theme') || 'dark';
