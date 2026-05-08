@@ -145,319 +145,327 @@ p2.<span class="fn">process</span>(); <span class="cm">// reads JSON, transforms
     <div class="qa-q" onclick="toggleQA(this)">Can we have an abstract class without any abstract methods?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes.</strong> This is done when you want to prevent direct instantiation of a class (e.g., a base class for generic entities) but it has only concrete methods that you want subclasses to reuse.</div>
   </div>
-</div>`,b=Object.freeze(Object.defineProperty({__proto__:null,default:v},Symbol.toStringTag,{value:"Module"})),f=`<div id="abstraction" class="section">
-  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04B</span></div>
-  <div class="section-eyebrow">The Second Pillar</div>
-  <h1>Abstraction: Managing Complexity</h1>
-  <div class="section-desc">Abstraction is the art of hiding the "How" to focus on the "What." It is the primary tool we use to design APIs, decoupled systems, and scalable architectures.</div>
-
-  <h2>1. The "Iceberg" Model of Abstraction</h2>
-  <p>An object is like an iceberg. The 10% above the water is the <strong>Public Interface</strong> (What the object does). The 90% below is the <strong>Private Implementation</strong> (How it does it). As long as the tip stays the same, the bottom can change entirely without affecting the world.</p>
-
-  <div class="diagram">
-[ CLIENT CODE ]
-      │
-      ▼
-[ PUBLIC API (Interface) ]  <── "I need to send an email."
-      │
-      ▼
-[ PRIVATE LOGIC (Impl) ]   <── Connect to SMTP, handle retries, 
-                                 log errors, manage sockets.</div>
-
-  <h3>Example: The Iceberg in Action</h3>
-  <pre><code><span class="cm">// The PUBLIC surface — the client only sees this</span>
-<span class="kw">public interface</span> <span class="cl">EmailService</span> {
-    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> subject, <span class="cl">String</span> body);
-}
-
-<span class="cm">// The PRIVATE iceberg — 90% of the complexity is hidden</span>
-<span class="kw">public class</span> <span class="cl">SmtpEmailService</span> <span class="kw">implements</span> <span class="cl">EmailService</span> {
-    <span class="kw">private final</span> <span class="cl">SmtpConnection</span> connection;
-    <span class="kw">private final</span> <span class="cl">RetryPolicy</span> retryPolicy;
-    <span class="kw">private final</span> <span class="cl">Logger</span> logger;
-
-    <span class="kw">public</span> <span class="cl">SmtpEmailService</span>(<span class="cl">SmtpConnection</span> conn, <span class="cl">RetryPolicy</span> rp) {
-        <span class="kw">this</span>.connection = conn;
-        <span class="kw">this</span>.retryPolicy = rp;
-        <span class="kw">this</span>.logger = <span class="cl">LoggerFactory</span>.<span class="fn">getLogger</span>(<span class="cl">SmtpEmailService</span>.<span class="kw">class</span>);
-    }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> subject, <span class="cl">String</span> body) {
-        retryPolicy.<span class="fn">execute</span>(() -> {
-            connection.<span class="fn">open</span>();
-            connection.<span class="fn">sendMail</span>(to, subject, body);
-            connection.<span class="fn">close</span>();
-            logger.<span class="fn">info</span>(<span class="str">"Email sent to {}"</span>, to);
-        });
-    }
-}
-
-<span class="cm">// CLIENT CODE — beautifully simple</span>
-<span class="cl">EmailService</span> emailService = <span class="kw">new</span> <span class="cl">SmtpEmailService</span>(conn, policy);
-emailService.<span class="fn">send</span>(<span class="str">"user@example.com"</span>, <span class="str">"Welcome!"</span>, <span class="str">"Hello World"</span>);
-</code></pre>
-
-  <h2>2. Abstract Data Types (ADT) &amp; Clean Architecture</h2>
-  <p>In computer science, an <strong>ADT</strong> defines a data structure by its behavior (e.g., a <code>Stack</code> has <code>push</code> and <code>pop</code>) rather than its memory layout. In Java, we use <strong>Interfaces</strong> to define ADTs.</p>
-
-  <h3>Example: Stack as an ADT</h3>
-  <pre><code><span class="cm">// The ADT — defines WHAT, not HOW</span>
-<span class="kw">public interface</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {
-    <span class="kw">void</span> <span class="fn">push</span>(<span class="cl">T</span> item);
-    <span class="cl">T</span> <span class="fn">pop</span>();
-    <span class="cl">T</span> <span class="fn">peek</span>();
-    <span class="kw">boolean</span> <span class="fn">isEmpty</span>();
-    <span class="kw">int</span> <span class="fn">size</span>();
-}
-
-<span class="cm">// Implementation 1: Array-based</span>
-<span class="kw">public class</span> <span class="cl">ArrayStack</span>&lt;<span class="cl">T</span>&gt; <span class="kw">implements</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {
-    <span class="kw">private</span> <span class="cl">Object</span>[] data = <span class="kw">new</span> <span class="cl">Object</span>[<span class="num">16</span>];
-    <span class="kw">private int</span> top = -<span class="num">1</span>;
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">push</span>(<span class="cl">T</span> item) { data[++top] = item; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="cl">T</span> <span class="fn">pop</span>() { <span class="kw">return</span> (<span class="cl">T</span>) data[top--]; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="cl">T</span> <span class="fn">peek</span>() { <span class="kw">return</span> (<span class="cl">T</span>) data[top]; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public boolean</span> <span class="fn">isEmpty</span>() { <span class="kw">return</span> top == -<span class="num">1</span>; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public int</span> <span class="fn">size</span>() { <span class="kw">return</span> top + <span class="num">1</span>; }
-}
-
-<span class="cm">// Implementation 2: LinkedList-based</span>
-<span class="kw">public class</span> <span class="cl">LinkedStack</span>&lt;<span class="cl">T</span>&gt; <span class="kw">implements</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {
-    <span class="kw">private</span> <span class="cl">Node</span>&lt;<span class="cl">T</span>&gt; head;
-    <span class="kw">private int</span> count = <span class="num">0</span>;
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">push</span>(<span class="cl">T</span> item) {
-        head = <span class="kw">new</span> <span class="cl">Node</span>&lt;&gt;(item, head);
-        count++;
-    }
-    <span class="cm">// ... other methods follow the same pattern</span>
-}
-
-<span class="cm">// The client doesn't care which implementation is used!</span>
-<span class="cl">Stack</span>&lt;<span class="cl">String</span>&gt; stack = <span class="kw">new</span> <span class="cl">ArrayStack</span>&lt;&gt;();
-stack.<span class="fn">push</span>(<span class="str">"Hello"</span>);
-stack.<span class="fn">push</span>(<span class="str">"World"</span>);
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(stack.<span class="fn">pop</span>()); <span class="cm">// "World"</span>
-</code></pre>
-
-  <div class="box box-lld">
-    <div class="box-title">⚙️ LLD Connection: Hexagonal Architecture (Ports & Adapters)</div>
-    By abstracting the database layer behind a <code>Repository</code> interface (The Port), you make your business logic "database agnostic." You can swap PostgreSQL for MongoDB by simply changing the implementation class (The Adapter). This is how FAANG companies migrate databases with zero downtime.
-  </div>
-
-  <h3>Example: Repository Pattern (Hexagonal Architecture)</h3>
-  <pre><code><span class="cm">// PORT — the abstraction</span>
-<span class="kw">public interface</span> <span class="cl">UserRepository</span> {
-    <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id);
-    <span class="kw">void</span> <span class="fn">save</span>(<span class="cl">User</span> user);
-    <span class="cl">List</span>&lt;<span class="cl">User</span>&gt; <span class="fn">findAll</span>();
-}
-
-<span class="cm">// ADAPTER 1 — PostgreSQL</span>
-<span class="kw">public class</span> <span class="cl">PostgresUserRepository</span> <span class="kw">implements</span> <span class="cl">UserRepository</span> {
-    <span class="kw">private final</span> <span class="cl">JdbcTemplate</span> jdbc;
-
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id) {
-        <span class="kw">return</span> jdbc.<span class="fn">queryForObject</span>(
-            <span class="str">"SELECT * FROM users WHERE id = ?"</span>, userMapper, id);
-    }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">save</span>(<span class="cl">User</span> user) {
-        jdbc.<span class="fn">update</span>(<span class="str">"INSERT INTO users VALUES (?, ?)"</span>,
-            user.<span class="fn">getId</span>(), user.<span class="fn">getName</span>());
-    }
-}
-
-<span class="cm">// ADAPTER 2 — MongoDB (swap without touching business logic!)</span>
-<span class="kw">public class</span> <span class="cl">MongoUserRepository</span> <span class="kw">implements</span> <span class="cl">UserRepository</span> {
-    <span class="kw">private final</span> <span class="cl">MongoCollection</span>&lt;<span class="cl">Document</span>&gt; collection;
-
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id) {
-        <span class="cl">Document</span> doc = collection.<span class="fn">find</span>(<span class="fn">eq</span>(<span class="str">"_id"</span>, id)).<span class="fn">first</span>();
-        <span class="kw">return</span> <span class="fn">mapToUser</span>(doc);
-    }
-}
-
-<span class="cm">// BUSINESS LOGIC — depends only on the abstraction</span>
-<span class="kw">public class</span> <span class="cl">UserService</span> {
-    <span class="kw">private final</span> <span class="cl">UserRepository</span> repo; <span class="cm">// abstraction, not concrete!</span>
-
-    <span class="kw">public</span> <span class="cl">UserService</span>(<span class="cl">UserRepository</span> repo) {
-        <span class="kw">this</span>.repo = repo;
-    }
-
-    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">getUser</span>(<span class="cl">String</span> id) {
-        <span class="kw">return</span> repo.<span class="fn">findById</span>(id);
-    }
-}
-</code></pre>
-
-  <h2>3. Levels of Abstraction (The Stack)</h2>
-  <p>Engineering is a stack of abstractions. Each layer relies on the one below it being "correct" without needing to know why:</p>
-  <ol>
-    <li><strong>Business Logic</strong>: "Place Order."</li>
-    <li><strong>Application Service</strong>: <code>orderService.place(id)</code>.</li>
-    <li><strong>Domain Model</strong>: <code>order.validate()</code>.</li>
-    <li><strong>Java Method</strong>: <code>invokevirtual</code> call.</li>
-    <li><strong>JVM / OS</strong>: Memory management, file handles.</li>
-    <li><strong>Hardware</strong>: CPU instructions and registers.</li>
-  </ol>
-
-  <h2>4. The "Leaky Abstraction" Problem</h2>
-  <div class="box box-senior">
-    <div class="box-title">🧠 How Senior Engineers Think: Joel Spolsky's Law</div>
-    "All non-trivial abstractions, to some degree, are leaky." 
-    <br><br>
-    Example: <code>Hibernate/JPA</code> abstracts SQL away. But if you don't understand how SQL joins work underneath, you will create a "N+1 Query Problem" that kills production performance. The abstraction <em>leaks</em> the underlying complexity. A senior dev trusts the abstraction but intimately understands the layer beneath it.
-  </div>
-
-  <h3>Example: The N+1 Problem (Leaky Abstraction)</h3>
-  <pre><code><span class="cm">// BAD — N+1 Queries (the abstraction leaks!)</span>
-<span class="cl">List</span>&lt;<span class="cl">Author</span>&gt; authors = authorRepo.<span class="fn">findAll</span>(); <span class="cm">// 1 query</span>
-<span class="kw">for</span> (<span class="cl">Author</span> a : authors) {
-    <span class="cl">List</span>&lt;<span class="cl">Book</span>&gt; books = a.<span class="fn">getBooks</span>(); <span class="cm">// N queries! (lazy load)</span>
-    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">getName</span>() + <span class="str">" wrote "</span> + books.<span class="fn">size</span>());
-}
-
-<span class="cm">// GOOD — Eager fetch with JOIN (understand the layer below)</span>
-<span class="cl">List</span>&lt;<span class="cl">Author</span>&gt; authors = authorRepo.<span class="fn">findAllWithBooks</span>(); <span class="cm">// 1 query with JOIN</span>
-<span class="kw">for</span> (<span class="cl">Author</span> a : authors) {
-    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">getName</span>() + <span class="str">" wrote "</span> + a.<span class="fn">getBooks</span>().<span class="fn">size</span>());
-}
-</code></pre>
-
-  <h2>5. Abstraction vs. Encapsulation</h2>
-  <div class="table-wrap"><table>
-    <tr><th>Pillar</th><th>Focus</th><th>Goal</th></tr>
-    <tr><td><strong>Abstraction</strong></td><td>Design Level</td><td>Hiding complexity (WHAT). Focused on <strong>Behavior</strong>.</td></tr>
-    <tr><td><strong>Encapsulation</strong></td><td>Implementation Level</td><td>Hiding state / Data protection (HOW). Focused on <strong>Data</strong>.</td></tr>
-  </table></div>
-
-  <h3>Example: Abstraction + Encapsulation Together</h3>
-  <pre><code><span class="cm">// ABSTRACTION — hides WHAT a shape can do</span>
-<span class="kw">public interface</span> <span class="cl">Shape</span> {
-    <span class="kw">double</span> <span class="fn">area</span>();
-    <span class="kw">double</span> <span class="fn">perimeter</span>();
-}
-
-<span class="cm">// ENCAPSULATION — hides HOW the data is stored</span>
-<span class="kw">public class</span> <span class="cl">Circle</span> <span class="kw">implements</span> <span class="cl">Shape</span> {
-    <span class="kw">private final double</span> radius; <span class="cm">// encapsulated!</span>
-
-    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> radius) {
-        <span class="kw">if</span> (radius <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>();
-        <span class="kw">this</span>.radius = radius;
-    }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">perimeter</span>() { <span class="kw">return</span> <span class="num">2</span> * <span class="cl">Math</span>.PI * radius; }
-}
-
-<span class="kw">public class</span> <span class="cl">Rectangle</span> <span class="kw">implements</span> <span class="cl">Shape</span> {
-    <span class="kw">private final double</span> width, height;
-
-    <span class="kw">public</span> <span class="cl">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) {
-        <span class="kw">this</span>.width = w;
-        <span class="kw">this</span>.height = h;
-    }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> width * height; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">perimeter</span>() { <span class="kw">return</span> <span class="num">2</span> * (width + height); }
-}
-
-<span class="cm">// Polymorphic usage — client only knows "Shape"</span>
-<span class="cl">List</span>&lt;<span class="cl">Shape</span>&gt; shapes = <span class="cl">List</span>.<span class="fn">of</span>(<span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">5</span>), <span class="kw">new</span> <span class="cl">Rectangle</span>(<span class="num">3</span>, <span class="num">4</span>));
-<span class="kw">double</span> totalArea = shapes.<span class="fn">stream</span>()
-    .<span class="fn">mapToDouble</span>(<span class="cl">Shape</span>::area)
-    .<span class="fn">sum</span>();
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Total area: "</span> + totalArea);
-</code></pre>
-
-  <h2>6. The Facade Pattern: The Ultimate Abstraction</h2>
-  <p>If you have a complex subsystem with 50 classes, don't expose them all. Create a <strong>Facade</strong> class that provides 3 simple methods. This is an abstraction that simplifies the entry point to a complex system.</p>
-
-  <h3>Example: Facade Pattern</h3>
-  <pre><code><span class="cm">// Complex subsystem classes</span>
-<span class="kw">class</span> <span class="cl">InventoryService</span> {
-    <span class="kw">boolean</span> <span class="fn">checkStock</span>(<span class="cl">String</span> productId) { <span class="cm">/* complex logic */</span> <span class="kw">return true</span>; }
-}
-
-<span class="kw">class</span> <span class="cl">PaymentService</span> {
-    <span class="kw">boolean</span> <span class="fn">charge</span>(<span class="cl">String</span> userId, <span class="kw">double</span> amount) { <span class="cm">/* gateway logic */</span> <span class="kw">return true</span>; }
-}
-
-<span class="kw">class</span> <span class="cl">ShippingService</span> {
-    <span class="cl">String</span> <span class="fn">ship</span>(<span class="cl">String</span> productId, <span class="cl">String</span> address) { <span class="kw">return</span> <span class="str">"TRACK-123"</span>; }
-}
-
-<span class="cm">// THE FACADE — one simple method hides all complexity</span>
-<span class="kw">public class</span> <span class="cl">OrderFacade</span> {
-    <span class="kw">private final</span> <span class="cl">InventoryService</span> inventory = <span class="kw">new</span> <span class="cl">InventoryService</span>();
-    <span class="kw">private final</span> <span class="cl">PaymentService</span> payment = <span class="kw">new</span> <span class="cl">PaymentService</span>();
-    <span class="kw">private final</span> <span class="cl">ShippingService</span> shipping = <span class="kw">new</span> <span class="cl">ShippingService</span>();
-
-    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">placeOrder</span>(<span class="cl">String</span> userId, <span class="cl">String</span> productId,
-                               <span class="kw">double</span> amount, <span class="cl">String</span> address) {
-        <span class="kw">if</span> (!inventory.<span class="fn">checkStock</span>(productId))
-            <span class="kw">throw new</span> <span class="cl">RuntimeException</span>(<span class="str">"Out of stock"</span>);
-        <span class="kw">if</span> (!payment.<span class="fn">charge</span>(userId, amount))
-            <span class="kw">throw new</span> <span class="cl">RuntimeException</span>(<span class="str">"Payment failed"</span>);
-        <span class="kw">return</span> shipping.<span class="fn">ship</span>(productId, address);
-    }
-}
-
-<span class="cm">// CLIENT — one line does everything</span>
-<span class="cl">OrderFacade</span> facade = <span class="kw">new</span> <span class="cl">OrderFacade</span>();
-<span class="cl">String</span> trackingId = facade.<span class="fn">placeOrder</span>(<span class="str">"U1"</span>, <span class="str">"P1"</span>, <span class="num">99.99</span>, <span class="str">"123 Main St"</span>);
-</code></pre>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 04B</div>
-    <ul>
-      <li><strong>Interfaces</strong> are the strongest form of abstraction in Java.</li>
-      <li><strong>Abstract only what changes</strong>; don't over-engineer static logic.</li>
-      <li><strong>Decoupling</strong> is the primary result of good abstraction.</li>
-      <li><strong>Understand the layer below</strong> to avoid "leaks."</li>
-      <li><strong>Hiding vs Omitting</strong>: Abstraction is about hiding unnecessary details, not omitting them entirely.</li>
-      <li><strong>Facade Pattern</strong> is the most practical use of abstraction in enterprise code.</li>
-    </ul>
-  </div>
-
-  <h2>Interview Deep Dive — Section 04B</h2>
   <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Can we have Abstraction without Encapsulation?<span class="arrow">▶</span></div>
-    <div class="qa-a">Technically, yes. But it's bad design. Abstraction gives you the "remote control" (Interface), and Encapsulation ensures the "battery compartment" (Data) is locked. Without encapsulation, the user could mess with the internals of the remote, breaking the abstraction.</div>
+    <div class="qa-q" onclick="toggleQA(this)">Can an abstract class have a constructor? If so, when is it called?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> Even though you cannot instantiate an abstract class using <code>new</code>, it can (and often does) have a constructor to initialize its state. This constructor is called implicitly (via <code>super()</code>) or explicitly when a concrete subclass is instantiated.</div>
   </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is "Interface Segregation" in the context of Abstraction?<span class="arrow">▶</span></div>
-    <div class="qa-a">It means creating specific abstractions for specific clients. Instead of one giant <code>Machine</code> interface, create <code>Printer</code>, <code>Scanner</code>, and <code>Fax</code> interfaces. This ensures that a client using the printer isn't forced to know about (or depend on) the fax functionality. It keeps the abstraction "clean."</div>
-  </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is the difference between abstraction via Interface vs Abstract Class?<span class="arrow">▶</span></div>
-    <div class="qa-a"><strong>Interface</strong>: Pure contract. No state. Multiple inheritance. Use when you want to define "what" something can do. <strong>Abstract Class</strong>: Partial implementation. Can have state and constructors. Single inheritance. Use when you want to share common code among closely related classes. Since Java 8 (default methods), the gap has narrowed, but the conceptual difference remains: interfaces define capability, abstract classes define identity.</div>
-  </div>
-</div>`,w=Object.freeze(Object.defineProperty({__proto__:null,default:f},Symbol.toStringTag,{value:"Module"})),k=`<div id="access-modifiers" class="section">
+</div>`,b=Object.freeze(Object.defineProperty({__proto__:null,default:v},Symbol.toStringTag,{value:"Module"})),f=`<div id="abstraction" class="section">\r
+  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04B</span></div>\r
+  <div class="section-eyebrow">The Second Pillar</div>\r
+  <h1>Abstraction: Managing Complexity</h1>\r
+  <div class="section-desc">Abstraction is the art of hiding the "How" to focus on the "What." It is the primary tool we use to design APIs, decoupled systems, and scalable architectures.</div>\r
+\r
+  <h2>1. The "Iceberg" Model of Abstraction</h2>\r
+  <p>An object is like an iceberg. The 10% above the water is the <strong>Public Interface</strong> (What the object does). The 90% below is the <strong>Private Implementation</strong> (How it does it). As long as the tip stays the same, the bottom can change entirely without affecting the world.</p>\r
+\r
+  <div class="diagram">\r
+[ CLIENT CODE ]\r
+      │\r
+      ▼\r
+[ PUBLIC API (Interface) ]  <── "I need to send an email."\r
+      │\r
+      ▼\r
+[ PRIVATE LOGIC (Impl) ]   <── Connect to SMTP, handle retries, \r
+                                 log errors, manage sockets.</div>\r
+\r
+  <h3>Example: The Iceberg in Action</h3>\r
+  <pre><code><span class="cm">// The PUBLIC surface — the client only sees this</span>\r
+<span class="kw">public interface</span> <span class="cl">EmailService</span> {\r
+    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> subject, <span class="cl">String</span> body);\r
+}\r
+\r
+<span class="cm">// The PRIVATE iceberg — 90% of the complexity is hidden</span>\r
+<span class="kw">public class</span> <span class="cl">SmtpEmailService</span> <span class="kw">implements</span> <span class="cl">EmailService</span> {\r
+    <span class="kw">private final</span> <span class="cl">SmtpConnection</span> connection;\r
+    <span class="kw">private final</span> <span class="cl">RetryPolicy</span> retryPolicy;\r
+    <span class="kw">private final</span> <span class="cl">Logger</span> logger;\r
+\r
+    <span class="kw">public</span> <span class="cl">SmtpEmailService</span>(<span class="cl">SmtpConnection</span> conn, <span class="cl">RetryPolicy</span> rp) {\r
+        <span class="kw">this</span>.connection = conn;\r
+        <span class="kw">this</span>.retryPolicy = rp;\r
+        <span class="kw">this</span>.logger = <span class="cl">LoggerFactory</span>.<span class="fn">getLogger</span>(<span class="cl">SmtpEmailService</span>.<span class="kw">class</span>);\r
+    }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> subject, <span class="cl">String</span> body) {\r
+        retryPolicy.<span class="fn">execute</span>(() -> {\r
+            connection.<span class="fn">open</span>();\r
+            connection.<span class="fn">sendMail</span>(to, subject, body);\r
+            connection.<span class="fn">close</span>();\r
+            logger.<span class="fn">info</span>(<span class="str">"Email sent to {}"</span>, to);\r
+        });\r
+    }\r
+}\r
+\r
+<span class="cm">// CLIENT CODE — beautifully simple</span>\r
+<span class="cl">EmailService</span> emailService = <span class="kw">new</span> <span class="cl">SmtpEmailService</span>(conn, policy);\r
+emailService.<span class="fn">send</span>(<span class="str">"user@example.com"</span>, <span class="str">"Welcome!"</span>, <span class="str">"Hello World"</span>);\r
+</code></pre>\r
+\r
+  <h2>2. Abstract Data Types (ADT) &amp; Clean Architecture</h2>\r
+  <p>In computer science, an <strong>ADT</strong> defines a data structure by its behavior (e.g., a <code>Stack</code> has <code>push</code> and <code>pop</code>) rather than its memory layout. In Java, we use <strong>Interfaces</strong> to define ADTs.</p>\r
+\r
+  <h3>Example: Stack as an ADT</h3>\r
+  <pre><code><span class="cm">// The ADT — defines WHAT, not HOW</span>\r
+<span class="kw">public interface</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {\r
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="cl">T</span> item);\r
+    <span class="cl">T</span> <span class="fn">pop</span>();\r
+    <span class="cl">T</span> <span class="fn">peek</span>();\r
+    <span class="kw">boolean</span> <span class="fn">isEmpty</span>();\r
+    <span class="kw">int</span> <span class="fn">size</span>();\r
+}\r
+\r
+<span class="cm">// Implementation 1: Array-based</span>\r
+<span class="kw">public class</span> <span class="cl">ArrayStack</span>&lt;<span class="cl">T</span>&gt; <span class="kw">implements</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {\r
+    <span class="kw">private</span> <span class="cl">Object</span>[] data = <span class="kw">new</span> <span class="cl">Object</span>[<span class="num">16</span>];\r
+    <span class="kw">private int</span> top = -<span class="num">1</span>;\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">push</span>(<span class="cl">T</span> item) { data[++top] = item; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public</span> <span class="cl">T</span> <span class="fn">pop</span>() { <span class="kw">return</span> (<span class="cl">T</span>) data[top--]; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public</span> <span class="cl">T</span> <span class="fn">peek</span>() { <span class="kw">return</span> (<span class="cl">T</span>) data[top]; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public boolean</span> <span class="fn">isEmpty</span>() { <span class="kw">return</span> top == -<span class="num">1</span>; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public int</span> <span class="fn">size</span>() { <span class="kw">return</span> top + <span class="num">1</span>; }\r
+}\r
+\r
+<span class="cm">// Implementation 2: LinkedList-based</span>\r
+<span class="kw">public class</span> <span class="cl">LinkedStack</span>&lt;<span class="cl">T</span>&gt; <span class="kw">implements</span> <span class="cl">Stack</span>&lt;<span class="cl">T</span>&gt; {\r
+    <span class="kw">private</span> <span class="cl">Node</span>&lt;<span class="cl">T</span>&gt; head;\r
+    <span class="kw">private int</span> count = <span class="num">0</span>;\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">push</span>(<span class="cl">T</span> item) {\r
+        head = <span class="kw">new</span> <span class="cl">Node</span>&lt;&gt;(item, head);\r
+        count++;\r
+    }\r
+    <span class="cm">// ... other methods follow the same pattern</span>\r
+}\r
+\r
+<span class="cm">// The client doesn't care which implementation is used!</span>\r
+<span class="cl">Stack</span>&lt;<span class="cl">String</span>&gt; stack = <span class="kw">new</span> <span class="cl">ArrayStack</span>&lt;&gt;();\r
+stack.<span class="fn">push</span>(<span class="str">"Hello"</span>);\r
+stack.<span class="fn">push</span>(<span class="str">"World"</span>);\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(stack.<span class="fn">pop</span>()); <span class="cm">// "World"</span>\r
+</code></pre>\r
+\r
+  <div class="box box-lld">\r
+    <div class="box-title">⚙️ LLD Connection: Hexagonal Architecture (Ports & Adapters)</div>\r
+    By abstracting the database layer behind a <code>Repository</code> interface (The Port), you make your business logic "database agnostic." You can swap PostgreSQL for MongoDB by simply changing the implementation class (The Adapter). This is how FAANG companies migrate databases with zero downtime.\r
+  </div>\r
+\r
+  <h3>Example: Repository Pattern (Hexagonal Architecture)</h3>\r
+  <pre><code><span class="cm">// PORT — the abstraction</span>\r
+<span class="kw">public interface</span> <span class="cl">UserRepository</span> {\r
+    <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id);\r
+    <span class="kw">void</span> <span class="fn">save</span>(<span class="cl">User</span> user);\r
+    <span class="cl">List</span>&lt;<span class="cl">User</span>&gt; <span class="fn">findAll</span>();\r
+}\r
+\r
+<span class="cm">// ADAPTER 1 — PostgreSQL</span>\r
+<span class="kw">public class</span> <span class="cl">PostgresUserRepository</span> <span class="kw">implements</span> <span class="cl">UserRepository</span> {\r
+    <span class="kw">private final</span> <span class="cl">JdbcTemplate</span> jdbc;\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id) {\r
+        <span class="kw">return</span> jdbc.<span class="fn">queryForObject</span>(\r
+            <span class="str">"SELECT * FROM users WHERE id = ?"</span>, userMapper, id);\r
+    }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">save</span>(<span class="cl">User</span> user) {\r
+        jdbc.<span class="fn">update</span>(<span class="str">"INSERT INTO users VALUES (?, ?)"</span>,\r
+            user.<span class="fn">getId</span>(), user.<span class="fn">getName</span>());\r
+    }\r
+}\r
+\r
+<span class="cm">// ADAPTER 2 — MongoDB (swap without touching business logic!)</span>\r
+<span class="kw">public class</span> <span class="cl">MongoUserRepository</span> <span class="kw">implements</span> <span class="cl">UserRepository</span> {\r
+    <span class="kw">private final</span> <span class="cl">MongoCollection</span>&lt;<span class="cl">Document</span>&gt; collection;\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">findById</span>(<span class="cl">String</span> id) {\r
+        <span class="cl">Document</span> doc = collection.<span class="fn">find</span>(<span class="fn">eq</span>(<span class="str">"_id"</span>, id)).<span class="fn">first</span>();\r
+        <span class="kw">return</span> <span class="fn">mapToUser</span>(doc);\r
+    }\r
+}\r
+\r
+<span class="cm">// BUSINESS LOGIC — depends only on the abstraction</span>\r
+<span class="kw">public class</span> <span class="cl">UserService</span> {\r
+    <span class="kw">private final</span> <span class="cl">UserRepository</span> repo; <span class="cm">// abstraction, not concrete!</span>\r
+\r
+    <span class="kw">public</span> <span class="cl">UserService</span>(<span class="cl">UserRepository</span> repo) {\r
+        <span class="kw">this</span>.repo = repo;\r
+    }\r
+\r
+    <span class="kw">public</span> <span class="cl">User</span> <span class="fn">getUser</span>(<span class="cl">String</span> id) {\r
+        <span class="kw">return</span> repo.<span class="fn">findById</span>(id);\r
+    }\r
+}\r
+</code></pre>\r
+\r
+  <h2>3. Levels of Abstraction (The Stack)</h2>\r
+  <p>Engineering is a stack of abstractions. Each layer relies on the one below it being "correct" without needing to know why:</p>\r
+  <ol>\r
+    <li><strong>Business Logic</strong>: "Place Order."</li>\r
+    <li><strong>Application Service</strong>: <code>orderService.place(id)</code>.</li>\r
+    <li><strong>Domain Model</strong>: <code>order.validate()</code>.</li>\r
+    <li><strong>Java Method</strong>: <code>invokevirtual</code> call.</li>\r
+    <li><strong>JVM / OS</strong>: Memory management, file handles.</li>\r
+    <li><strong>Hardware</strong>: CPU instructions and registers.</li>\r
+  </ol>\r
+\r
+  <h2>4. The "Leaky Abstraction" Problem</h2>\r
+  <div class="box box-senior">\r
+    <div class="box-title">🧠 How Senior Engineers Think: Joel Spolsky's Law</div>\r
+    "All non-trivial abstractions, to some degree, are leaky." \r
+    <br><br>\r
+    Example: <code>Hibernate/JPA</code> abstracts SQL away. But if you don't understand how SQL joins work underneath, you will create a "N+1 Query Problem" that kills production performance. The abstraction <em>leaks</em> the underlying complexity. A senior dev trusts the abstraction but intimately understands the layer beneath it.\r
+  </div>\r
+\r
+  <h3>Example: The N+1 Problem (Leaky Abstraction)</h3>\r
+  <pre><code><span class="cm">// BAD — N+1 Queries (the abstraction leaks!)</span>\r
+<span class="cl">List</span>&lt;<span class="cl">Author</span>&gt; authors = authorRepo.<span class="fn">findAll</span>(); <span class="cm">// 1 query</span>\r
+<span class="kw">for</span> (<span class="cl">Author</span> a : authors) {\r
+    <span class="cl">List</span>&lt;<span class="cl">Book</span>&gt; books = a.<span class="fn">getBooks</span>(); <span class="cm">// N queries! (lazy load)</span>\r
+    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">getName</span>() + <span class="str">" wrote "</span> + books.<span class="fn">size</span>());\r
+}\r
+\r
+<span class="cm">// GOOD — Eager fetch with JOIN (understand the layer below)</span>\r
+<span class="cl">List</span>&lt;<span class="cl">Author</span>&gt; authors = authorRepo.<span class="fn">findAllWithBooks</span>(); <span class="cm">// 1 query with JOIN</span>\r
+<span class="kw">for</span> (<span class="cl">Author</span> a : authors) {\r
+    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">getName</span>() + <span class="str">" wrote "</span> + a.<span class="fn">getBooks</span>().<span class="fn">size</span>());\r
+}\r
+</code></pre>\r
+\r
+  <h2>5. Abstraction vs. Encapsulation</h2>\r
+  <div class="table-wrap"><table>\r
+    <tr><th>Pillar</th><th>Focus</th><th>Goal</th></tr>\r
+    <tr><td><strong>Abstraction</strong></td><td>Design Level</td><td>Hiding complexity (WHAT). Focused on <strong>Behavior</strong>.</td></tr>\r
+    <tr><td><strong>Encapsulation</strong></td><td>Implementation Level</td><td>Hiding state / Data protection (HOW). Focused on <strong>Data</strong>.</td></tr>\r
+  </table></div>\r
+\r
+  <h3>Example: Abstraction + Encapsulation Together</h3>\r
+  <pre><code><span class="cm">// ABSTRACTION — hides WHAT a shape can do</span>\r
+<span class="kw">public interface</span> <span class="cl">Shape</span> {\r
+    <span class="kw">double</span> <span class="fn">area</span>();\r
+    <span class="kw">double</span> <span class="fn">perimeter</span>();\r
+}\r
+\r
+<span class="cm">// ENCAPSULATION — hides HOW the data is stored</span>\r
+<span class="kw">public class</span> <span class="cl">Circle</span> <span class="kw">implements</span> <span class="cl">Shape</span> {\r
+    <span class="kw">private final double</span> radius; <span class="cm">// encapsulated!</span>\r
+\r
+    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> radius) {\r
+        <span class="kw">if</span> (radius <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>();\r
+        <span class="kw">this</span>.radius = radius;\r
+    }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">perimeter</span>() { <span class="kw">return</span> <span class="num">2</span> * <span class="cl">Math</span>.PI * radius; }\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">Rectangle</span> <span class="kw">implements</span> <span class="cl">Shape</span> {\r
+    <span class="kw">private final double</span> width, height;\r
+\r
+    <span class="kw">public</span> <span class="cl">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) {\r
+        <span class="kw">this</span>.width = w;\r
+        <span class="kw">this</span>.height = h;\r
+    }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> width * height; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">perimeter</span>() { <span class="kw">return</span> <span class="num">2</span> * (width + height); }\r
+}\r
+\r
+<span class="cm">// Polymorphic usage — client only knows "Shape"</span>\r
+<span class="cl">List</span>&lt;<span class="cl">Shape</span>&gt; shapes = <span class="cl">List</span>.<span class="fn">of</span>(<span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">5</span>), <span class="kw">new</span> <span class="cl">Rectangle</span>(<span class="num">3</span>, <span class="num">4</span>));\r
+<span class="kw">double</span> totalArea = shapes.<span class="fn">stream</span>()\r
+    .<span class="fn">mapToDouble</span>(<span class="cl">Shape</span>::area)\r
+    .<span class="fn">sum</span>();\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Total area: "</span> + totalArea);\r
+</code></pre>\r
+\r
+  <h2>6. The Facade Pattern: The Ultimate Abstraction</h2>\r
+  <p>If you have a complex subsystem with 50 classes, don't expose them all. Create a <strong>Facade</strong> class that provides 3 simple methods. This is an abstraction that simplifies the entry point to a complex system.</p>\r
+\r
+  <h3>Example: Facade Pattern</h3>\r
+  <pre><code><span class="cm">// Complex subsystem classes</span>\r
+<span class="kw">class</span> <span class="cl">InventoryService</span> {\r
+    <span class="kw">boolean</span> <span class="fn">checkStock</span>(<span class="cl">String</span> productId) { <span class="cm">/* complex logic */</span> <span class="kw">return true</span>; }\r
+}\r
+\r
+<span class="kw">class</span> <span class="cl">PaymentService</span> {\r
+    <span class="kw">boolean</span> <span class="fn">charge</span>(<span class="cl">String</span> userId, <span class="kw">double</span> amount) { <span class="cm">/* gateway logic */</span> <span class="kw">return true</span>; }\r
+}\r
+\r
+<span class="kw">class</span> <span class="cl">ShippingService</span> {\r
+    <span class="cl">String</span> <span class="fn">ship</span>(<span class="cl">String</span> productId, <span class="cl">String</span> address) { <span class="kw">return</span> <span class="str">"TRACK-123"</span>; }\r
+}\r
+\r
+<span class="cm">// THE FACADE — one simple method hides all complexity</span>\r
+<span class="kw">public class</span> <span class="cl">OrderFacade</span> {\r
+    <span class="kw">private final</span> <span class="cl">InventoryService</span> inventory = <span class="kw">new</span> <span class="cl">InventoryService</span>();\r
+    <span class="kw">private final</span> <span class="cl">PaymentService</span> payment = <span class="kw">new</span> <span class="cl">PaymentService</span>();\r
+    <span class="kw">private final</span> <span class="cl">ShippingService</span> shipping = <span class="kw">new</span> <span class="cl">ShippingService</span>();\r
+\r
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">placeOrder</span>(<span class="cl">String</span> userId, <span class="cl">String</span> productId,\r
+                               <span class="kw">double</span> amount, <span class="cl">String</span> address) {\r
+        <span class="kw">if</span> (!inventory.<span class="fn">checkStock</span>(productId))\r
+            <span class="kw">throw new</span> <span class="cl">RuntimeException</span>(<span class="str">"Out of stock"</span>);\r
+        <span class="kw">if</span> (!payment.<span class="fn">charge</span>(userId, amount))\r
+            <span class="kw">throw new</span> <span class="cl">RuntimeException</span>(<span class="str">"Payment failed"</span>);\r
+        <span class="kw">return</span> shipping.<span class="fn">ship</span>(productId, address);\r
+    }\r
+}\r
+\r
+<span class="cm">// CLIENT — one line does everything</span>\r
+<span class="cl">OrderFacade</span> facade = <span class="kw">new</span> <span class="cl">OrderFacade</span>();\r
+<span class="cl">String</span> trackingId = facade.<span class="fn">placeOrder</span>(<span class="str">"U1"</span>, <span class="str">"P1"</span>, <span class="num">99.99</span>, <span class="str">"123 Main St"</span>);\r
+</code></pre>\r
+\r
+  <div class="takeaways">\r
+    <div class="takeaways-title">Key Takeaways — Section 04B</div>\r
+    <ul>\r
+      <li><strong>Interfaces</strong> are the strongest form of abstraction in Java.</li>\r
+      <li><strong>Abstract only what changes</strong>; don't over-engineer static logic.</li>\r
+      <li><strong>Decoupling</strong> is the primary result of good abstraction.</li>\r
+      <li><strong>Understand the layer below</strong> to avoid "leaks."</li>\r
+      <li><strong>Hiding vs Omitting</strong>: Abstraction is about hiding unnecessary details, not omitting them entirely.</li>\r
+      <li><strong>Facade Pattern</strong> is the most practical use of abstraction in enterprise code.</li>\r
+    </ul>\r
+  </div>\r
+\r
+  <h2>Interview Deep Dive — Section 04B</h2>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">Can we have Abstraction without Encapsulation?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">Technically, yes. But it's bad design. Abstraction gives you the "remote control" (Interface), and Encapsulation ensures the "battery compartment" (Data) is locked. Without encapsulation, the user could mess with the internals of the remote, breaking the abstraction.</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is "Interface Segregation" in the context of Abstraction?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">It means creating specific abstractions for specific clients. Instead of one giant <code>Machine</code> interface, create <code>Printer</code>, <code>Scanner</code>, and <code>Fax</code> interfaces. This ensures that a client using the printer isn't forced to know about (or depend on) the fax functionality. It keeps the abstraction "clean."</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between abstraction via Interface vs Abstract Class?<span class="arrow">▶</span></div>\r
+    <div class="qa-a"><strong>Interface</strong>: Pure contract. No state. Multiple inheritance. Use when you want to define "what" something can do. <strong>Abstract Class</strong>: Partial implementation. Can have state and constructors. Single inheritance. Use when you want to share common code among closely related classes. Since Java 8 (default methods), the gap has narrowed, but the conceptual difference remains: interfaces define capability, abstract classes define identity.</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is a "Leaky Abstraction"?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">A leaky abstraction occurs when the underlying implementation details "leak" through the abstraction barrier, forcing the user of the API to understand those internals. For example, an ORM (like Hibernate) abstracts SQL. But if you encounter the N+1 select problem and have to manually write JOIN fetches or tweak the ORM to generate better SQL, the SQL implementation has "leaked." According to Spolsky's Law, "All non-trivial abstractions, to some degree, are leaky."</div>\r
+  </div>\r
+</div>`,w=Object.freeze(Object.defineProperty({__proto__:null,default:f},Symbol.toStringTag,{value:"Module"})),y=`<div id="access-modifiers" class="section">
   <div class="breadcrumb">handbook / <span>section 06</span></div>
   <div class="section-eyebrow">The Gatekeepers</div>
   <h1>Access Modifiers: Architectural Gates</h1>
@@ -692,8 +700,12 @@ exporter.<span class="fn">export</span>(<span class="cl">List</span>.<span class
     <div class="qa-q" onclick="toggleQA(this)">Can a constructor be private? When would you use that?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes.</strong> Private constructors are used in three key patterns: <strong>1) Singleton</strong> — prevent external instantiation. <strong>2) Utility class</strong> — prevent instantiation entirely (e.g., <code>java.util.Collections</code>). <strong>3) Static Factory Method</strong> — control object creation through named methods like <code>of()</code>, <code>valueOf()</code>, or <code>newInstance()</code>.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the exact difference between default (package-private) and protected?<span class="arrow">▶</span></div>
+    <div class="qa-a">Both allow access to classes in the same package. The key difference lies outside the package: <strong>default</strong> completely hides the member from classes outside the package, even subclasses. <strong>Protected</strong> allows subclasses in different packages to inherit and access the member. Therefore, protected is slightly more visible than default.</div>
+  </div>
 </div>
-`,y=Object.freeze(Object.defineProperty({__proto__:null,default:k},Symbol.toStringTag,{value:"Module"})),S=`<div id="cheat-sheets" class="section">
+`,k=Object.freeze(Object.defineProperty({__proto__:null,default:y},Symbol.toStringTag,{value:"Module"})),S=`<div id="cheat-sheets" class="section">
   <div class="breadcrumb">handbook / <span>section 20</span></div>
   <div class="section-eyebrow">The Mastery Roadmap</div>
   <h1>The Senior Developer's Cheat Sheet</h1>
@@ -765,130 +777,253 @@ exporter.<span class="fn">export</span>(<span class="cl">List</span>.<span class
     <span class="tag tag-green">Senior Perspective</span>
     <span class="tag tag-teal">Architect Ready</span>
   </div>
-</div>`,C=Object.freeze(Object.defineProperty({__proto__:null,default:S},Symbol.toStringTag,{value:"Module"})),T=`<div id="classes-objects" class="section">
+</div>`,x=Object.freeze(Object.defineProperty({__proto__:null,default:S},Symbol.toStringTag,{value:"Module"})),C=`<div id="classes-objects" class="section">
   <div class="breadcrumb">handbook / <span>section 02</span></div>
   <div class="section-eyebrow">The Mechanics</div>
-  <h1>Classes & Objects: The JVM Deep Dive</h1>
+  <h1 class="text-gradient">Classes & Objects: The JVM Deep Dive</h1>
   <div class="section-desc">We move beyond the "Blueprint" analogy into the actual byte-level reality of how the JVM manages entities in memory, handles class metadata, and optimizes object creation.</div>
 
-  <h2>1. Class vs. Object: The Logical Split</h2>
-  <ul>
-    <li><strong>Class</strong>: A template stored in the <strong>Metaspace</strong>. It contains method bytecode, static variables, and the vtable.</li>
-    <li><strong>Object</strong>: An instance stored on the <strong>Heap</strong>. It contains instance variables (state) and a header pointing back to the class metadata.</li>
-  </ul>
-<h2>3. Code Example: Simple Class &amp; Object</h2>
-<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="cl">User</span> {
-    <span class="kw">private</span> <span class="cl">String</span> name;
-    <span class="kw">private</span> <span class="kw">int</span> age;
-
-    <span class="kw">public</span> <span class="cl">User</span>(<span class="cl">String</span> name, <span class="kw">int</span> age) {
-        <span class="kw">this</span>.<span class="fn">name</span> = name;
-        <span class="kw">this</span>.<span class="fn">age</span> = age;
-    }
-
-    <span class="kw">public</span> <span class="cl">void</span> <span class="fn">greet</span>() {
-        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Hello, "</span> + name);
-    }
-}
-
-// Usage
-<span class="kw">User</span> u = <span class="kw">new</span> <span class="cl">User</span>(<span class="str">"Alice"</span>, <span class="num">30</span>);
-u.<span class="fn">greet</span>(); <span class="cm">// prints Hello, Alice</span>
-</code></pre>
-  <h2>2. The Object Anatomy: What's inside?</h2>
-  <p>When you create an object, the JVM doesn't just store your data. It attaches a "Header" to manage the object's identity and state.</p>
-
-  <div class="diagram">
-[ OBJECT ON HEAP ]
-┌───────────────────────────┐
-│  MARK WORD (8 bytes)      │ ──► HashCode, Lock info, GC age (4 bits)
-├───────────────────────────┤
-│  KLASS POINTER (4/8 bytes)│ ──► Pointer to class metadata in Metaspace
-├───────────────────────────┤
-│  INST. DATA (Variable)    │ ──► Your actual fields (int, long, etc.)
-├───────────────────────────┤
-│  PADDING (0-7 bytes)      │ ──► Aligns object to 8-byte boundary
-└───────────────────────────┘</div>
-<h2>4. Inheritance &amp; Polymorphism Example</h2>
-<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="cl">Animal</span> {
-    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">speak</span>() {
-        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"... (generic animal)"</span>);
-    }
-}
-
-<span class="kw">public</span> <span class="kw">class</span> <span class="cl">Dog</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">speak</span>() {
-        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Woof!"</span>);
-    }
-}
-
-// Polymorphic usage
-<span class="cl">Animal</span> a = <span class="kw">new</span> <span class="cl">Dog</span>();
-a.<span class="fn">speak</span>(); <span class="cm">// Prints "Woof!" thanks to dynamic dispatch</span>
-</code></pre>
-  <div class="box box-insight">
-    <div class="box-title">🕵️ Senior Insight: Compressed OOPs</div>
-    On 64-bit JVMs, pointers should be 8 bytes. However, to save memory, the JVM uses "Compressed Ordinary Object Pointers" (Compressed OOPs) to fit them into 4 bytes, allowing you to address up to 32GB of heap with 4-byte pointers. This is why heap sizes above 32GB can actually <em>reduce</em> performance due to the loss of this optimization.
-  </div>
-
-  <h2>3. Memory Allocation: The Journey of a 'new'</h2>
-  <p>What happens when you run <code>User u = new User();</code>? It's a multi-stage process involving the Stack, the Heap, and the Metaspace.</p>
-
-  <div class="table-wrap"><table>
-    <tr><th>Area</th><th>Action</th><th>Content</th></tr>
-    <tr><td><strong>Metaspace</strong></td><td>Class Loading</td><td>Loads <code>User.class</code>, parses constants, method vtables.</td></tr>
-    <tr><td><strong>Heap</strong></td><td>Allocation</td><td>Carves out memory (Eden space). Sets default values (0, null).</td></tr>
-    <tr><td><strong>Stack</strong></td><td>Reference</td><td>Stores the 4/8 byte address (pointer) in the current frame.</td></tr>
-    <tr><td><strong>CPU/Cache</strong></td><td>Initialization</td><td>Executes constructor logic, writes actual values to memory.</td></tr>
-  </table></div>
-
-  <h2>4. Entity vs. Value Objects (DDD Concept)</h2>
-  <p>In Domain Driven Design, we distinguish objects by their identity:</p>
-  <ul>
-    <li><strong>Entity Object</strong>: Defined by a unique ID (e.g., a <code>User</code> with ID 101). Even if two users have the same name, they are different.</li>
-    <li><strong>Value Object</strong>: Defined by its attributes (e.g., <code>Address</code> or <code>Money</code>). If two Money objects both have $100, they are interchangeable. Java 17 <strong>Records</strong> are perfect for Value Objects.</li>
-  </ul>
-
-  <h2>5. Escape Analysis: The "Invisible" Optimization</h2>
-  <p>Does every object live on the Heap? <strong>Not always.</strong></p>
-  <p>Modern JVMs use <strong>Escape Analysis</strong> to determine if an object "escapes" the scope of a method. If an object is only used locally, the JVM might perform <strong>Scalar Replacement</strong> — breaking the object into primitives and keeping them on the <strong>Stack</strong> or in <strong>Registers</strong>. This avoids the GC overhead entirely.</p>
-
-  <h2>6. Object States: The GC Perspective</h2>
-  <ul>
-    <li><strong>Strongly Reachable</strong>: At least one active thread has a pointer to it.</li>
-    <li><strong>Softly Reachable</strong>: Only reachable via <code>SoftReference</code>. GC collects only if memory is desperate.</li>
-    <li><strong>Weakly Reachable</strong>: Only reachable via <code>WeakReference</code>. GC collects in the next cycle.</li>
-    <li><strong>Phantom Reachable</strong>: Already finalized; waiting for the reaper.</li>
-  </ul>
-
-  <h2>7. The 'this' pointer: The Hidden Parameter</h2>
-  <div class="box box-warning">
-    <div class="box-title">⚠️ The JVM Secret</div>
-    Every non-static method in Java has a "hidden" first parameter: <code>this</code>. When you call <code>u.login()</code>, the JVM actually executes <code>User.login(User this)</code>. This is why static methods can't use <code>this</code> — the parameter simply isn't passed.
-  </div>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 02</div>
+  <div class="takeaways glass-card" style="margin: 3rem 0;">
+    <div class="takeaways-title text-gradient-accent">The Logical Split</div>
     <ul>
-      <li><strong>Objects have headers</strong>: 8-16 bytes of metadata for every single instance.</li>
-      <li><strong>Alignment Padding</strong>: JVM objects are always multiples of 8 bytes for CPU efficiency.</li>
-      <li><strong>Identity != HashCode</strong>: The default <code>hashCode()</code> is based on the memory address, but it can be overridden.</li>
-      <li><strong>Escape Analysis</strong> is the JVM's way of making OOP as fast as Procedural code.</li>
-      <li><strong>Metaspace</strong> stores the "blueprint," <strong>Heap</strong> stores the "house."</li>
+      <li><strong>Class (Metaspace)</strong>: The blueprint. Contains method bytecode, constant pool, and the <code>vtable</code> for dynamic dispatch.</li>
+      <li><strong>Object (Heap)</strong>: The physical instance. Contains actual state (fields) and a header linking back to the blueprint.</li>
     </ul>
   </div>
 
-  <h2>Interview Deep Dive — Section 02</h2>
+  <h2>1. Memory Allocation: The Journey of 'new'</h2>
+  <p>When you execute <code>User u = new User();</code>, the JVM performs a high-speed orchestration between three memory regions:</p>
+  
+  <div class="table-wrap">
+    <table>
+      <tr><th>Region</th><th>Operation</th><th>Stored Data</th></tr>
+      <tr><td><strong>Stack</strong></td><td>Frame Creation</td><td>The reference variable <code>u</code> (a 4/8 byte pointer).</td></tr>
+      <tr><td><strong>Heap</strong></td><td>Space Allocation</td><td>The actual object data (Header + Instance fields).</td></tr>
+      <tr><td><strong>Metaspace</strong></td><td>Metadata Look-up</td><td>Class structure, method vtable, and static fields.</td></tr>
+    </table>
+  </div>
+
+  <div class="box box-senior">
+    <div class="box-title">🧠 Senior Insight: Zero-Initializaton</div>
+    Before your constructor even runs, the JVM "zeros out" the allocated heap space. This is why fields like <code>int</code> default to <code>0</code> and references to <code>null</code>. This safety feature prevents "garbage data" from previous memory usage from leaking into your new object.
+  </div>
+
+  <h2>2. The Object Anatomy: What's inside?</h2>
+  <p>Every object on the heap is more than just its data. The JVM wraps your fields in a high-performance <strong>Header</strong>.</p>
+
+  <div class="memory-viz-container">
+    <div class="memory-header">
+      <i class="ri-database-2-line"></i> HEAP OBJECT LAYOUT
+    </div>
+    
+    <div class="memory-stack">
+      <div class="memory-cell glass-card" style="--border-color: var(--purple); --glow: var(--purple);">
+        <div class="cell-meta">
+          <span class="cell-tag">Header Part 1</span>
+          <span class="cell-size">8 Bytes</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Mark Word</div>
+          <div class="cell-desc">Handles <strong>HashCode</strong>, <strong>Locking</strong>, and <strong>GC Generational Age</strong>.</div>
+        </div>
+      </div>
+
+      <div class="memory-cell glass-card" style="--border-color: var(--accent); --glow: var(--accent);">
+        <div class="cell-meta">
+          <span class="cell-tag">Header Part 2</span>
+          <span class="cell-size">4/8 Bytes</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Klass Pointer</div>
+          <div class="cell-desc">The physical link to the <strong>Klass metadata</strong> in Metaspace.</div>
+        </div>
+      </div>
+
+      <div class="memory-cell glass-card" style="--border-color: var(--green); --glow: var(--green);">
+        <div class="cell-meta">
+          <span class="cell-tag">Fields</span>
+          <span class="cell-size">Variable</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Instance Data</div>
+          <div class="cell-desc">Your actual <code>int</code>, <code>boolean</code>, and <code>Object</code> references.</div>
+        </div>
+      </div>
+
+      <div class="memory-cell glass-card" style="--border-color: var(--text-muted); opacity: 0.6;">
+        <div class="cell-meta">
+          <span class="cell-tag">Alignment</span>
+          <span class="cell-size">0-7 Bytes</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Padding</div>
+          <div class="cell-desc">Fills the gap to ensure the object is <strong>8-byte aligned</strong> for CPU efficiency.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. References vs. Values</h2>
+  <p>In Java, variables either hold <strong>Primitives</strong> (the actual value) or <strong>References</strong> (the address of an object). This distinction is critical for understanding "Pass-by-Value".</p>
+
+  <pre><code><span class="kw">int</span> x = <span class="num">10</span>;          <span class="cm">// 'x' holds the bits 10 on the STACK</span>
+<span class="cl">User</span> u1 = <span class="kw">new</span> <span class="cl">User</span>(); <span class="cm">// 'u1' holds the HEAP ADDRESS (e.g., 0xAF22)</span>
+<span class="cl">User</span> u2 = u1;         <span class="cm">// 'u2' holds the SAME ADDRESS. No new object created.</span>
+
+u2.<span class="fn">setName</span>(<span class="str">"Alice"</span>); 
+<span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(u1.<span class="fn">getName</span>()); <span class="cm">// Prints "Alice" - both share one object!</span>
+</code></pre>
+
+  <div class="box box-warning">
+    <div class="box-title">⚠️ The Equality Trap</div>
+    <code>==</code> compares the <strong>bits</strong> in the variable. For primitives, it compares values. For objects, it compares <strong>addresses</strong>. Always use <code>.equals()</code> for content comparison.
+  </div>
+
+  <h2>4. Initialization Blocks: The Hidden Setup</h2>
+  <p>Java provides "Instance Initialization Blocks" that run every time an object is created, before the constructor logic.</p>
+
+  <pre><code><span class="kw">public class</span> <span class="cl">Engine</span> {
+    <span class="kw">private String</span> status;
+
+    <span class="cm">// Instance Initialization Block</span>
+    {
+        <span class="kw">this</span>.status = <span class="str">"PRE-HEATING"</span>;
+        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Global init block ran"</span>);
+    }
+
+    <span class="kw">public Engine</span>() {
+        <span class="kw">this</span>.status = <span class="str">"RUNNING"</span>;
+    }
+}</code></pre>
+
+  <h2>5. Statics: The Class-Level State</h2>
+  <p>Static fields and methods belong to the <strong>Class (Metaspace)</strong>, not the instance. They are shared across all objects of that type.</p>
+
+  <pre><code><span class="kw">public class</span> <span class="cl">Counter</span> {
+    <span class="kw">public static int</span> <span class="fn">globalCount</span> = <span class="num">0</span>; <span class="cm">// Shared across ALL instances</span>
+    <span class="kw">public int</span> <span class="fn">instanceCount</span> = <span class="num">0</span>;     <span class="cm">// Unique to EACH instance</span>
+
+    <span class="kw">public Counter</span>() {
+        globalCount++;
+        instanceCount++;
+    }
+}</code></pre>
+
+  <h2>6. Escape Analysis: The "Invisible" Optimization</h2>
+  <p>Modern JVMs use <strong>Escape Analysis</strong> to determine if an object "escapes" a method. If not, the JVM might perform <strong>Scalar Replacement</strong>, breaking the object into primitives and keeping them on the <strong>Stack</strong> or in <strong>Registers</strong> to avoid GC overhead entirely.</p>
+
+  <div class="takeaways glass-card">
+    <div class="takeaways-title text-gradient">Architectural Takeaways</div>
+    <ul>
+      <li><strong>Header Overhead</strong>: Every object costs 12-16 bytes before your data starts. Small objects are expensive.</li>
+      <li><strong>Pointer Compression</strong>: JVM uses "Compressed OOPs" to keep references at 4 bytes even on 64-bit systems (up to 32GB heap).</li>
+      <li><strong>Identity != HashCode</strong>: The default <code>hashCode()</code> is generated once and stored in the Mark Word; it's not simply the memory address (which can change during GC).</li>
+      <li><strong>Statics are Singletons</strong>: Treat static state with care in multi-threaded environments.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive</h2>
   <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is the difference between a Shallow Copy and a Deep Copy in terms of Heap memory?<span class="arrow">▶</span></div>
-    <div class="qa-a">A <strong>Shallow Copy</strong> creates a new object on the heap but copies the <em>references</em> of the internal fields. Both objects point to the same "children" objects. A <strong>Deep Copy</strong> creates a new object AND recursively creates new objects for all fields. It results in a completely independent "tree" on the heap.</div>
+    <div class="qa-q" onclick="toggleQA(this)">What happens if you run out of Metaspace instead of Heap?<span class="arrow">▶</span></div>
+    <div class="qa-a">You get a <code>java.lang.OutOfMemoryError: Metaspace</code>. This usually happens in apps that generate many dynamic classes (e.g., using proxies or script engines) without unloading them. Unlike the Heap, Metaspace grows dynamically but is limited by <code>-XX:MaxMetaspaceSize</code>.</div>
   </div>
   <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Can an object be created without calling a constructor?<span class="arrow">▶</span></div>
-    <div class="qa-a">Yes. Via <strong>Deserialization</strong> (using ObjectInputStream) or <strong>Cloning</strong> (Object.clone()). In these cases, the JVM recreates the object's state directly from data without re-executing constructor logic. This is an edge case often used in advanced frameworks.</div>
+    <div class="qa-q" onclick="toggleQA(this)">Why is <code>padding</code> necessary in object anatomy?<span class="arrow">▶</span></div>
+    <div class="qa-a">CPU architectures are optimized to read memory in 8-byte (64-bit) chunks. If an object's address isn't aligned to an 8-byte boundary, the CPU might need two memory reads instead of one to fetch a single field. Padding ensures high-performance alignment.</div>
   </div>
-</div>`,I=Object.freeze(Object.defineProperty({__proto__:null,default:T},Symbol.toStringTag,{value:"Module"})),x=`<div id="constructors" class="section">
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an object be created without <code>new</code>?<span class="arrow">▶</span></div>
+    <div class="qa-a">Yes. Via <strong>Deserialization</strong>, <strong>Reflection</strong> (<code>newInstance()</code>), <strong>Cloning</strong>, or via <strong>Unsafe</strong> (which allocates memory without calling any constructor).</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Is Java "Pass-by-Reference" or "Pass-by-Value"?<span class="arrow">▶</span></div>
+    <div class="qa-a">Java is strictly <strong>Pass-by-Value</strong>. However, for objects, the "value" being passed is the <em>reference</em> (memory address) to the object. You can mutate the object's fields via this reference, but you cannot change which object the original variable points to.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is "Escape Analysis" in modern JVMs?<span class="arrow">▶</span></div>
+    <div class="qa-a">It is a JIT optimization where the compiler analyzes if an object "escapes" the current method or thread. If it doesn't, the JVM can allocate the object directly on the <strong>Stack</strong> instead of the Heap, eliminating Garbage Collection overhead for that object.</div>
+  </div>
+  <style>
+    .memory-viz-container {
+      margin: 4rem 0;
+      background: var(--bg-sidebar);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .memory-header {
+      padding: 1rem 1.5rem;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .memory-stack {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .memory-cell {
+      padding: 1.25rem;
+      position: relative;
+      border-left: 4px solid var(--border-color) !important;
+      transition: all 0.3s ease;
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    .memory-cell:hover {
+      transform: translateX(10px);
+      background: rgba(255,255,255,0.05);
+      box-shadow: -10px 0 30px -10px var(--glow);
+    }
+    .cell-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cell-tag {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .cell-size {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--border-color);
+      font-weight: 600;
+    }
+    .cell-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .cell-desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+    @media (max-width: 768px) {
+      .memory-cell {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+      .cell-meta { flex-direction: row; justify-content: space-between; }
+    }
+  </style>
+</div>`,T=Object.freeze(Object.defineProperty({__proto__:null,default:C},Symbol.toStringTag,{value:"Module"})),I=`<div id="constructors" class="section">
   <div class="breadcrumb">handbook / <span>section 03</span></div>
   <div class="section-eyebrow">The Initialization</div>
   <h1>Constructors: Mastering Object Birth</h1>
@@ -1061,7 +1196,11 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
     <div class="qa-q" onclick="toggleQA(this)">Can a constructor be synchronized?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>No.</strong> A constructor cannot be synchronized. Only the thread that creates an object should have access to it while it is being constructed. Synchronization is not needed and will result in a compile-time error.</div>
   </div>
-</div>`,A=Object.freeze(Object.defineProperty({__proto__:null,default:x},Symbol.toStringTag,{value:"Module"})),P=`<div id="encapsulation" class="section">\r
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if an Exception is thrown inside a constructor?<span class="arrow">▶</span></div>
+    <div class="qa-a">If an exception is thrown in a constructor and not caught within it, the object creation fails. The reference to the partially constructed object is never assigned, making it eligible for garbage collection. However, any external resources opened before the exception (like files or database connections) might leak unless properly handled (e.g., in a finally block before throwing).</div>
+  </div>
+</div>`,A=Object.freeze(Object.defineProperty({__proto__:null,default:I},Symbol.toStringTag,{value:"Module"})),P=`<div id="encapsulation" class="section">\r
   <div class="breadcrumb">handbook / the 4 pillars / <span>section 04A</span></div>\r
   <div class="section-eyebrow">The First Pillar</div>\r
   <h1>Encapsulation: Protecting the Invariants</h1>\r
@@ -1240,6 +1379,10 @@ balanceField.<span class="fn">setDouble</span>(account, <span class="num">999999
     <div class="qa-q" onclick="toggleQA(this)">What is 'Strong Encapsulation' in Java 17?<span class="arrow">▶</span></div>\r
     <div class="qa-a">Project Jigsaw means even Reflection cannot access internal classes unless explicitly <code>exported</code> or <code>opened</code> in <code>module-info.java</code>.</div>\r
   </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is an "Anemic Domain Model"?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">An Anemic Domain Model is one where classes only contain data (fields, getters, and setters) but no behavior. It violates encapsulation because the business logic that operates on that data is scattered across Service classes, rather than living inside the Domain object itself. In a Rich Domain Model, the object protects its invariants by having methods like <code>user.changePassword()</code> instead of a service calling <code>user.setPassword(hash)</code>.</div>\r
+  </div>\r
 </div>`,O=Object.freeze(Object.defineProperty({__proto__:null,default:P},Symbol.toStringTag,{value:"Module"})),E=`<div id="enums" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 15</span></div>
   <div class="section-eyebrow">The Special Classes</div>
@@ -1337,6 +1480,10 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
   <div class="qa-block">
     <div class="qa-q" onclick="toggleQA(this)">Why is it better to use an Enum instead of 'static final int' constants?<span class="arrow">▶</span></div>
     <div class="qa-a">1. <strong>Type Safety</strong>: You cannot pass an arbitrary integer to a method that expects an enum. 2. <strong>Namespace</strong>: Constants are grouped logically. 3. <strong>Behavior</strong>: You can add methods and logic directly to the enum. 4. <strong>Serialization</strong>: Enums handle serialization and deserialization safely by default.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an Enum extend another class or implement an interface?<span class="arrow">▶</span></div>
+    <div class="qa-a">An enum <strong>cannot</strong> extend another class because all enums implicitly extend <code>java.lang.Enum</code>, and Java does not support multiple class inheritance. However, an enum <strong>can</strong> implement interfaces. This is extremely useful for things like the Strategy Pattern, where each enum value provides a different implementation of an interface method.</div>
   </div>
 </div>
 `,D=Object.freeze(Object.defineProperty({__proto__:null,default:E},Symbol.toStringTag,{value:"Module"})),M=`<div id="exception-handling" class="section">
@@ -1523,7 +1670,11 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
     <div class="qa-q" onclick="toggleQA(this)">Checked vs Unchecked — which should you prefer?<span class="arrow">▶</span></div>
     <div class="qa-a">Modern consensus (Spring, Kotlin, C#): <strong>Unchecked</strong> for most cases. Checked exceptions create tight coupling between layers. Use checked only when the caller can genuinely recover (e.g., retry a network call).</div>
   </div>
-</div>`,L=Object.freeze(Object.defineProperty({__proto__:null,default:M},Symbol.toStringTag,{value:"Module"})),q=`<div id="final-keyword" class="section">
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if you return a value from inside a finally block?<span class="arrow">▶</span></div>
+    <div class="qa-a">It will <strong>override</strong> any return value or thrown exception from the <code>try</code> or <code>catch</code> blocks. This is a notorious anti-pattern and can lead to bugs where exceptions are silently swallowed. Modern IDEs will typically warn you about returning from a finally block.</div>
+  </div>
+</div>`,q=Object.freeze(Object.defineProperty({__proto__:null,default:M},Symbol.toStringTag,{value:"Module"})),L=`<div id="final-keyword" class="section">
   <div class="breadcrumb">handbook / <span>section 08</span></div>
   <div class="section-eyebrow">The Constraints</div>
   <h1>Final: Immutability and Security</h1>
@@ -1629,44 +1780,133 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-q" onclick="toggleQA(this)">Difference between 'final', 'finally', and 'finalize'? (The Classic)<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Final</strong> is a modifier (for variables/methods/classes). <strong>Finally</strong> is a block in try-catch-finally for cleanup. <strong>Finalize</strong> is a (deprecated) method in the Object class for pre-GC cleanup. They are unrelated except for their names.</div>
   </div>
-</div>`,j=Object.freeze(Object.defineProperty({__proto__:null,default:q},Symbol.toStringTag,{value:"Module"})),R=`<div id="home" class="section active">
-  <div class="hero">
-    <div class="hero-eyebrow">// FAANG-Level Preparation Guide</div>
-    <h1 class="hero-title">Object Oriented<br>Programming in <span>Java</span></h1>
-    <p class="hero-sub">
-      A senior engineer's complete handbook for OOP mastery — built for LLD interviews, backend engineering, and production-grade Java development.
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is an "effectively final" variable?<span class="arrow">▶</span></div>
+    <div class="qa-a">Introduced in Java 8, a local variable is effectively final if its value is never changed after initialization, even though it isn't explicitly declared with the <code>final</code> keyword. This is important because lambdas and anonymous inner classes can only capture local variables that are either final or effectively final.</div>
+  </div>
+</div>`,j=Object.freeze(Object.defineProperty({__proto__:null,default:L},Symbol.toStringTag,{value:"Module"})),R=`<div id="home" class="section active" style="padding-top: 1rem;">
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .hero-bg-glow {
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .stat-card {
+      padding: 1.5rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-card:last-child { border-right: none; }
+    .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--text); margin-bottom: 0.25rem; font-family: var(--font-mono); }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+    
+    @media (max-width: 768px) {
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .stat-card { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat-card:nth-child(2) { border-bottom: 1px solid var(--border); }
+    }
+  </style>
+
+  <div class="hero-bg-glow"></div>
+
+  <div class="breadcrumb" style="margin-bottom: 3rem;">
+    <span class="badge-glow">v2.4 LTS</span> 
+    <span style="margin: 0 0.5rem; opacity: 0.3;">/</span> 
+    Engineering Handbook
+  </div>
+
+  <div class="hero" style="padding: 0; border: none; margin-bottom: 5rem;">
+    <h1 class="hero-title text-gradient" style="font-size: clamp(2.5rem, 8vw, 5rem); margin-bottom: 2rem;">
+      Master the <span class="text-gradient-accent">Invisible Architecture</span> of Java.
+    </h1>
+    
+    <p class="hero-sub" style="font-size: 1.4rem; line-height: 1.6; max-width: 800px; margin-bottom: 3rem;">
+      This is not a beginner's guide. This is a compressed distillation of a decade of high-frequency engineering patterns, JVM internals, and the systemic logic that separates junior developers from Distinguished Architects.
     </p>
-    <div class="hero-tags">
-      <span class="tag tag-purple">21 Sections</span>
-      <span class="tag tag-green">100+ Code Examples</span>
-      <span class="tag tag-amber">Interview Ready</span>
-      <span class="tag tag-teal">LLD Foundation</span>
+
+    <button class="btn-premium" onclick="showSection('why-oop-exists')">
+      Start learning <i class="ri-terminal-box-line"></i>
+    </button>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="glass-card stat-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); margin-bottom: 5rem; overflow: hidden;">
+    <div class="stat-card">
+      <div class="stat-val">21</div>
+      <div class="stat-label">Modules</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">100+</div>
+      <div class="stat-label">Code Samples</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">JVM</div>
+      <div class="stat-label">Internals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">10k+</div>
+      <div class="stat-label">Hours R&D</div>
     </div>
   </div>
 
-  <div class="home-grid">
-    <div class="home-card">
-      <div class="home-card-icon">💎</div>
-      <div class="home-card-title">JVM Internals</div>
-      <div class="home-card-desc">Deep dives into bytecode, memory regions, and vtable internals. Understand how the engine actually works.</div>
+  <h2 style="border: none; padding: 0; margin-bottom: 3rem;" class="text-gradient">The Core Pillars</h2>
+
+  <div class="home-grid" style="margin-bottom: 5rem;">
+    <div class="home-card glass-card">
+      <div class="home-card-icon animate-float" style="background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">💎</div>
+      <div class="home-card-title">JVM Engine Room</div>
+      <div class="home-card-desc">Go beyond syntax. Master bytecode execution, heap dynamics, and the physical reality of how Java lives in memory.</div>
     </div>
-    <div class="home-card">
-      <div class="home-card-icon">⚡</div>
-      <div class="home-card-title">LLD Patterns</div>
-      <div class="home-card-desc">Principles mapped directly to real-world system design. Bridge the gap between code and architecture.</div>
+    <div class="home-card glass-card">
+      <div class="home-card-icon animate-float" style="animation-delay: 1s; background: linear-gradient(135deg, var(--green), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡</div>
+      <div class="home-card-title">Low-Level Design</div>
+      <div class="home-card-desc">Bridge the gap between "working code" and "maintainable systems" using professional-grade LLD patterns.</div>
     </div>
-    <div class="home-card">
-      <div class="home-card-icon">🔥</div>
-      <div class="home-card-title">Senior Prep</div>
-      <div class="home-card-desc">Focused on the "Why" and "Tradeoffs" that senior engineers actually use in production.</div>
+    <div class="home-card glass-card">
+      <div class="home-card-icon animate-float" style="animation-delay: 2s; background: linear-gradient(135deg, var(--rose), var(--amber)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🔥</div>
+      <div class="home-card-title">FAANG Strategy</div>
+      <div class="home-card-desc">Crush the "Why" and "Tradeoffs" in senior interviews. Learn the mental models that top-tier engineers use daily.</div>
     </div>
   </div>
 
-  <div class="box box-interview">
-    <div class="box-title">🚀 BEGIN YOUR DEEP DIVE</div>
-    <p style="margin:0; color:var(--text-dim);">Start with <strong>Section 01 (Why OOP)</strong> to understand the systemic crisis that built our industry, or jump to <strong>Architectural Tools</strong> in the sidebar to visualize JVM memory in real-time.</p>
+  <div class="takeaways glass-card" style="margin-bottom: 5rem;">
+    <div class="takeaways-title text-gradient-accent">The Engineering Creed</div>
+    <p style="margin-bottom: 2rem; opacity: 0.8; font-style: italic;">Rules we live by in high-scale production systems:</p>
+    <ul>
+      <li><strong>Abstractions are Debts:</strong> Only take them if the decoupling interest is worth the overhead.</li>
+      <li><strong>Decoupling is Survival:</strong> A system that cannot change is a system that is already dead.</li>
+      <li><strong>Bytecode is Truth:</strong> When high-level logic fails, the lower levels never lie.</li>
+      <li><strong>Simplicity over Cleverness:</strong> Senior engineers write code that juniors can debug.</li>
+    </ul>
   </div>
-</div>`,B=Object.freeze(Object.defineProperty({__proto__:null,default:R},Symbol.toStringTag,{value:"Module"})),N=`<div id="immutability" class="section">
+
+  <div class="box box-lld" style="background: var(--bg-sidebar); border: 1px solid var(--accent); padding: 3rem; border-radius: 24px; text-align: center;">
+    <h3 style="margin-top: 0; color: var(--text);">Ready to evolve your engineering perspective?</h3>
+    <p style="color: var(--text-dim); margin-bottom: 2rem;">Join the ranks of architects who think in graphs, memory, and trade-offs.</p>
+    <button class="btn-premium" onclick="showSection('why-oop-exists')">
+      Begin Section 01: The Crisis <i class="ri-rocket-2-line"></i>
+    </button>
+  </div>
+
+  <div class="hero-tags" style="justify-content:center; padding: 6rem 0; opacity: 0.4;">
+    <span class="tag tag-purple">Architect Certified</span>
+    <span class="tag tag-green">JVM Hardened</span>
+    <span class="tag tag-amber">FAANG Optimized</span>
+    <span class="tag tag-teal">LLD Fundamental</span>
+  </div>
+</div>
+`,B=Object.freeze(Object.defineProperty({__proto__:null,default:R},Symbol.toStringTag,{value:"Module"})),N=`<div id="immutability" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 13</span></div>
   <div class="section-eyebrow">The Mastery</div>
   <h1>Immutability: The Architecture of Truth</h1>
@@ -1786,279 +2026,287 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-q" onclick="toggleQA(this)">Why should you not use a mutable object as a HashMap key?<span class="arrow">▶</span></div>
     <div class="qa-a">If the object changes after being put in the Map, its <code>hashCode()</code> will change. When you try to retrieve it, the Map will look in the <strong>wrong bucket</strong> and fail to find it, even though the object is still in the map! This is a "Memory Leak" equivalent in Java.</div>
   </div>
-</div>`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),H=`<div id="inheritance" class="section">
-  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04C</span></div>
-  <div class="section-eyebrow">The Deep Hierarchy</div>
-  <h1>Inheritance: Hierarchy, State, and the Fragile Base</h1>
-  <div class="section-desc">Inheritance represents the <strong>IS-A</strong> relationship. While powerful, it is the most dangerous tool in OOP due to tight coupling. We explore the memory layout, the dangers of deep hierarchies, and the modern transition to <strong>Composition</strong> and <strong>Sealed Classes</strong>.</div>
-
-  <h2>1. IS-A vs. HAS-A (The Golden Rule)</h2>
-  <p>Use inheritance only if you can say "A [Subclass] IS-A [Superclass]." However, even when true, you must ask if it's the <em>right</em> abstraction.</p>
-  <ul>
-    <li><code>CreditCardProcessor</code> <strong>IS-A</strong> <code>PaymentProcessor</code> (Inheritance).</li>
-    <li><code>PaymentService</code> <strong>HAS-A</strong> <code>PaymentProcessor</code> (Composition).</li>
-  </ul>
-
-  <div class="box box-insight">
-    <div class="box-title">🤔 Why This Exists</div>
-    Inheritance exists because large systems repeat behavior. Without it, you would copy-paste the "Connect to Payment Gateway" code 50 times. <strong>But inheritance also creates tight coupling</strong>, which is why modern systems often prefer composition to share behavior.
-  </div>
-
-  <h3>Example: Enterprise Payment Architecture</h3>
-  <pre><code><span class="kw">public abstract class</span> <span class="cl">PaymentProcessor</span> {
-    <span class="kw">protected</span> <span class="cl">String</span> transactionId;
-
-    <span class="kw">public</span> <span class="cl">PaymentProcessor</span>(<span class="cl">String</span> txId) { 
-        <span class="kw">this</span>.transactionId = txId; 
-    }
-
-    <span class="cm">// Concrete behavior shared by all subclasses</span>
-    <span class="kw">public void</span> <span class="fn">logAudit</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"[AUDIT] Processing: "</span> + transactionId);
-    }
-
-    <span class="cm">// Abstract behavior enforced on subclasses</span>
-    <span class="kw">public abstract void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount);
-}
-
-<span class="kw">public class</span> <span class="cl">StripeProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {
-    <span class="kw">private</span> <span class="cl">String</span> apiKey;
-
-    <span class="kw">public</span> <span class="cl">StripeProcessor</span>(<span class="cl">String</span> txId, <span class="cl">String</span> apiKey) {
-        <span class="kw">super</span>(txId); <span class="cm">// MUST call parent constructor</span>
-        <span class="kw">this</span>.apiKey = apiKey;
-    }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {
-        <span class="fn">logAudit</span>(); <span class="cm">// Inherited method</span>
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Calling Stripe API with key... Amount: $"</span> + amount);
-    }
-}
-
-<span class="kw">public class</span> <span class="cl">CryptoProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {
-    <span class="kw">public</span> <span class="cl">CryptoProcessor</span>(<span class="cl">String</span> txId) { <span class="kw">super</span>(txId); }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {
-        <span class="fn">logAudit</span>();
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Validating blockchain transaction... Amount: "</span> + amount + <span class="str">" ETH"</span>);
-    }
-}
-
-<span class="cm">// Usage — Polymorphism in action</span>
-<span class="cl">PaymentProcessor</span> p1 = <span class="kw">new</span> <span class="cl">StripeProcessor</span>(<span class="str">"TX-991"</span>, <span class="str">"sk_live_123"</span>);
-p1.<span class="fn">processPayment</span>(<span class="num">150.00</span>); <span class="cm">// Triggers Stripe implementation</span>
-
-<span class="cl">PaymentProcessor</span> p2 = <span class="kw">new</span> <span class="cl">CryptoProcessor</span>(<span class="str">"TX-992"</span>);
-p2.<span class="fn">processPayment</span>(<span class="num">0.05</span>); <span class="cm">// Triggers Crypto implementation</span>
-</code></pre>
-
-  <h2>2. Memory Layout: The Layered Object</h2>
-  <p>When you create a <code>Child</code> object, the JVM creates a unified memory block with <strong>all</strong> fields from the entire hierarchy.</p>
-  <div class="diagram">
-[ CHILD OBJECT ON HEAP ]
-┌───────────────────────────┐
-│  Object Header            │
-├───────────────────────────┤
-│  Parent Fields (hidden)   │ <── Still takes space!
-├───────────────────────────┤
-│  Child Fields             │
-└───────────────────────────┘</div>
-  <div class="box box-insight">
-    <div class="box-title">🕵️ Senior Insight: The Memory Cost</div>
-    Even if you "shadow" a field (Parent and Child both have <code>int id</code>), <strong>both fields exist in memory</strong>. The JVM simply chooses which one to show you based on the reference type.
-  </div>
-
-  <h2>3. The "super" Keyword Deep Dive</h2>
-  <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {
-    <span class="kw">protected</span> <span class="cl">String</span> name;
-    <span class="kw">protected double</span> baseSalary;
-
-    <span class="kw">public</span> <span class="cl">Employee</span>(<span class="cl">String</span> name, <span class="kw">double</span> baseSalary) {
-        <span class="kw">this</span>.name = name;
-        <span class="kw">this</span>.baseSalary = baseSalary;
-    }
-
-    <span class="kw">public double</span> <span class="fn">calculatePay</span>() {
-        <span class="kw">return</span> baseSalary;
-    }
-
-    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">toString</span>() {
-        <span class="kw">return</span> name + <span class="str">": $"</span> + <span class="fn">calculatePay</span>();
-    }
-}
-
-<span class="kw">public class</span> <span class="cl">Manager</span> <span class="kw">extends</span> <span class="cl">Employee</span> {
-    <span class="kw">private double</span> bonus;
-
-    <span class="kw">public</span> <span class="cl">Manager</span>(<span class="cl">String</span> name, <span class="kw">double</span> base, <span class="kw">double</span> bonus) {
-        <span class="kw">super</span>(name, base); <span class="cm">// call parent constructor</span>
-        <span class="kw">this</span>.bonus = bonus;
-    }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">calculatePay</span>() {
-        <span class="kw">return super</span>.<span class="fn">calculatePay</span>() + bonus; <span class="cm">// extend parent behavior</span>
-    }
-}
-
-<span class="cl">Employee</span> mgr = <span class="kw">new</span> <span class="cl">Manager</span>(<span class="str">"Alice"</span>, <span class="num">5000</span>, <span class="num">2000</span>);
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(mgr); <span class="cm">// Alice: $7000.0</span>
-</code></pre>
-
-  <h2>4. The "Diamond Problem" (The Bytecode Fix)</h2>
-  <p>Java forbids multiple inheritance of <strong>Classes</strong> but allows it for <strong>Interfaces</strong> with <code>default</code> methods.</p>
-  <pre><code><span class="kw">interface</span> <span class="cl">Flyable</span> {
-    <span class="kw">default void</span> <span class="fn">move</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Flying"</span>); }
-}
-
-<span class="kw">interface</span> <span class="cl">Swimmable</span> {
-    <span class="kw">default void</span> <span class="fn">move</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Swimming"</span>); }
-}
-
-<span class="cm">// Diamond! Must resolve manually</span>
-<span class="kw">class</span> <span class="cl">Duck</span> <span class="kw">implements</span> <span class="cl">Flyable</span>, <span class="cl">Swimmable</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">move</span>() {
-        <span class="cl">Flyable</span>.<span class="kw">super</span>.<span class="fn">move</span>();   <span class="cm">// explicitly choose</span>
-        <span class="cl">Swimmable</span>.<span class="kw">super</span>.<span class="fn">move</span>();
-    }
-}
-
-<span class="cl">Duck</span> d = <span class="kw">new</span> <span class="cl">Duck</span>();
-d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "Swimming"</span>
-</code></pre>
-
-  <h2>5. The "Fragile Base Class" Problem (Design Smell)</h2>
-  <div class="box box-smell">
-    <div class="box-title">🤢 Design Smell: Deep Inheritance Tree</div>
-    If your class hierarchy is <code>Object -> Entity -> User -> AdminUser -> SuperAdminUser</code>, you have a <strong>Fragile Base Class</strong>. Changing one method in <code>Entity</code> will inadvertently break <code>SuperAdminUser</code>.
-  </div>
-
-  <div class="box box-senior">
-    <div class="box-title">🧠 How Senior Engineers Think</div>
-    "Prefer Composition over Inheritance." Juniors use inheritance for code reuse. Seniors use it ONLY for polymorphic behavior substitution. If you just want to reuse a database connection, inject it (Composition). Don't inherit from <code>BaseDatabaseEntity</code>.
-  </div>
-
-  <h2>6. Bad Code → Good Code: The Composition Shift</h2>
-  <p>Let's fix a classic architectural mistake.</p>
-  <div class="compare">
-    <div class="compare-col">
-      <div class="compare-label compare-bad">❌ Bad: Inheritance (Rigid)</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Notification</span> { 
-    <span class="kw">void</span> <span class="fn">send</span>() { ... } 
-}
-<span class="kw">class</span> <span class="cl">EmailNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }
-<span class="kw">class</span> <span class="cl">SMSNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }
-
-<span class="cm">// Requirements change: User wants BOTH Email and SMS!
-// Now what? EmailAndSMSNotification? (Explosion of classes)</span></code></pre>
-    </div>
-    <div class="compare-col">
-      <div class="compare-label compare-good">✅ Good: Composition (Flexible)</div>
-      <pre style="font-size:11px;"><code><span class="kw">interface</span> <span class="cl">MessageChannel</span> {
-    <span class="kw">void</span> <span class="fn">deliver</span>();
-}
-<span class="kw">class</span> <span class="cl">EmailChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }
-<span class="kw">class</span> <span class="cl">SMSChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }
-
-<span class="kw">class</span> <span class="cl">NotificationService</span> {
-    <span class="cm">// HAS-A relationship. We can inject a List of channels!</span>
-    <span class="cl">List</span>&lt;<span class="cl">MessageChannel</span>&gt; channels;
-    
-    <span class="kw">void</span> <span class="fn">sendAll</span>() {
-        channels.<span class="fn">forEach</span>(<span class="cl">MessageChannel</span>::deliver);
-    }
-}</code></pre>
-    </div>
-  </div>
-  <div class="box box-lld">
-    <div class="box-title">⚙️ LLD Connection</div>
-    <strong>Composition</strong> enables the Strategy Pattern. By injecting <code>MessageChannel</code> dependencies at runtime (via Spring or manually), you achieve <strong>Loose Coupling</strong>. You can swap out an SMS provider without touching the <code>NotificationService</code> class.
-  </div>
-
-  <h2>7. Sealed Classes (Java 17)</h2>
-  <pre><code><span class="kw">public sealed class</span> <span class="cl">Shape</span>
-    <span class="kw">permits</span> <span class="cl">Circle</span>, <span class="cl">Rectangle</span>, <span class="cl">Triangle</span> {
-
-    <span class="kw">public abstract double</span> <span class="fn">area</span>();
-}
-
-<span class="kw">public final class</span> <span class="cl">Circle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
-    <span class="kw">private final double</span> radius;
-    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> r) { <span class="kw">this</span>.radius = r; }
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }
-}
-
-<span class="kw">public final class</span> <span class="cl">Rectangle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
-    <span class="kw">private final double</span> w, h;
-    <span class="kw">public</span> <span class="cl">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) { <span class="kw">this</span>.w = w; <span class="kw">this</span>.h = h; }
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> w * h; }
-}
-
-<span class="cm">// Exhaustive switch (Java 21)</span>
-<span class="kw">double</span> <span class="fn">describeArea</span>(<span class="cl">Shape</span> s) {
-    <span class="kw">return switch</span> (s) {
-        <span class="kw">case</span> <span class="cl">Circle</span> c    -> c.<span class="fn">area</span>();
-        <span class="kw">case</span> <span class="cl">Rectangle</span> r -> r.<span class="fn">area</span>();
-        <span class="kw">case</span> <span class="cl">Triangle</span> t  -> t.<span class="fn">area</span>();
-    }; <span class="cm">// no default needed — sealed!</span>
-}
-</code></pre>
-
-  <h2>8. Shadowing vs. Overriding</h2>
-  <div class="table-wrap"><table>
-    <tr><th>Feature</th><th>Methods</th><th>Fields / Static Methods</th></tr>
-    <tr><td><strong>Resolution</strong></td><td>Runtime (Dynamic Dispatch)</td><td>Compile Time (Static Binding)</td></tr>
-    <tr><td><strong>Decision</strong></td><td>Based on <strong>Object</strong> Type</td><td>Based on <strong>Reference</strong> Type</td></tr>
-    <tr><td><strong>Term</strong></td><td>Overriding</td><td>Shadowing / Hiding</td></tr>
-  </table></div>
-
-  <h3>Example: Field Shadowing Trap</h3>
-  <pre><code><span class="kw">class</span> <span class="cl">Parent</span> {
-    <span class="cl">String</span> name = <span class="str">"Parent"</span>;
-}
-
-<span class="kw">class</span> <span class="cl">Child</span> <span class="kw">extends</span> <span class="cl">Parent</span> {
-    <span class="cl">String</span> name = <span class="str">"Child"</span>; <span class="cm">// SHADOWS parent field</span>
-}
-
-<span class="cl">Parent</span> obj = <span class="kw">new</span> <span class="cl">Child</span>();
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(obj.name); <span class="cm">// "Parent" — resolved by REFERENCE type!</span>
-
-<span class="cl">Child</span> obj2 = <span class="kw">new</span> <span class="cl">Child</span>();
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(obj2.name); <span class="cm">// "Child"</span>
-</code></pre>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 04C</div>
-    <ul>
-      <li><strong>Inheritance is White-Box reuse</strong> (internal details leak to children).</li>
-      <li><strong>Always use @Override</strong> to catch compile-time errors.</li>
-      <li><strong>Favor Composition</strong>: "Has-A" is usually safer than "Is-A."</li>
-      <li><strong>Shallow is better</strong>: Avoid the "God Parent" class.</li>
-      <li><strong>Sealed Classes</strong> give you controlled inheritance for domain modeling.</li>
-    </ul>
-  </div>
-
-  <h2>Interview Questions — Section 04C</h2>
   <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is the 'Object' class's role in the hierarchy?<span class="arrow">▶</span></div>
-    <div class="qa-a">Every class implicitly inherits from <code>java.lang.Object</code>. It provides <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code>, and <code>wait/notify</code>. It is the root of all polymorphism in Java.</div>
+    <div class="qa-q" onclick="toggleQA(this)">How do Java Records guarantee immutability?<span class="arrow">▶</span></div>
+    <div class="qa-a">Java Records (introduced in Java 14) are a language-level feature to define immutable data carriers. They implicitly declare all fields as <code>private final</code>, do not provide setters, and their class is implicitly <code>final</code>. However, remember that if a Record holds a reference to a mutable object (like a standard <code>ArrayList</code>), the contents of that list can still be modified (shallow immutability).</div>
   </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Why doesn't Java support multiple inheritance for classes?<span class="arrow">▶</span></div>
-    <div class="qa-a">To avoid the <strong>Diamond Problem</strong>. If Class A and B have a field <code>x</code>, and Class C inherits from both, which <code>x</code> does it get? Java avoids this ambiguity. Interfaces with default methods re-introduced a controlled version.</div>
-  </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is the difference between 'extends' and 'implements'?<span class="arrow">▶</span></div>
-    <div class="qa-a"><code>extends</code> creates an IS-A relationship with a class (single inheritance). <code>implements</code> creates a CAN-DO relationship with an interface (multiple allowed). A class can <code>extend</code> one class and <code>implement</code> many interfaces simultaneously.</div>
-  </div>
-</div>
-`,U=Object.freeze(Object.defineProperty({__proto__:null,default:H},Symbol.toStringTag,{value:"Module"})),F=`<div id="inner-classes" class="section">
+</div>`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),H=`<div id="inheritance" class="section">\r
+  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04C</span></div>\r
+  <div class="section-eyebrow">The Deep Hierarchy</div>\r
+  <h1>Inheritance: Hierarchy, State, and the Fragile Base</h1>\r
+  <div class="section-desc">Inheritance represents the <strong>IS-A</strong> relationship. While powerful, it is the most dangerous tool in OOP due to tight coupling. We explore the memory layout, the dangers of deep hierarchies, and the modern transition to <strong>Composition</strong> and <strong>Sealed Classes</strong>.</div>\r
+\r
+  <h2>1. IS-A vs. HAS-A (The Golden Rule)</h2>\r
+  <p>Use inheritance only if you can say "A [Subclass] IS-A [Superclass]." However, even when true, you must ask if it's the <em>right</em> abstraction.</p>\r
+  <ul>\r
+    <li><code>CreditCardProcessor</code> <strong>IS-A</strong> <code>PaymentProcessor</code> (Inheritance).</li>\r
+    <li><code>PaymentService</code> <strong>HAS-A</strong> <code>PaymentProcessor</code> (Composition).</li>\r
+  </ul>\r
+\r
+  <div class="box box-insight">\r
+    <div class="box-title">🤔 Why This Exists</div>\r
+    Inheritance exists because large systems repeat behavior. Without it, you would copy-paste the "Connect to Payment Gateway" code 50 times. <strong>But inheritance also creates tight coupling</strong>, which is why modern systems often prefer composition to share behavior.\r
+  </div>\r
+\r
+  <h3>Example: Enterprise Payment Architecture</h3>\r
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">PaymentProcessor</span> {\r
+    <span class="kw">protected</span> <span class="cl">String</span> transactionId;\r
+\r
+    <span class="kw">public</span> <span class="cl">PaymentProcessor</span>(<span class="cl">String</span> txId) { \r
+        <span class="kw">this</span>.transactionId = txId; \r
+    }\r
+\r
+    <span class="cm">// Concrete behavior shared by all subclasses</span>\r
+    <span class="kw">public void</span> <span class="fn">logAudit</span>() {\r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"[AUDIT] Processing: "</span> + transactionId);\r
+    }\r
+\r
+    <span class="cm">// Abstract behavior enforced on subclasses</span>\r
+    <span class="kw">public abstract void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount);\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">StripeProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {\r
+    <span class="kw">private</span> <span class="cl">String</span> apiKey;\r
+\r
+    <span class="kw">public</span> <span class="cl">StripeProcessor</span>(<span class="cl">String</span> txId, <span class="cl">String</span> apiKey) {\r
+        <span class="kw">super</span>(txId); <span class="cm">// MUST call parent constructor</span>\r
+        <span class="kw">this</span>.apiKey = apiKey;\r
+    }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {\r
+        <span class="fn">logAudit</span>(); <span class="cm">// Inherited method</span>\r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Calling Stripe API with key... Amount: $"</span> + amount);\r
+    }\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">CryptoProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {\r
+    <span class="kw">public</span> <span class="cl">CryptoProcessor</span>(<span class="cl">String</span> txId) { <span class="kw">super</span>(txId); }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {\r
+        <span class="fn">logAudit</span>();\r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Validating blockchain transaction... Amount: "</span> + amount + <span class="str">" ETH"</span>);\r
+    }\r
+}\r
+\r
+<span class="cm">// Usage — Polymorphism in action</span>\r
+<span class="cl">PaymentProcessor</span> p1 = <span class="kw">new</span> <span class="cl">StripeProcessor</span>(<span class="str">"TX-991"</span>, <span class="str">"sk_live_123"</span>);\r
+p1.<span class="fn">processPayment</span>(<span class="num">150.00</span>); <span class="cm">// Triggers Stripe implementation</span>\r
+\r
+<span class="cl">PaymentProcessor</span> p2 = <span class="kw">new</span> <span class="cl">CryptoProcessor</span>(<span class="str">"TX-992"</span>);\r
+p2.<span class="fn">processPayment</span>(<span class="num">0.05</span>); <span class="cm">// Triggers Crypto implementation</span>\r
+</code></pre>\r
+\r
+  <h2>2. Memory Layout: The Layered Object</h2>\r
+  <p>When you create a <code>Child</code> object, the JVM creates a unified memory block with <strong>all</strong> fields from the entire hierarchy.</p>\r
+  <div class="diagram">\r
+[ CHILD OBJECT ON HEAP ]\r
+┌───────────────────────────┐\r
+│  Object Header            │\r
+├───────────────────────────┤\r
+│  Parent Fields (hidden)   │ <── Still takes space!\r
+├───────────────────────────┤\r
+│  Child Fields             │\r
+└───────────────────────────┘</div>\r
+  <div class="box box-insight">\r
+    <div class="box-title">🕵️ Senior Insight: The Memory Cost</div>\r
+    Even if you "shadow" a field (Parent and Child both have <code>int id</code>), <strong>both fields exist in memory</strong>. The JVM simply chooses which one to show you based on the reference type.\r
+  </div>\r
+\r
+  <h2>3. The "super" Keyword Deep Dive</h2>\r
+  <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {\r
+    <span class="kw">protected</span> <span class="cl">String</span> name;\r
+    <span class="kw">protected double</span> baseSalary;\r
+\r
+    <span class="kw">public</span> <span class="cl">Employee</span>(<span class="cl">String</span> name, <span class="kw">double</span> baseSalary) {\r
+        <span class="kw">this</span>.name = name;\r
+        <span class="kw">this</span>.baseSalary = baseSalary;\r
+    }\r
+\r
+    <span class="kw">public double</span> <span class="fn">calculatePay</span>() {\r
+        <span class="kw">return</span> baseSalary;\r
+    }\r
+\r
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">toString</span>() {\r
+        <span class="kw">return</span> name + <span class="str">": $"</span> + <span class="fn">calculatePay</span>();\r
+    }\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">Manager</span> <span class="kw">extends</span> <span class="cl">Employee</span> {\r
+    <span class="kw">private double</span> bonus;\r
+\r
+    <span class="kw">public</span> <span class="cl">Manager</span>(<span class="cl">String</span> name, <span class="kw">double</span> base, <span class="kw">double</span> bonus) {\r
+        <span class="kw">super</span>(name, base); <span class="cm">// call parent constructor</span>\r
+        <span class="kw">this</span>.bonus = bonus;\r
+    }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">calculatePay</span>() {\r
+        <span class="kw">return super</span>.<span class="fn">calculatePay</span>() + bonus; <span class="cm">// extend parent behavior</span>\r
+    }\r
+}\r
+\r
+<span class="cl">Employee</span> mgr = <span class="kw">new</span> <span class="cl">Manager</span>(<span class="str">"Alice"</span>, <span class="num">5000</span>, <span class="num">2000</span>);\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(mgr); <span class="cm">// Alice: $7000.0</span>\r
+</code></pre>\r
+\r
+  <h2>4. The "Diamond Problem" (The Bytecode Fix)</h2>\r
+  <p>Java forbids multiple inheritance of <strong>Classes</strong> but allows it for <strong>Interfaces</strong> with <code>default</code> methods.</p>\r
+  <pre><code><span class="kw">interface</span> <span class="cl">Flyable</span> {\r
+    <span class="kw">default void</span> <span class="fn">move</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Flying"</span>); }\r
+}\r
+\r
+<span class="kw">interface</span> <span class="cl">Swimmable</span> {\r
+    <span class="kw">default void</span> <span class="fn">move</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Swimming"</span>); }\r
+}\r
+\r
+<span class="cm">// Diamond! Must resolve manually</span>\r
+<span class="kw">class</span> <span class="cl">Duck</span> <span class="kw">implements</span> <span class="cl">Flyable</span>, <span class="cl">Swimmable</span> {\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">move</span>() {\r
+        <span class="cl">Flyable</span>.<span class="kw">super</span>.<span class="fn">move</span>();   <span class="cm">// explicitly choose</span>\r
+        <span class="cl">Swimmable</span>.<span class="kw">super</span>.<span class="fn">move</span>();\r
+    }\r
+}\r
+\r
+<span class="cl">Duck</span> d = <span class="kw">new</span> <span class="cl">Duck</span>();\r
+d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "Swimming"</span>\r
+</code></pre>\r
+\r
+  <h2>5. The "Fragile Base Class" Problem (Design Smell)</h2>\r
+  <div class="box box-smell">\r
+    <div class="box-title">🤢 Design Smell: Deep Inheritance Tree</div>\r
+    If your class hierarchy is <code>Object -> Entity -> User -> AdminUser -> SuperAdminUser</code>, you have a <strong>Fragile Base Class</strong>. Changing one method in <code>Entity</code> will inadvertently break <code>SuperAdminUser</code>.\r
+  </div>\r
+\r
+  <div class="box box-senior">\r
+    <div class="box-title">🧠 How Senior Engineers Think</div>\r
+    "Prefer Composition over Inheritance." Juniors use inheritance for code reuse. Seniors use it ONLY for polymorphic behavior substitution. If you just want to reuse a database connection, inject it (Composition). Don't inherit from <code>BaseDatabaseEntity</code>.\r
+  </div>\r
+\r
+  <h2>6. Bad Code → Good Code: The Composition Shift</h2>\r
+  <p>Let's fix a classic architectural mistake.</p>\r
+  <div class="compare">\r
+    <div class="compare-col">\r
+      <div class="compare-label compare-bad">❌ Bad: Inheritance (Rigid)</div>\r
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Notification</span> { \r
+    <span class="kw">void</span> <span class="fn">send</span>() { ... } \r
+}\r
+<span class="kw">class</span> <span class="cl">EmailNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }\r
+<span class="kw">class</span> <span class="cl">SMSNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }\r
+\r
+<span class="cm">// Requirements change: User wants BOTH Email and SMS!\r
+// Now what? EmailAndSMSNotification? (Explosion of classes)</span></code></pre>\r
+    </div>\r
+    <div class="compare-col">\r
+      <div class="compare-label compare-good">✅ Good: Composition (Flexible)</div>\r
+      <pre style="font-size:11px;"><code><span class="kw">interface</span> <span class="cl">MessageChannel</span> {\r
+    <span class="kw">void</span> <span class="fn">deliver</span>();\r
+}\r
+<span class="kw">class</span> <span class="cl">EmailChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }\r
+<span class="kw">class</span> <span class="cl">SMSChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }\r
+\r
+<span class="kw">class</span> <span class="cl">NotificationService</span> {\r
+    <span class="cm">// HAS-A relationship. We can inject a List of channels!</span>\r
+    <span class="cl">List</span>&lt;<span class="cl">MessageChannel</span>&gt; channels;\r
+    \r
+    <span class="kw">void</span> <span class="fn">sendAll</span>() {\r
+        channels.<span class="fn">forEach</span>(<span class="cl">MessageChannel</span>::deliver);\r
+    }\r
+}</code></pre>\r
+    </div>\r
+  </div>\r
+  <div class="box box-lld">\r
+    <div class="box-title">⚙️ LLD Connection</div>\r
+    <strong>Composition</strong> enables the Strategy Pattern. By injecting <code>MessageChannel</code> dependencies at runtime (via Spring or manually), you achieve <strong>Loose Coupling</strong>. You can swap out an SMS provider without touching the <code>NotificationService</code> class.\r
+  </div>\r
+\r
+  <h2>7. Sealed Classes (Java 17)</h2>\r
+  <pre><code><span class="kw">public sealed class</span> <span class="cl">Shape</span>\r
+    <span class="kw">permits</span> <span class="cl">Circle</span>, <span class="cl">Rectangle</span>, <span class="cl">Triangle</span> {\r
+\r
+    <span class="kw">public abstract double</span> <span class="fn">area</span>();\r
+}\r
+\r
+<span class="kw">public final class</span> <span class="cl">Circle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {\r
+    <span class="kw">private final double</span> radius;\r
+    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> r) { <span class="kw">this</span>.radius = r; }\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }\r
+}\r
+\r
+<span class="kw">public final class</span> <span class="cl">Rectangle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {\r
+    <span class="kw">private final double</span> w, h;\r
+    <span class="kw">public</span> <span class="cl">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) { <span class="kw">this</span>.w = w; <span class="kw">this</span>.h = h; }\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> w * h; }\r
+}\r
+\r
+<span class="cm">// Exhaustive switch (Java 21)</span>\r
+<span class="kw">double</span> <span class="fn">describeArea</span>(<span class="cl">Shape</span> s) {\r
+    <span class="kw">return switch</span> (s) {\r
+        <span class="kw">case</span> <span class="cl">Circle</span> c    -> c.<span class="fn">area</span>();\r
+        <span class="kw">case</span> <span class="cl">Rectangle</span> r -> r.<span class="fn">area</span>();\r
+        <span class="kw">case</span> <span class="cl">Triangle</span> t  -> t.<span class="fn">area</span>();\r
+    }; <span class="cm">// no default needed — sealed!</span>\r
+}\r
+</code></pre>\r
+\r
+  <h2>8. Shadowing vs. Overriding</h2>\r
+  <div class="table-wrap"><table>\r
+    <tr><th>Feature</th><th>Methods</th><th>Fields / Static Methods</th></tr>\r
+    <tr><td><strong>Resolution</strong></td><td>Runtime (Dynamic Dispatch)</td><td>Compile Time (Static Binding)</td></tr>\r
+    <tr><td><strong>Decision</strong></td><td>Based on <strong>Object</strong> Type</td><td>Based on <strong>Reference</strong> Type</td></tr>\r
+    <tr><td><strong>Term</strong></td><td>Overriding</td><td>Shadowing / Hiding</td></tr>\r
+  </table></div>\r
+\r
+  <h3>Example: Field Shadowing Trap</h3>\r
+  <pre><code><span class="kw">class</span> <span class="cl">Parent</span> {\r
+    <span class="cl">String</span> name = <span class="str">"Parent"</span>;\r
+}\r
+\r
+<span class="kw">class</span> <span class="cl">Child</span> <span class="kw">extends</span> <span class="cl">Parent</span> {\r
+    <span class="cl">String</span> name = <span class="str">"Child"</span>; <span class="cm">// SHADOWS parent field</span>\r
+}\r
+\r
+<span class="cl">Parent</span> obj = <span class="kw">new</span> <span class="cl">Child</span>();\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(obj.name); <span class="cm">// "Parent" — resolved by REFERENCE type!</span>\r
+\r
+<span class="cl">Child</span> obj2 = <span class="kw">new</span> <span class="cl">Child</span>();\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(obj2.name); <span class="cm">// "Child"</span>\r
+</code></pre>\r
+\r
+  <div class="takeaways">\r
+    <div class="takeaways-title">Key Takeaways — Section 04C</div>\r
+    <ul>\r
+      <li><strong>Inheritance is White-Box reuse</strong> (internal details leak to children).</li>\r
+      <li><strong>Always use @Override</strong> to catch compile-time errors.</li>\r
+      <li><strong>Favor Composition</strong>: "Has-A" is usually safer than "Is-A."</li>\r
+      <li><strong>Shallow is better</strong>: Avoid the "God Parent" class.</li>\r
+      <li><strong>Sealed Classes</strong> give you controlled inheritance for domain modeling.</li>\r
+    </ul>\r
+  </div>\r
+\r
+  <h2>Interview Questions — Section 04C</h2>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is the 'Object' class's role in the hierarchy?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">Every class implicitly inherits from <code>java.lang.Object</code>. It provides <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code>, and <code>wait/notify</code>. It is the root of all polymorphism in Java.</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">Why doesn't Java support multiple inheritance for classes?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">To avoid the <strong>Diamond Problem</strong>. If Class A and B have a field <code>x</code>, and Class C inherits from both, which <code>x</code> does it get? Java avoids this ambiguity. Interfaces with default methods re-introduced a controlled version.</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between 'extends' and 'implements'?<span class="arrow">▶</span></div>\r
+    <div class="qa-a"><code>extends</code> creates an IS-A relationship with a class (single inheritance). <code>implements</code> creates a CAN-DO relationship with an interface (multiple allowed). A class can <code>extend</code> one class and <code>implement</code> many interfaces simultaneously.</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What happens if a child class doesn't call <code>super()</code> in its constructor?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">The compiler automatically inserts a call to the parent's no-args constructor (<code>super()</code>) as the first line of the child constructor. If the parent class does not have a no-args constructor, the code will fail to compile unless the child explicitly calls a matching <code>super(...)</code> with arguments.</div>\r
+  </div>\r
+</div>\r
+`,J=Object.freeze(Object.defineProperty({__proto__:null,default:H},Symbol.toStringTag,{value:"Module"})),F=`<div id="inner-classes" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 14</span></div>
   <div class="section-eyebrow">The Mechanics</div>
   <h1>Inner Classes: Logic within Logic</h1>
@@ -2170,8 +2418,12 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-q" onclick="toggleQA(this)">Can a local inner class access local variables of the method?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes, but only if they are effectively final.</strong> This is because the local inner class object might outlive the method execution. The JVM "captures" the value of the variable and stores a copy in the inner object. If the variable could change, the copy and the original would go out of sync.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an interface have an inner class?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> Any class defined inside an interface is implicitly <code>public static</code>. This is often used to group a default implementation or a related builder/factory class with the interface it serves.</div>
+  </div>
 </div>
-`,J=Object.freeze(Object.defineProperty({__proto__:null,default:F},Symbol.toStringTag,{value:"Module"})),W=`<div id="interfaces" class="section">
+`,U=Object.freeze(Object.defineProperty({__proto__:null,default:F},Symbol.toStringTag,{value:"Module"})),W=`<div id="interfaces" class="section">
   <div class="breadcrumb">handbook / <span>section 09</span></div>
   <div class="section-eyebrow">The Contracts</div>
   <h1>Interfaces: Defining Capability</h1>
@@ -2294,6 +2546,10 @@ itable: [
   <div class="qa-block">
     <div class="qa-q" onclick="toggleQA(this)">What is the 'Three-Tier Architecture' link?<span class="arrow">▶</span></div>
     <div class="qa-a">In professional backend development, we use <strong>Interfaces</strong> to separate layers: <code>Controller</code> -> <code>IService</code> -> <code>IRepository</code>. This allows us to change the implementation of the Service or Repository (e.g., swapping a Database for a Mock) without affecting other layers.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if a class implements two interfaces that have the exact same default method?<span class="arrow">▶</span></div>
+    <div class="qa-a">The compiler will throw an error to prevent the "Diamond Problem." The class <strong>must</strong> resolve the ambiguity by overriding the method itself. Inside that override, the class can choose to call one of the specific interface defaults using <code>InterfaceName.super.methodName()</code>, or provide an entirely new implementation.</div>
   </div>
 </div>`,z=Object.freeze(Object.defineProperty({__proto__:null,default:W},Symbol.toStringTag,{value:"Module"})),G=`<div id="interview-qa" class="section">
   <div class="breadcrumb">handbook / <span>section 19</span></div>
@@ -2512,6 +2768,10 @@ itable: [
     <div class="qa-q" onclick="toggleQA(this)">Why did Java 8 remove 'PermGen' and introduce 'Metaspace'?<span class="arrow">▶</span></div>\r
     <div class="qa-a">PermGen was part of the Heap and had a fixed size, leading to the frequent <code>java.lang.OutOfMemoryError: PermGen space</code>. Metaspace is part of <strong>Native Memory</strong>. It can grow dynamically with the OS, reducing the risk of crashes due to class-loading heavy frameworks.</div>\r
   </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between Strong, Weak, Soft, and Phantom References?<span class="arrow">▶</span></div>\r
+    <div class="qa-a"><strong>Strong</strong>: Default reference, prevents GC. <strong>Soft</strong>: Keeps object alive until JVM is desperate for memory (good for caches). <strong>Weak</strong>: Does not prevent GC; object is collected on the next run (used in <code>WeakHashMap</code>). <strong>Phantom</strong>: Enqueued after object is finalized but before memory is reclaimed; used for manual native memory cleanup instead of <code>finalize()</code>.</div>\r
+  </div>\r
 </div>`,Y=Object.freeze(Object.defineProperty({__proto__:null,default:Q},Symbol.toStringTag,{value:"Module"})),K=`<div id="object-class" class="section">
   <div class="breadcrumb">handbook / <span>section 11</span></div>
   <div class="section-eyebrow">The Root</div>
@@ -2638,7 +2898,11 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
     <div class="qa-q" onclick="toggleQA(this)">Why is it bad to use <code>instanceof</code> in an <code>equals()</code> override? (Architect level)<span class="arrow">▶</span></div>
     <div class="qa-a">Using <code>instanceof</code> violates <strong>Symmetry</strong> if inheritance is involved. If <code>Point(x,y)</code> uses <code>instanceof</code>, it might return true for a <code>ColorPoint(x,y,z)</code>. But <code>ColorPoint.equals(Point)</code> would be false because of the extra field. Using <code>getClass() == other.getClass()</code> is safer as it ensures both objects are the exact same type.</div>
   </div>
-</div>`,$=Object.freeze(Object.defineProperty({__proto__:null,default:K},Symbol.toStringTag,{value:"Module"})),Z=`<div id="oop-design-thinking" class="section">
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is a Shallow Copy vs a Deep Copy (regarding <code>clone()</code>)?<span class="arrow">▶</span></div>
+    <div class="qa-a">The default <code>Object.clone()</code> creates a <strong>Shallow Copy</strong>. It copies primitive values and the <em>references</em> to objects. If you clone an object containing a list, both the original and the clone will point to the exact same list. A <strong>Deep Copy</strong> creates a new list and recursively clones all nested objects.</div>
+  </div>
+</div>`,$=Object.freeze(Object.defineProperty({__proto__:null,default:K},Symbol.toStringTag,{value:"Module"})),X=`<div id="oop-design-thinking" class="section">
   <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>
   <div class="section-eyebrow">LLD Framework</div>
   <h1>OOP Design Thinking: The Architect's Mindset</h1>
@@ -2770,7 +3034,11 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
     <div class="qa-q" onclick="toggleQA(this)">What is "Skinny Models, Fat Services" vs "Rich Domain Models"?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Skinny Models</strong> (Anemic Domain Model) have only data, and logic is in Service classes. <strong>Rich Domain Models</strong> put logic inside the entities themselves (true OOP). In complex LLD, Rich Domain Models are usually preferred as they keep the code more organized.</div>
   </div>
-</div>`,X=Object.freeze(Object.defineProperty({__proto__:null,default:Z},Symbol.toStringTag,{value:"Module"})),ss=`<div id="oop-lld-bridge" class="section">
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between Composition and Aggregation in OOP Design?<span class="arrow">▶</span></div>
+    <div class="qa-a">Both are "HAS-A" relationships, but they differ in <strong>lifecycle dependency</strong>. <strong>Composition</strong> is a strong "owns-a" relationship; if the parent (House) is destroyed, the child (Room) is also destroyed. <strong>Aggregation</strong> is a weak "uses-a" relationship; if the parent (Department) is destroyed, the child (Professor) can still exist independently.</div>
+  </div>
+</div>`,Z=Object.freeze(Object.defineProperty({__proto__:null,default:X},Symbol.toStringTag,{value:"Module"})),ss=`<div id="oop-lld-bridge" class="section">
   <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>
   <div class="section-eyebrow">The Professional Bridge</div>
   <h1>OOP → LLD: From Code to Architecture</h1>
@@ -2867,224 +3135,327 @@ bus.<span class="fn">publish</span>(<span class="str">"ORDER_PLACED"</span>); <s
     <div class="qa-q" onclick="toggleQA(this)">How do you handle a "Circular Dependency" between two classes in LLD?<span class="arrow">▶</span></div>
     <div class="qa-a">Circular dependency is an architectural smell. <strong>Fix 1</strong>: Use an Interface to break the cycle. <strong>Fix 2</strong>: Introduce a third "Orchestrator" class that handles the interaction between the two. <strong>Fix 3</strong>: Use Dependency Injection (Setter injection) if using a framework like Spring.</div>
   </div>
-</div>`,ns=Object.freeze(Object.defineProperty({__proto__:null,default:ss},Symbol.toStringTag,{value:"Module"})),as=`<div id="polymorphism" class="section">
-  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04D</span></div>
-  <div class="section-eyebrow">The Mastery</div>
-  <h1>Polymorphism: The Power of Many Forms</h1>
-  <div class="section-desc">Polymorphism is the ability of an object to take on many forms. We explore bytecode instructions, vtable internals, and JVM optimizations that make polymorphism surprisingly fast.</div>
-
-  <h2>1. Static vs. Dynamic Polymorphism</h2>
-  <div class="table-wrap"><table>
-    <tr><th>Type</th><th>Mechanism</th><th>Binding Time</th></tr>
-    <tr><td><strong>Static</strong></td><td>Method Overloading</td><td>Compile Time (Early Binding)</td></tr>
-    <tr><td><strong>Dynamic</strong></td><td>Method Overriding</td><td>Runtime (Late Binding)</td></tr>
-  </table></div>
-
-  <h3>Example: Method Overloading (Static Polymorphism)</h3>
-  <pre><code><span class="kw">public class</span> <span class="cl">MathUtils</span> {
-    <span class="cm">// Same name, different parameter types = overloading</span>
-    <span class="kw">public int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) { <span class="kw">return</span> a + b; }
-    <span class="kw">public double</span> <span class="fn">add</span>(<span class="kw">double</span> a, <span class="kw">double</span> b) { <span class="kw">return</span> a + b; }
-    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">add</span>(<span class="cl">String</span> a, <span class="cl">String</span> b) { <span class="kw">return</span> a + b; }
-}
-
-<span class="cl">MathUtils</span> m = <span class="kw">new</span> <span class="cl">MathUtils</span>();
-m.<span class="fn">add</span>(<span class="num">1</span>, <span class="num">2</span>);           <span class="cm">// calls int version</span>
-m.<span class="fn">add</span>(<span class="num">1.5</span>, <span class="num">2.5</span>);       <span class="cm">// calls double version</span>
-m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">" World"</span>); <span class="cm">// calls String version</span>
-</code></pre>
-
-  <h3>Example: Method Overriding (Dynamic Polymorphism)</h3>
-  <pre><code><span class="kw">public abstract class</span> <span class="cl">Logger</span> {
-    <span class="kw">public abstract void</span> <span class="fn">write</span>(<span class="cl">String</span> log);
-}
-
-<span class="kw">public class</span> <span class="cl">FileLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {
-    <span class="kw">private</span> <span class="cl">String</span> filePath;
-    <span class="kw">public</span> <span class="cl">FileLogger</span>(<span class="cl">String</span> path) { <span class="kw">this</span>.filePath = path; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { 
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Appending to file "</span> + filePath + <span class="str">": "</span> + log); 
-    }
-}
-
-<span class="kw">public class</span> <span class="cl">CloudLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {
-    <span class="kw">private</span> <span class="cl">String</span> bucketUrl;
-    <span class="kw">public</span> <span class="cl">CloudLogger</span>(<span class="cl">String</span> url) { <span class="kw">this</span>.bucketUrl = url; }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { 
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Sending over network to "</span> + bucketUrl + <span class="str">": "</span> + log); 
-    }
-}
-
-<span class="cm">// Dynamic dispatch — JVM decides at RUNTIME</span>
-<span class="cl">List</span>&lt;<span class="cl">Logger</span>&gt; loggers = <span class="cl">List</span>.<span class="fn">of</span>(
-    <span class="kw">new</span> <span class="cl">FileLogger</span>(<span class="str">"/var/logs/app.log"</span>),
-    <span class="kw">new</span> <span class="cl">CloudLogger</span>(<span class="str">"s3://bucket/logs"</span>)
-);
-
-<span class="kw">for</span> (<span class="cl">Logger</span> logger : loggers) {
-    logger.<span class="fn">write</span>(<span class="str">"System booted."</span>); <span class="cm">// Correct method called via vtable</span>
-}
-</code></pre>
-
-  <h2>2. Bytecode: invokevirtual vs invokespecial</h2>
-  <ul>
-    <li><strong>invokestatic</strong>: Static methods (fixed at compile time).</li>
-    <li><strong>invokespecial</strong>: Constructors, private methods, super (fixed at compile time).</li>
-    <li><strong>invokevirtual</strong>: Public/protected instance methods. <strong>Dynamic Dispatch</strong>.</li>
-    <li><strong>invokeinterface</strong>: Interface methods. Slightly slower (itable lookup).</li>
-    <li><strong>invokedynamic</strong>: Lambdas, var-args (Java 7+). Bootstrap method resolves target.</li>
-  </ul>
-
-  <h2>3. Internal Wiring: How the JVM Thinks</h2>
-  <div class="box box-senior">
-    <div class="box-title">🧠 How Senior Engineers Think</div>
-    Juniors think polymorphism is "magic." Seniors know it's just a pointer lookup. Every object has a hidden header pointing to its class's <strong>vtable</strong> (Virtual Method Table). At runtime, <code>logger.write()</code> looks up index 1 in the vtable and jumps to that memory address.
-  </div>
-
-  <div class="ascii-diagram">
-[ CLASS: LOGGER ]          [ CLASS: FILELOGGER ]
-vtable:                    vtable:
-0: Object.toString()       0: Object.toString()
-1: Logger.write()          1: FileLogger.write() <── (OVERRIDDEN)
-                           2: FileLogger.rotate() <── (NEW)
-  </div>
-
-  <div class="box box-insight">
-    <div class="box-title">🚀 JIT Optimization: Devirtualization</div>
-    If the JIT compiler notices a specific call site always calls the same class (<strong>Monomorphic Call Site</strong>), it "devirtualizes" the call — removing the vtable lookup and inlining the method code directly. This is why polymorphism in modern Java has almost zero overhead.
-  </div>
-
-  <h2>4. Interface-Based Polymorphism (The Professional Way)</h2>
-  <div class="box box-lld">
-    <div class="box-title">⚙️ LLD Connection: The Strategy Pattern</div>
-    Polymorphism is the engine behind the <strong>Strategy Pattern</strong>. By programming to an interface (<code>Notifier</code>), the <code>AlertService</code> is completely decoupled from the specific transport mechanism. This makes the code highly testable (via Mocks) and extensible.
-  </div>
-
-  <pre><code><span class="kw">public interface</span> <span class="cl">Notifier</span> {
-    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> message, <span class="cl">String</span> recipient);
-}
-
-<span class="kw">public class</span> <span class="cl">EmailNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Email to "</span> + to + <span class="str">": "</span> + msg);
-    }
-}
-
-<span class="kw">public class</span> <span class="cl">SmsNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"SMS to "</span> + to + <span class="str">": "</span> + msg);
-    }
-}
-
-<span class="cm">// SERVICE — depends on abstraction, not concrete classes</span>
-<span class="kw">public class</span> <span class="cl">AlertService</span> {
-    <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers;
-
-    <span class="cm">// Dependency Injection via Constructor</span>
-    <span class="kw">public</span> <span class="cl">AlertService</span>(<span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers) {
-        <span class="kw">this</span>.notifiers = notifiers;
-    }
-
-    <span class="kw">public void</span> <span class="fn">alert</span>(<span class="cl">String</span> msg) {
-        notifiers.<span class="fn">forEach</span>(n -> n.<span class="fn">send</span>(msg, <span class="str">"admin"</span>));
-    }
-}
-
-<span class="cm">// USAGE — add new notifiers without changing AlertService!</span>
-<span class="cl">AlertService</span> svc = <span class="kw">new</span> <span class="cl">AlertService</span>(<span class="cl">List</span>.<span class="fn">of</span>(
-    <span class="kw">new</span> <span class="cl">EmailNotifier</span>(),
-    <span class="kw">new</span> <span class="cl">SmsNotifier</span>()
-));
-svc.<span class="fn">alert</span>(<span class="str">"Server is down!"</span>);
-</code></pre>
-
-  <h2>5. Method Hiding vs Overriding</h2>
-  <div class="compare">
-    <div class="compare-col">
-      <div class="compare-label compare-bad">Static: Method Hiding</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">A</span> { <span class="kw">static void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"A"</span>); } }
-<span class="kw">class</span> <span class="cl">B</span> <span class="kw">extends</span> <span class="cl">A</span> { <span class="kw">static void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"B"</span>); } }
-<span class="cl">A</span> obj = <span class="kw">new</span> <span class="cl">B</span>();
-obj.<span class="fn">go</span>(); <span class="cm">// Calls A.go()!</span></code></pre>
-    </div>
-    <div class="compare-col">
-      <div class="compare-label compare-good">Instance: Overriding</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">A</span> { <span class="kw">void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"A"</span>); } }
-<span class="kw">class</span> <span class="cl">B</span> <span class="kw">extends</span> <span class="cl">A</span> { <span class="kw">void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"B"</span>); } }
-<span class="cl">A</span> obj = <span class="kw">new</span> <span class="cl">B</span>();
-obj.<span class="fn">go</span>(); <span class="cm">// Calls B.go()!</span></code></pre>
-    </div>
-  </div>
-
-  <h2>6. Rules for Method Overriding</h2>
-  <ul>
-    <li><strong>Access Level</strong>: Cannot be more restrictive than parent.</li>
-    <li><strong>Return Type</strong>: Must be same or a <strong>Covariant Type</strong> (subtype).</li>
-    <li><strong>Exceptions</strong>: Can throw fewer/narrower checked exceptions, never more.</li>
-    <li><strong>Final/Static</strong>: Cannot be overridden.</li>
-  </ul>
-
-  <h2>7. The 'instanceof' Evolution + Downcasting</h2>
-  <pre><code><span class="cm">// OLD WAY (pre-Java 16)</span>
-<span class="kw">if</span> (animal <span class="kw">instanceof</span> <span class="cl">Dog</span>) {
-    <span class="cl">Dog</span> dog = (<span class="cl">Dog</span>) animal; <span class="cm">// manual cast</span>
-    dog.<span class="fn">bark</span>();
-}
-
-<span class="cm">// MODERN WAY (Java 16+) — Pattern Matching</span>
-<span class="kw">if</span> (animal <span class="kw">instanceof</span> <span class="cl">Dog</span> dog) {
-    dog.<span class="fn">bark</span>(); <span class="cm">// already cast — no ClassCastException risk!</span>
-}
-
-<span class="cm">// SWITCH PATTERN (Java 21)</span>
-<span class="cl">String</span> <span class="fn">describe</span>(<span class="cl">Shape</span> s) {
-    <span class="kw">return switch</span> (s) {
-        <span class="kw">case</span> <span class="cl">Circle</span> c -> <span class="str">"Circle r="</span> + c.<span class="fn">getRadius</span>();
-        <span class="kw">case</span> <span class="cl">Square</span> sq -> <span class="str">"Square s="</span> + sq.<span class="fn">getSide</span>();
-        <span class="kw">default</span> -> <span class="str">"Unknown shape"</span>;
-    };
-}
-</code></pre>
-
-  <h2>8. Covariant Return Types</h2>
-  <pre><code><span class="kw">interface</span> <span class="cl">Provider</span> { <span class="cl">Connection</span> <span class="fn">get</span>(); }
-<span class="kw">class</span> <span class="cl">MySQLProvider</span> <span class="kw">implements</span> <span class="cl">Provider</span> {
-    <span class="cl">MySQLConnection</span> <span class="fn">get</span>() { <span class="kw">return new</span> <span class="cl">MySQLConnection</span>(); }
-    <span class="cm">// Valid! MySQLConnection IS-A Connection</span>
-}
-</code></pre>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 04D</div>
-    <ul>
-      <li><strong>Polymorphism</strong> is enabled by <strong>Dynamic Dispatch</strong> (invokevirtual).</li>
-      <li><strong>vtable</strong> is the primary mechanism for method lookup.</li>
-      <li><strong>JIT Devirtualization</strong> makes polymorphic code run at native speed.</li>
-      <li><strong>Static methods cannot be overridden</strong> (they are hidden).</li>
-      <li><strong>Interface-based polymorphism</strong> is the professional way to write extensible systems.</li>
-    </ul>
-  </div>
-
-  <h2>Interview Deep Dive — Section 04D</h2>
   <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is a 'Megamorphic' call site?<span class="arrow">▶</span></div>
-    <div class="qa-a">A call site where many different subclasses are being called. The JVM cannot optimize this easily via devirtualization, and must fall back to slower vtable lookup. Senior devs avoid this in tight, high-performance loops.</div>
+    <div class="qa-q" onclick="toggleQA(this)">What is a "God Object" or "God Class" Anti-Pattern?<span class="arrow">▶</span></div>
+    <div class="qa-a">A God Object is a single class that knows too much or does too much. It becomes a central point of maintenance, violating the Single Responsibility Principle. In LLD, you fix this by identifying distinct responsibilities and refactoring the God Class into multiple smaller, cohesive classes (Delegation).</div>
   </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Why is 'invokeinterface' slower than 'invokevirtual'?<span class="arrow">▶</span></div>
-    <div class="qa-a">Because a class can implement multiple interfaces, the method offset can change between classes. <code>invokeinterface</code> must search the <strong>itable</strong>, whereas <code>invokevirtual</code> has a fixed offset in the vtable.</div>
-  </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Can we override a private method?<span class="arrow">▶</span></div>
-    <div class="qa-a"><strong>No.</strong> Private methods are not visible to subclasses. A method with the same signature in the subclass is a completely <strong>new</strong> method, not an override.</div>
-  </div>
-</div>`,es=Object.freeze(Object.defineProperty({__proto__:null,default:as},Symbol.toStringTag,{value:"Module"})),ts=`<div id="relationships" class="section">
+</div>`,ns=Object.freeze(Object.defineProperty({__proto__:null,default:ss},Symbol.toStringTag,{value:"Module"})),as=`<div id="polymorphism" class="section">\r
+	<div class="breadcrumb">\r
+		handbook / the 4 pillars / <span>section 04D</span>\r
+	</div>\r
+	<div class="section-eyebrow">The Mastery</div>\r
+	<h1>Polymorphism: The Power of Many Forms</h1>\r
+	<div class="section-desc">\r
+		Polymorphism is the ability of an object to take on many forms. We explore\r
+		bytecode instructions, vtable internals, and JVM optimizations that make\r
+		polymorphism surprisingly fast.\r
+	</div>\r
+\r
+	<h2>1. Static vs. Dynamic Polymorphism</h2>\r
+	<div class="table-wrap">\r
+		<table>\r
+			<tr>\r
+				<th>Type</th>\r
+				<th>Mechanism</th>\r
+				<th>Binding Time</th>\r
+			</tr>\r
+			<tr>\r
+				<td><strong>Static</strong></td>\r
+				<td>Method Overloading</td>\r
+				<td>Compile Time (Early Binding)</td>\r
+			</tr>\r
+			<tr>\r
+				<td><strong>Dynamic</strong></td>\r
+				<td>Method Overriding</td>\r
+				<td>Runtime (Late Binding)</td>\r
+			</tr>\r
+		</table>\r
+	</div>\r
+\r
+	<h3>Example: Method Overloading (Static Polymorphism)</h3>\r
+	<pre><code><span class="kw">public class</span> <span class="cl">MathUtils</span> {\r
+    <span class="cm">// Same name, different parameter types = overloading</span>\r
+    <span class="kw">public int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) { <span class="kw">return</span> a + b; }\r
+    <span class="kw">public double</span> <span class="fn">add</span>(<span class="kw">double</span> a, <span class="kw">double</span> b) { <span class="kw">return</span> a + b; }\r
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">add</span>(<span class="cl">String</span> a, <span class="cl">String</span> b) { <span class="kw">return</span> a + b; }\r
+}\r
+\r
+<span class="cl">MathUtils</span> m = <span class="kw">new</span> <span class="cl">MathUtils</span>();\r
+m.<span class="fn">add</span>(<span class="num">1</span>, <span class="num">2</span>);           <span class="cm">// calls int version</span>\r
+m.<span class="fn">add</span>(<span class="num">1.5</span>, <span class="num">2.5</span>);       <span class="cm">// calls double version</span>\r
+m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">" World"</span>); <span class="cm">// calls String version</span>\r
+</code></pre>\r
+\r
+	<h3>Example: Method Overriding (Dynamic Polymorphism)</h3>\r
+	<pre><code><span class="kw">public abstract class</span> <span class="cl">Logger</span> {\r
+    <span class="kw">public abstract void</span> <span class="fn">write</span>(<span class="cl">String</span> log);\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">FileLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {\r
+    <span class="kw">private</span> <span class="cl">String</span> filePath;\r
+    <span class="kw">public</span> <span class="cl">FileLogger</span>(<span class="cl">String</span> path) { <span class="kw">this</span>.filePath = path; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { \r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Appending to file "</span> + filePath + <span class="str">": "</span> + log); \r
+    }\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">CloudLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {\r
+    <span class="kw">private</span> <span class="cl">String</span> bucketUrl;\r
+    <span class="kw">public</span> <span class="cl">CloudLogger</span>(<span class="cl">String</span> url) { <span class="kw">this</span>.bucketUrl = url; }\r
+\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { \r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Sending over network to "</span> + bucketUrl + <span class="str">": "</span> + log); \r
+    }\r
+}\r
+\r
+<span class="cm">// Dynamic dispatch — JVM decides at RUNTIME</span>\r
+<span class="cl">List</span>&lt;<span class="cl">Logger</span>&gt; loggers = <span class="cl">List</span>.<span class="fn">of</span>(\r
+    <span class="kw">new</span> <span class="cl">FileLogger</span>(<span class="str">"/var/logs/app.log"</span>),\r
+    <span class="kw">new</span> <span class="cl">CloudLogger</span>(<span class="str">"s3://bucket/logs"</span>)\r
+);\r
+\r
+<span class="kw">for</span> (<span class="cl">Logger</span> logger : loggers) {\r
+    logger.<span class="fn">write</span>(<span class="str">"System booted."</span>); <span class="cm">// Correct method called via vtable</span>\r
+}\r
+</code></pre>\r
+\r
+	<h2>2. Bytecode: invokevirtual vs invokespecial</h2>\r
+	<ul>\r
+		<li>\r
+			<strong>invokestatic</strong>: Static methods (fixed at compile time).\r
+		</li>\r
+		<li>\r
+			<strong>invokespecial</strong>: Constructors, private methods, super\r
+			(fixed at compile time).\r
+		</li>\r
+		<li>\r
+			<strong>invokevirtual</strong>: Public/protected instance methods.\r
+			<strong>Dynamic Dispatch</strong>.\r
+		</li>\r
+		<li>\r
+			<strong>invokeinterface</strong>: Interface methods. Slightly slower\r
+			(itable lookup).\r
+		</li>\r
+		<li>\r
+			<strong>invokedynamic</strong>: Lambdas, var-args (Java 7+). Bootstrap\r
+			method resolves target.\r
+		</li>\r
+	</ul>\r
+\r
+	<h2>3. Internal Wiring: How the JVM Thinks</h2>\r
+	<div class="box box-senior">\r
+		<div class="box-title">🧠 How Senior Engineers Think</div>\r
+		Juniors think polymorphism is "magic." Seniors know it's just a pointer\r
+		lookup. Every object has a hidden header pointing to its class's\r
+		<strong>vtable</strong> (Virtual Method Table). At runtime,\r
+		<code>logger.write()</code> looks up index 1 in the vtable and jumps to that\r
+		memory address.\r
+	</div>\r
+\r
+	<div class="ascii-diagram">\r
+		[ CLASS: LOGGER ] [ CLASS: FILELOGGER ] vtable: vtable: 0: Object.toString()\r
+		0: Object.toString() 1: Logger.write() 1: FileLogger.write() <──\r
+		(OVERRIDDEN) 2: FileLogger.rotate() <── (NEW)\r
+	</div>\r
+\r
+	<div class="box box-insight">\r
+		<div class="box-title">🚀 JIT Optimization: Devirtualization</div>\r
+		If the JIT compiler notices a specific call site always calls the same class\r
+		(<strong>Monomorphic Call Site</strong>), it "devirtualizes" the call —\r
+		removing the vtable lookup and inlining the method code directly. This is\r
+		why polymorphism in modern Java has almost zero overhead.\r
+	</div>\r
+\r
+	<h2>4. Interface-Based Polymorphism (The Professional Way)</h2>\r
+	<div class="box box-lld">\r
+		<div class="box-title">⚙️ LLD Connection: The Strategy Pattern</div>\r
+		Polymorphism is the engine behind the <strong>Strategy Pattern</strong>. By\r
+		programming to an interface (<code>Notifier</code>), the\r
+		<code>AlertService</code> is completely decoupled from the specific\r
+		transport mechanism. This makes the code highly testable (via Mocks) and\r
+		extensible.\r
+	</div>\r
+\r
+	<pre><code><span class="kw">public interface</span> <span class="cl">Notifier</span> {\r
+    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> message, <span class="cl">String</span> recipient);\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">EmailNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {\r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Email to "</span> + to + <span class="str">": "</span> + msg);\r
+    }\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">SmsNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {\r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"SMS to "</span> + to + <span class="str">": "</span> + msg);\r
+    }\r
+}\r
+\r
+<span class="cm">// SERVICE — depends on abstraction, not concrete classes</span>\r
+<span class="kw">public class</span> <span class="cl">AlertService</span> {\r
+    <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers;\r
+\r
+    <span class="cm">// Dependency Injection via Constructor</span>\r
+    <span class="kw">public</span> <span class="cl">AlertService</span>(<span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers) {\r
+        <span class="kw">this</span>.notifiers = notifiers;\r
+    }\r
+\r
+    <span class="kw">public void</span> <span class="fn">alert</span>(<span class="cl">String</span> msg) {\r
+        notifiers.<span class="fn">forEach</span>(n -> n.<span class="fn">send</span>(msg, <span class="str">"admin"</span>));\r
+    }\r
+}\r
+\r
+<span class="cm">// USAGE — add new notifiers without changing AlertService!</span>\r
+<span class="cl">AlertService</span> svc = <span class="kw">new</span> <span class="cl">AlertService</span>(<span class="cl">List</span>.<span class="fn">of</span>(\r
+    <span class="kw">new</span> <span class="cl">EmailNotifier</span>(),\r
+    <span class="kw">new</span> <span class="cl">SmsNotifier</span>()\r
+));\r
+svc.<span class="fn">alert</span>(<span class="str">"Server is down!"</span>);\r
+</code></pre>\r
+\r
+	<h2>5. Method Hiding vs Overriding</h2>\r
+	<div class="compare">\r
+		<div class="compare-col">\r
+			<div class="compare-label compare-bad">Static: Method Hiding</div>\r
+			<pre\r
+				style="font-size: 11px"\r
+			><code><span class="kw">class</span> <span class="cl">A</span> { <span class="kw">static void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"A"</span>); } }\r
+<span class="kw">class</span> <span class="cl">B</span> <span class="kw">extends</span> <span class="cl">A</span> { <span class="kw">static void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"B"</span>); } }\r
+<span class="cl">A</span> obj = <span class="kw">new</span> <span class="cl">B</span>();\r
+obj.<span class="fn">go</span>(); <span class="cm">// Calls A.go()!</span></code></pre>\r
+		</div>\r
+		<div class="compare-col">\r
+			<div class="compare-label compare-good">Instance: Overriding</div>\r
+			<pre\r
+				style="font-size: 11px"\r
+			><code><span class="kw">class</span> <span class="cl">A</span> { <span class="kw">void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"A"</span>); } }\r
+<span class="kw">class</span> <span class="cl">B</span> <span class="kw">extends</span> <span class="cl">A</span> { <span class="kw">void</span> <span class="fn">go</span>() { <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"B"</span>); } }\r
+<span class="cl">A</span> obj = <span class="kw">new</span> <span class="cl">B</span>();\r
+obj.<span class="fn">go</span>(); <span class="cm">// Calls B.go()!</span></code></pre>\r
+		</div>\r
+	</div>\r
+\r
+	<h2>6. Rules for Method Overriding</h2>\r
+	<ul>\r
+		<li>\r
+			<strong>Access Level</strong>: Cannot be more restrictive than parent.\r
+		</li>\r
+		<li>\r
+			<strong>Return Type</strong>: Must be same or a\r
+			<strong>Covariant Type</strong> (subtype).\r
+		</li>\r
+		<li>\r
+			<strong>Exceptions</strong>: Can throw fewer/narrower checked exceptions,\r
+			never more.\r
+		</li>\r
+		<li><strong>Final/Static</strong>: Cannot be overridden.</li>\r
+	</ul>\r
+\r
+	<h2>7. The 'instanceof' Evolution + Downcasting</h2>\r
+	<pre><code><span class="cm">// OLD WAY (pre-Java 16)</span>\r
+<span class="kw">if</span> (animal <span class="kw">instanceof</span> <span class="cl">Dog</span>) {\r
+    <span class="cl">Dog</span> dog = (<span class="cl">Dog</span>) animal; <span class="cm">// manual cast</span>\r
+    dog.<span class="fn">bark</span>();\r
+}\r
+\r
+<span class="cm">// MODERN WAY (Java 16+) — Pattern Matching</span>\r
+<span class="kw">if</span> (animal <span class="kw">instanceof</span> <span class="cl">Dog</span> dog) {\r
+    dog.<span class="fn">bark</span>(); <span class="cm">// already cast — no ClassCastException risk!</span>\r
+}\r
+\r
+<span class="cm">// SWITCH PATTERN (Java 21)</span>\r
+<span class="cl">String</span> <span class="fn">describe</span>(<span class="cl">Shape</span> s) {\r
+    <span class="kw">return switch</span> (s) {\r
+        <span class="kw">case</span> <span class="cl">Circle</span> c -> <span class="str">"Circle r="</span> + c.<span class="fn">getRadius</span>();\r
+        <span class="kw">case</span> <span class="cl">Square</span> sq -> <span class="str">"Square s="</span> + sq.<span class="fn">getSide</span>();\r
+        <span class="kw">default</span> -> <span class="str">"Unknown shape"</span>;\r
+    };\r
+}\r
+</code></pre>\r
+\r
+	<h2>8. Covariant Return Types</h2>\r
+	<pre><code><span class="kw">interface</span> <span class="cl">Provider</span> { <span class="cl">Connection</span> <span class="fn">get</span>(); }\r
+<span class="kw">class</span> <span class="cl">MySQLProvider</span> <span class="kw">implements</span> <span class="cl">Provider</span> {\r
+    <span class="cl">MySQLConnection</span> <span class="fn">get</span>() { <span class="kw">return new</span> <span class="cl">MySQLConnection</span>(); }\r
+    <span class="cm">// Valid! MySQLConnection IS-A Connection</span>\r
+}\r
+</code></pre>\r
+\r
+	<div class="takeaways">\r
+		<div class="takeaways-title">Key Takeaways — Section 04D</div>\r
+		<ul>\r
+			<li>\r
+				<strong>Polymorphism</strong> is enabled by\r
+				<strong>Dynamic Dispatch</strong> (invokevirtual).\r
+			</li>\r
+			<li>\r
+				<strong>vtable</strong> is the primary mechanism for method lookup.\r
+			</li>\r
+			<li>\r
+				<strong>JIT Devirtualization</strong> makes polymorphic code run at\r
+				native speed.\r
+			</li>\r
+			<li>\r
+				<strong>Static methods cannot be overridden</strong> (they are hidden).\r
+			</li>\r
+			<li>\r
+				<strong>Interface-based polymorphism</strong> is the professional way to\r
+				write extensible systems.\r
+			</li>\r
+		</ul>\r
+	</div>\r
+\r
+	<h2>Interview Deep Dive — Section 04D</h2>\r
+	<div class="qa-block">\r
+		<div class="qa-q" onclick="toggleQA(this)">\r
+			What is a 'Megamorphic' call site?<span class="arrow">▶</span>\r
+		</div>\r
+		<div class="qa-a">\r
+			A call site where many different subclasses are being called. The JVM\r
+			cannot optimize this easily via devirtualization, and must fall back to\r
+			slower vtable lookup. Senior devs avoid this in tight, high-performance\r
+			loops.\r
+		</div>\r
+	</div>\r
+	<div class="qa-block">\r
+		<div class="qa-q" onclick="toggleQA(this)">\r
+			Why is 'invokeinterface' slower than 'invokevirtual'?<span class="arrow"\r
+				>▶</span\r
+			>\r
+		</div>\r
+		<div class="qa-a">\r
+			Because a class can implement multiple interfaces, the method offset can\r
+			change between classes. <code>invokeinterface</code> must search the\r
+			<strong>itable</strong>, whereas <code>invokevirtual</code> has a fixed\r
+			offset in the vtable.\r
+		</div>\r
+	</div>\r
+	<div class="qa-block">\r
+		<div class="qa-q" onclick="toggleQA(this)">\r
+			Can we override a private method?<span class="arrow">▶</span>\r
+		</div>\r
+		<div class="qa-a">\r
+			<strong>No.</strong> Private methods are not visible to subclasses. A\r
+			method with the same signature in the subclass is a completely\r
+			<strong>new</strong> method, not an override.\r
+		</div>\r
+	</div>\r
+	<div class="qa-block">\r
+		<div class="qa-q" onclick="toggleQA(this)">\r
+			What is Method Hiding?<span class="arrow">▶</span>\r
+		</div>\r
+		<div class="qa-a">\r
+			Method hiding occurs when a subclass defines a static method with the same signature as a static method in the superclass. Unlike overriding, which is resolved at runtime (dynamic dispatch), method hiding is resolved at compile time based on the <strong>reference type</strong>, not the object type.\r
+		</div>\r
+	</div>\r
+</div>\r
+`,es=Object.freeze(Object.defineProperty({__proto__:null,default:as},Symbol.toStringTag,{value:"Module"})),ts=`<div id="relationships" class="section">
   <div class="breadcrumb">handbook / <span>section 05</span></div>
   <div class="section-eyebrow">The Connections</div>
   <h1>Object Relationships: Beyond IS-A</h1>
@@ -3333,6 +3704,10 @@ h.<span class="fn">showRooms</span>();
     <div class="qa-q" onclick="toggleQA(this)">How do you decide between Association and Aggregation?<span class="arrow">▶</span></div>
     <div class="qa-a">Ask: <strong>"Does the container logically 'own' the contained object?"</strong> If a <code>Team</code> has <code>Players</code>, the Team "owns" them in context — that's Aggregation. If a <code>Student</code> knows a <code>Library</code>, neither owns the other — that's Association. The UML diamond (◇) indicates "whole-part" thinking.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the danger of bi-directional associations?<span class="arrow">▶</span></div>
+    <div class="qa-a">If Class A has a reference to Class B, and Class B has a reference to Class A, you have a <strong>Circular Reference</strong>. In languages without garbage collection (like C++), this causes memory leaks. In Java, the GC handles it, but it creates huge problems for <strong>Serialization</strong> (like converting to JSON), causing infinite loops unless you use annotations like <code>@JsonIgnore</code>.</div>
+  </div>
 </div>
 `,cs=Object.freeze(Object.defineProperty({__proto__:null,default:ts},Symbol.toStringTag,{value:"Module"})),ls=`<div id="solid-principles" class="section">\r
   <div class="breadcrumb">handbook / <span>section 17</span></div>\r
@@ -3524,7 +3899,11 @@ assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>(
     <div class="qa-q" onclick="toggleQA(this)">What is the "Dependency Inversion" vs "Dependency Injection"?<span class="arrow">▶</span></div>\r
     <div class="qa-a"><strong>Dependency Inversion</strong> is the <em>Principle</em> (The Goal: decouple). <strong>Dependency Injection</strong> is the <em>Pattern</em> (The Tool: passing dependencies via constructor/setter). DI is how we achieve DIP.</div>\r
   </div>\r
-</div>`,os=Object.freeze(Object.defineProperty({__proto__:null,default:ls},Symbol.toStringTag,{value:"Module"})),is=`<div id="static-keyword" class="section">
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">How do you spot an Open-Closed Principle (OCP) violation?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">A classic sign of an OCP violation is a class filled with a large <code>switch</code> statement or a long chain of <code>if-else if</code> blocks checking the <em>type</em> of an object or an enum (e.g., <code>if (type == Type.ADMIN) ... else if (type == Type.USER)</code>). When a new type is added, you have to modify this existing code. The solution is usually polymorphism.</div>\r
+  </div>\r
+</div>`,os=Object.freeze(Object.defineProperty({__proto__:null,default:ls},Symbol.toStringTag,{value:"Module"})),rs=`<div id="static-keyword" class="section">
   <div class="breadcrumb">handbook / <span>section 07</span></div>
   <div class="section-eyebrow">The Shared State</div>
   <h1>Static: Class-Level Mechanics</h1>
@@ -3663,7 +4042,11 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">Why is a static method faster than an instance method?<span class="arrow">▶</span></div>
     <div class="qa-a">Because the JVM doesn't have to perform a vtable lookup (Dynamic Dispatch). It knows the exact address of the static method at compile time. However, with JIT optimizations, the difference is negligible in modern Java.</div>
   </div>
-</div>`,ps=Object.freeze(Object.defineProperty({__proto__:null,default:is},Symbol.toStringTag,{value:"Module"})),rs=`<div id="why-oop-exists" class="section">
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Are static variables Thread-Safe?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No, they are inherently dangerous in multi-threaded environments.</strong> Since there is only one copy of a static variable per classloader, if multiple threads access and modify it simultaneously, you will face race conditions. If you need a global counter, use <code>AtomicInteger</code> or synchronize the access.</div>
+  </div>
+</div>`,is=Object.freeze(Object.defineProperty({__proto__:null,default:rs},Symbol.toStringTag,{value:"Module"})),ps=`<div id="why-oop-exists" class="section">
   <div class="breadcrumb">handbook / <span>section 01</span></div>
   <div class="section-eyebrow">The Foundations</div>
   <h1>Why OOP Exists: The Architecture of Scale</h1>
@@ -3780,4 +4163,8 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">What is the "Fragile Base Class" problem?<span class="arrow">▶</span></div>
     <div class="qa-a">A major pitfall of inheritance. If you change a small detail in a parent class, you might unknowingly break 50 subclasses that depend on that specific (sometimes accidental) behavior. This is why senior architects favor <strong>Composition</strong> over Inheritance.</div>
   </div>
-</div>`,ds=Object.freeze(Object.defineProperty({__proto__:null,default:rs},Symbol.toStringTag,{value:"Module"})),h={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],g={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let p="home";const d=Object.assign({"../content/abstract-classes.html":b,"../content/abstraction.html":w,"../content/access-modifiers.html":y,"../content/cheat-sheets.html":C,"../content/classes-objects.html":I,"../content/constructors.html":A,"../content/encapsulation.html":O,"../content/enums.html":D,"../content/exception-handling.html":L,"../content/final-keyword.html":j,"../content/home.html":B,"../content/immutability.html":_,"../content/inheritance.html":U,"../content/inner-classes.html":J,"../content/interfaces.html":z,"../content/interview-qa.html":V,"../content/memory-model.html":Y,"../content/object-class.html":$,"../content/oop-design-thinking.html":X,"../content/oop-lld-bridge.html":ns,"../content/polymorphism.html":es,"../content/relationships.html":cs,"../content/solid-principles.html":os,"../content/static-keyword.html":ps,"../content/why-oop-exists.html":ds});for(const s in d){const a=s.split("/").pop().replace(".html","");h[a]=d[s].default||d[s]}function i(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&h[s]){const n=document.createElement("div");n.innerHTML=h[s],e=n.firstElementChild,a.appendChild(e),hs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),p=s,m(),vs(),bs(e),window.scrollTo({top:0,behavior:"smooth"})}function hs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function gs(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}const r=document.getElementById("themeToggle");if(r){const s=r.querySelector("i"),a=document.body,e=localStorage.getItem("theme")||"dark";a.setAttribute("data-theme",e),s&&u(s,e),r.addEventListener("click",()=>{const n=a.getAttribute("data-theme")==="dark"?"light":"dark";a.setAttribute("data-theme",n),localStorage.setItem("theme",n),s&&u(s,n)})}function u(s,a){const e=r.querySelector("span");a==="dark"?(s.className="ri-moon-line",e&&(e.textContent="Dark Mode")):(s.className="ri-sun-line",e&&(e.textContent="Light Mode"))}function us(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function ms(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function vs(){const s=l.indexOf(p),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=g[a]||a,n.onclick=()=>i(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=g[e]||e,c.onclick=()=>i(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",p==="home")}function bs(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||p==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function fs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(p);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&i(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&i(l[a-1]))})}function ws(){window.scrollTo({top:0,behavior:"smooth"})}function ks(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function m(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=i;window.toggleQA=gs;window.filterNav=us;window.scrollToTop=ws;window.toggleSidebar=ks;window.closeSidebar=m;document.addEventListener("DOMContentLoaded",()=>{try{ms(),fs(),document.getElementById("mainContent")||console.error("CRITICAL: mainContent container missing"),i("home");const s=localStorage.getItem("theme")||"dark";document.body.setAttribute("data-theme",s)}catch(s){console.error("Boot error:",s)}});
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the "Expression Problem" in software design?<span class="arrow">▶</span></div>
+    <div class="qa-a">The Expression Problem highlights a fundamental trade-off between OOP and Functional Programming (FP). In OOP, it is very easy to add new <strong>types</strong> (classes) without modifying existing code, but hard to add new <strong>behaviors</strong> (methods) across all types. In FP, it's the exact opposite. Modern Java tries to bridge this with features like Sealed Classes and Pattern Matching.</div>
+  </div>
+</div>`,ds=Object.freeze(Object.defineProperty({__proto__:null,default:ps},Symbol.toStringTag,{value:"Module"})),h={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],g={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let i="home";const d=Object.assign({"../content/abstract-classes.html":b,"../content/abstraction.html":w,"../content/access-modifiers.html":k,"../content/cheat-sheets.html":x,"../content/classes-objects.html":T,"../content/constructors.html":A,"../content/encapsulation.html":O,"../content/enums.html":D,"../content/exception-handling.html":q,"../content/final-keyword.html":j,"../content/home.html":B,"../content/immutability.html":_,"../content/inheritance.html":J,"../content/inner-classes.html":U,"../content/interfaces.html":z,"../content/interview-qa.html":V,"../content/memory-model.html":Y,"../content/object-class.html":$,"../content/oop-design-thinking.html":Z,"../content/oop-lld-bridge.html":ns,"../content/polymorphism.html":es,"../content/relationships.html":cs,"../content/solid-principles.html":os,"../content/static-keyword.html":is,"../content/why-oop-exists.html":ds});for(const s in d){const a=s.split("/").pop().replace(".html","");h[a]=d[s].default||d[s]}function r(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&h[s]){const n=document.createElement("div");n.innerHTML=h[s],e=n.firstElementChild,a.appendChild(e),hs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),i=s,m(),vs(),bs(e),window.scrollTo({top:0,behavior:"smooth"})}function hs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function gs(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}const p=document.getElementById("themeToggle");if(p){const s=p.querySelector("i"),a=document.body,e=localStorage.getItem("theme")||"dark";a.setAttribute("data-theme",e),s&&u(s,e),p.addEventListener("click",()=>{const n=a.getAttribute("data-theme")==="dark"?"light":"dark";a.setAttribute("data-theme",n),localStorage.setItem("theme",n),s&&u(s,n)})}function u(s,a){const e=p.querySelector("span");a==="dark"?(s.className="ri-moon-line",e&&(e.textContent="Dark Mode")):(s.className="ri-sun-line",e&&(e.textContent="Light Mode"))}function us(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function ms(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function vs(){const s=l.indexOf(i),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=g[a]||a,n.onclick=()=>r(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=g[e]||e,c.onclick=()=>r(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",i==="home")}function bs(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||i==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function fs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(i);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&r(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&r(l[a-1]))})}function ws(){window.scrollTo({top:0,behavior:"smooth"})}function ys(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function m(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=r;window.toggleQA=gs;window.filterNav=us;window.scrollToTop=ws;window.toggleSidebar=ys;window.closeSidebar=m;document.addEventListener("DOMContentLoaded",()=>{try{ms(),fs(),document.getElementById("mainContent")||console.error("CRITICAL: mainContent container missing"),r("home");const s=localStorage.getItem("theme")||"dark";document.body.setAttribute("data-theme",s)}catch(s){console.error("Boot error:",s)}});
