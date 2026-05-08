@@ -115,9 +115,11 @@ m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">"
 	</div>
 
 	<div class="ascii-diagram">
-		[ CLASS: LOGGER ] [ CLASS: FILELOGGER ] vtable: vtable: 0: Object.toString()
-		0: Object.toString() 1: Logger.write() 1: FileLogger.write() <──
-		(OVERRIDDEN) 2: FileLogger.rotate() <── (NEW)
+[ CLASS: LOGGER ]               [ CLASS: FILELOGGER ]
+vtable:                         vtable:
+0: Object.toString()            0: Object.toString()
+1: Logger.write()               1: FileLogger.write()  <── (OVERRIDDEN)
+                                2: FileLogger.rotate() <── (NEW)
 	</div>
 
 	<div class="box box-insight">
