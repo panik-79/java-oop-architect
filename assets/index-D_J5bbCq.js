@@ -1629,37 +1629,42 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-q" onclick="toggleQA(this)">Difference between 'final', 'finally', and 'finalize'? (The Classic)<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Final</strong> is a modifier (for variables/methods/classes). <strong>Finally</strong> is a block in try-catch-finally for cleanup. <strong>Finalize</strong> is a (deprecated) method in the Object class for pre-GC cleanup. They are unrelated except for their names.</div>
   </div>
-</div>`,j=Object.freeze(Object.defineProperty({__proto__:null,default:q},Symbol.toStringTag,{value:"Module"})),R=`<div id="home" class="home-section">
-  <div class="breadcrumb">Engineering Handbook / <span>The Ledger</span></div>
-  
-  <h1 style="font-size: 5rem; margin: 2rem 0 1rem; line-height: 1.1;">The Architect's<br><span>OOP Ledger</span></h1>
-  
-  <p style="font-size: 1.4rem; color: var(--text-dim); max-width: 800px; line-height: 1.5; margin-bottom: 3rem;">
-    A compressed distillation of high-frequency Java engineering patterns and JVM internals. 
-    Built for those seeking deep architectural mastery and production-grade system design skills.
-  </p>
-
-  <div class="home-grid">
-    <div class="home-card">
-      <div style="font-size: 2rem; margin-bottom: 1rem;">💎</div>
-      <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--accent);">JVM Internals</div>
-      <div style="font-size: 0.9rem; color: var(--text-dim);">Deep dives into bytecode, memory regions, and vtable internals.</div>
-    </div>
-    <div class="home-card">
-      <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
-      <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--green);">LLD Patterns</div>
-      <div style="font-size: 0.9rem; color: var(--text-dim);">Principles mapped directly to real-world system design and architecture.</div>
-    </div>
-    <div class="home-card">
-      <div style="font-size: 2rem; margin-bottom: 1rem;">🔥</div>
-      <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--amber);">Senior Prep</div>
-      <div style="font-size: 0.9rem; color: var(--text-dim);">Focused on the "Why" and "Tradeoffs" that senior engineers actually use.</div>
+</div>`,j=Object.freeze(Object.defineProperty({__proto__:null,default:q},Symbol.toStringTag,{value:"Module"})),R=`<div id="home" class="section active">
+  <div class="hero">
+    <div class="hero-eyebrow">// FAANG-Level Preparation Guide</div>
+    <h1 class="hero-title">Object Oriented<br>Programming in <span>Java</span></h1>
+    <p class="hero-sub">
+      A senior engineer's complete handbook for OOP mastery — built for LLD interviews, backend engineering, and production-grade Java development.
+    </p>
+    <div class="hero-tags">
+      <span class="tag tag-purple">21 Sections</span>
+      <span class="tag tag-green">100+ Code Examples</span>
+      <span class="tag tag-amber">Interview Ready</span>
+      <span class="tag tag-teal">LLD Foundation</span>
     </div>
   </div>
 
-  <div class="box box-interview" style="margin-top: 3rem;">
+  <div class="home-grid">
+    <div class="home-card">
+      <div class="home-card-icon">💎</div>
+      <div class="home-card-title">JVM Internals</div>
+      <div class="home-card-desc">Deep dives into bytecode, memory regions, and vtable internals. Understand how the engine actually works.</div>
+    </div>
+    <div class="home-card">
+      <div class="home-card-icon">⚡</div>
+      <div class="home-card-title">LLD Patterns</div>
+      <div class="home-card-desc">Principles mapped directly to real-world system design. Bridge the gap between code and architecture.</div>
+    </div>
+    <div class="home-card">
+      <div class="home-card-icon">🔥</div>
+      <div class="home-card-title">Senior Prep</div>
+      <div class="home-card-desc">Focused on the "Why" and "Tradeoffs" that senior engineers actually use in production.</div>
+    </div>
+  </div>
+
+  <div class="box box-interview">
     <div class="box-title">🚀 BEGIN YOUR DEEP DIVE</div>
-    <p style="margin:0;">Start with <strong>Section 01 (Why OOP)</strong> to understand the systemic crisis that built our industry, or jump to <strong>Section 12 (Memory)</strong> to master the JVM engine room.</p>
+    <p style="margin:0; color:var(--text-dim);">Start with <strong>Section 01 (Why OOP)</strong> to understand the systemic crisis that built our industry, or jump to <strong>Architectural Tools</strong> in the sidebar to visualize JVM memory in real-time.</p>
   </div>
 </div>`,B=Object.freeze(Object.defineProperty({__proto__:null,default:R},Symbol.toStringTag,{value:"Module"})),N=`<div id="immutability" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 13</span></div>
