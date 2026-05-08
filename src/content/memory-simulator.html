@@ -18,6 +18,8 @@
           <option value="reference">Reference Assignment</option>
           <option value="stringpool">String Pool Internals</option>
           <option value="passbyvalue">Pass By Value (Reference)</option>
+          <option value="staticflow">Static Lifecycle (Method Area)</option>
+          <option value="dispatch">Dynamic Dispatch (V-Table)</option>
         </select>
       </div>
       <div class="sim-playback">
@@ -40,6 +42,10 @@
         <div class="sim-panel sim-heap">
           <div class="panel-label"><i class="ri-bubble-chart-line"></i> Heap (Dynamic)</div>
           <div id="heapContainer" class="memory-grid"></div>
+        </div>
+        <div class="sim-panel sim-metaspace">
+          <div class="panel-label"><i class="ri-database-2-line"></i> Method Area (Static)</div>
+          <div id="metaContainer" class="memory-grid"></div>
         </div>
       </div>
     </div>
@@ -101,8 +107,8 @@
     }
     .sim-visuals {
       display: grid;
-      grid-template-columns: 1fr 1.2fr;
-      gap: 1.5rem;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 1rem;
     }
     .memory-grid {
       flex: 1;
