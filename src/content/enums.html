@@ -96,4 +96,8 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
     <div class="qa-q" onclick="toggleQA(this)">Why is it better to use an Enum instead of 'static final int' constants?<span class="arrow">▶</span></div>
     <div class="qa-a">1. <strong>Type Safety</strong>: You cannot pass an arbitrary integer to a method that expects an enum. 2. <strong>Namespace</strong>: Constants are grouped logically. 3. <strong>Behavior</strong>: You can add methods and logic directly to the enum. 4. <strong>Serialization</strong>: Enums handle serialization and deserialization safely by default.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an Enum extend another class or implement an interface?<span class="arrow">▶</span></div>
+    <div class="qa-a">An enum <strong>cannot</strong> extend another class because all enums implicitly extend <code>java.lang.Enum</code>, and Java does not support multiple class inheritance. However, an enum <strong>can</strong> implement interfaces. This is extremely useful for things like the Strategy Pattern, where each enum value provides a different implementation of an interface method.</div>
+  </div>
 </div>

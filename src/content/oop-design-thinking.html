@@ -130,4 +130,8 @@
     <div class="qa-q" onclick="toggleQA(this)">What is "Skinny Models, Fat Services" vs "Rich Domain Models"?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Skinny Models</strong> (Anemic Domain Model) have only data, and logic is in Service classes. <strong>Rich Domain Models</strong> put logic inside the entities themselves (true OOP). In complex LLD, Rich Domain Models are usually preferred as they keep the code more organized.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between Composition and Aggregation in OOP Design?<span class="arrow">▶</span></div>
+    <div class="qa-a">Both are "HAS-A" relationships, but they differ in <strong>lifecycle dependency</strong>. <strong>Composition</strong> is a strong "owns-a" relationship; if the parent (House) is destroyed, the child (Room) is also destroyed. <strong>Aggregation</strong> is a weak "uses-a" relationship; if the parent (Department) is destroyed, the child (Professor) can still exist independently.</div>
+  </div>
 </div>

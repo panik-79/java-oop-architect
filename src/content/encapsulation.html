@@ -177,4 +177,8 @@ balanceField.<span class="fn">setDouble</span>(account, <span class="num">999999
     <div class="qa-q" onclick="toggleQA(this)">What is 'Strong Encapsulation' in Java 17?<span class="arrow">▶</span></div>
     <div class="qa-a">Project Jigsaw means even Reflection cannot access internal classes unless explicitly <code>exported</code> or <code>opened</code> in <code>module-info.java</code>.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is an "Anemic Domain Model"?<span class="arrow">▶</span></div>
+    <div class="qa-a">An Anemic Domain Model is one where classes only contain data (fields, getters, and setters) but no behavior. It violates encapsulation because the business logic that operates on that data is scattered across Service classes, rather than living inside the Domain object itself. In a Rich Domain Model, the object protects its invariants by having methods like <code>user.changePassword()</code> instead of a service calling <code>user.setPassword(hash)</code>.</div>
+  </div>
 </div>

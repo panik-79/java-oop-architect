@@ -118,4 +118,8 @@
     <div class="qa-q" onclick="toggleQA(this)">Why should you not use a mutable object as a HashMap key?<span class="arrow">▶</span></div>
     <div class="qa-a">If the object changes after being put in the Map, its <code>hashCode()</code> will change. When you try to retrieve it, the Map will look in the <strong>wrong bucket</strong> and fail to find it, even though the object is still in the map! This is a "Memory Leak" equivalent in Java.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">How do Java Records guarantee immutability?<span class="arrow">▶</span></div>
+    <div class="qa-a">Java Records (introduced in Java 14) are a language-level feature to define immutable data carriers. They implicitly declare all fields as <code>private final</code>, do not provide setters, and their class is implicitly <code>final</code>. However, remember that if a Record holds a reference to a mutable object (like a standard <code>ArrayList</code>), the contents of that list can still be modified (shallow immutability).</div>
+  </div>
 </div>

@@ -182,4 +182,8 @@
     <div class="qa-q" onclick="toggleQA(this)">Checked vs Unchecked — which should you prefer?<span class="arrow">▶</span></div>
     <div class="qa-a">Modern consensus (Spring, Kotlin, C#): <strong>Unchecked</strong> for most cases. Checked exceptions create tight coupling between layers. Use checked only when the caller can genuinely recover (e.g., retry a network call).</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if you return a value from inside a finally block?<span class="arrow">▶</span></div>
+    <div class="qa-a">It will <strong>override</strong> any return value or thrown exception from the <code>try</code> or <code>catch</code> blocks. This is a notorious anti-pattern and can lead to bugs where exceptions are silently swallowed. Modern IDEs will typically warn you about returning from a finally block.</div>
+  </div>
 </div>

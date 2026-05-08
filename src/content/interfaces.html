@@ -122,4 +122,8 @@ itable: [
     <div class="qa-q" onclick="toggleQA(this)">What is the 'Three-Tier Architecture' link?<span class="arrow">▶</span></div>
     <div class="qa-a">In professional backend development, we use <strong>Interfaces</strong> to separate layers: <code>Controller</code> -> <code>IService</code> -> <code>IRepository</code>. This allows us to change the implementation of the Service or Repository (e.g., swapping a Database for a Mock) without affecting other layers.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if a class implements two interfaces that have the exact same default method?<span class="arrow">▶</span></div>
+    <div class="qa-a">The compiler will throw an error to prevent the "Diamond Problem." The class <strong>must</strong> resolve the ambiguity by overriding the method itself. Inside that override, the class can choose to call one of the specific interface defaults using <code>InterfaceName.super.methodName()</code>, or provide an entirely new implementation.</div>
+  </div>
 </div>

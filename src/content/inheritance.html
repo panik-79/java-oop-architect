@@ -269,4 +269,8 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-q" onclick="toggleQA(this)">What is the difference between 'extends' and 'implements'?<span class="arrow">▶</span></div>
     <div class="qa-a"><code>extends</code> creates an IS-A relationship with a class (single inheritance). <code>implements</code> creates a CAN-DO relationship with an interface (multiple allowed). A class can <code>extend</code> one class and <code>implement</code> many interfaces simultaneously.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if a child class doesn't call <code>super()</code> in its constructor?<span class="arrow">▶</span></div>
+    <div class="qa-a">The compiler automatically inserts a call to the parent's no-args constructor (<code>super()</code>) as the first line of the child constructor. If the parent class does not have a no-args constructor, the code will fail to compile unless the child explicitly calls a matching <code>super(...)</code> with arguments.</div>
+  </div>
 </div>

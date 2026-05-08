@@ -171,4 +171,8 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
     <div class="qa-q" onclick="toggleQA(this)">Can a constructor be synchronized?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>No.</strong> A constructor cannot be synchronized. Only the thread that creates an object should have access to it while it is being constructed. Synchronization is not needed and will result in a compile-time error.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What happens if an Exception is thrown inside a constructor?<span class="arrow">▶</span></div>
+    <div class="qa-a">If an exception is thrown in a constructor and not caught within it, the object creation fails. The reference to the partially constructed object is never assigned, making it eligible for garbage collection. However, any external resources opened before the exception (like files or database connections) might leak unless properly handled (e.g., in a finally block before throwing).</div>
+  </div>
 </div>

@@ -110,4 +110,8 @@
     <div class="qa-q" onclick="toggleQA(this)">Can a local inner class access local variables of the method?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes, but only if they are effectively final.</strong> This is because the local inner class object might outlive the method execution. The JVM "captures" the value of the variable and stores a copy in the inner object. If the variable could change, the copy and the original would go out of sync.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an interface have an inner class?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> Any class defined inside an interface is implicitly <code>public static</code>. This is often used to group a default implementation or a related builder/factory class with the interface it serves.</div>
+  </div>
 </div>

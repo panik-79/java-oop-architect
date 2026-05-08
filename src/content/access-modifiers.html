@@ -233,4 +233,8 @@ exporter.<span class="fn">export</span>(<span class="cl">List</span>.<span class
     <div class="qa-q" onclick="toggleQA(this)">Can a constructor be private? When would you use that?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes.</strong> Private constructors are used in three key patterns: <strong>1) Singleton</strong> — prevent external instantiation. <strong>2) Utility class</strong> — prevent instantiation entirely (e.g., <code>java.util.Collections</code>). <strong>3) Static Factory Method</strong> — control object creation through named methods like <code>of()</code>, <code>valueOf()</code>, or <code>newInstance()</code>.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the exact difference between default (package-private) and protected?<span class="arrow">▶</span></div>
+    <div class="qa-a">Both allow access to classes in the same package. The key difference lies outside the package: <strong>default</strong> completely hides the member from classes outside the package, even subclasses. <strong>Protected</strong> allows subclasses in different packages to inherit and access the member. Therefore, protected is slightly more visible than default.</div>
+  </div>
 </div>

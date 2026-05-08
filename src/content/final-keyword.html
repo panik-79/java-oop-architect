@@ -104,4 +104,8 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-q" onclick="toggleQA(this)">Difference between 'final', 'finally', and 'finalize'? (The Classic)<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Final</strong> is a modifier (for variables/methods/classes). <strong>Finally</strong> is a block in try-catch-finally for cleanup. <strong>Finalize</strong> is a (deprecated) method in the Object class for pre-GC cleanup. They are unrelated except for their names.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is an "effectively final" variable?<span class="arrow">▶</span></div>
+    <div class="qa-a">Introduced in Java 8, a local variable is effectively final if its value is never changed after initialization, even though it isn't explicitly declared with the <code>final</code> keyword. This is important because lambdas and anonymous inner classes can only capture local variables that are either final or effectively final.</div>
+  </div>
 </div>

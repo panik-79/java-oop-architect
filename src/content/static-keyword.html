@@ -137,4 +137,8 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">Why is a static method faster than an instance method?<span class="arrow">▶</span></div>
     <div class="qa-a">Because the JVM doesn't have to perform a vtable lookup (Dynamic Dispatch). It knows the exact address of the static method at compile time. However, with JIT optimizations, the difference is negligible in modern Java.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Are static variables Thread-Safe?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>No, they are inherently dangerous in multi-threaded environments.</strong> Since there is only one copy of a static variable per classloader, if multiple threads access and modify it simultaneously, you will face race conditions. If you need a global counter, use <code>AtomicInteger</code> or synchronize the access.</div>
+  </div>
 </div>

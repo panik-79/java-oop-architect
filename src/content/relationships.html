@@ -247,4 +247,8 @@ h.<span class="fn">showRooms</span>();
     <div class="qa-q" onclick="toggleQA(this)">How do you decide between Association and Aggregation?<span class="arrow">▶</span></div>
     <div class="qa-a">Ask: <strong>"Does the container logically 'own' the contained object?"</strong> If a <code>Team</code> has <code>Players</code>, the Team "owns" them in context — that's Aggregation. If a <code>Student</code> knows a <code>Library</code>, neither owns the other — that's Association. The UML diamond (◇) indicates "whole-part" thinking.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the danger of bi-directional associations?<span class="arrow">▶</span></div>
+    <div class="qa-a">If Class A has a reference to Class B, and Class B has a reference to Class A, you have a <strong>Circular Reference</strong>. In languages without garbage collection (like C++), this causes memory leaks. In Java, the GC handles it, but it creates huge problems for <strong>Serialization</strong> (like converting to JSON), causing infinite loops unless you use annotations like <code>@JsonIgnore</code>.</div>
+  </div>
 </div>

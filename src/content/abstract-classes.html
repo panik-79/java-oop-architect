@@ -145,4 +145,8 @@ p2.<span class="fn">process</span>(); <span class="cm">// reads JSON, transforms
     <div class="qa-q" onclick="toggleQA(this)">Can we have an abstract class without any abstract methods?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes.</strong> This is done when you want to prevent direct instantiation of a class (e.g., a base class for generic entities) but it has only concrete methods that you want subclasses to reuse.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an abstract class have a constructor? If so, when is it called?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Yes.</strong> Even though you cannot instantiate an abstract class using <code>new</code>, it can (and often does) have a constructor to initialize its state. This constructor is called implicitly (via <code>super()</code>) or explicitly when a concrete subclass is instantiated.</div>
+  </div>
 </div>

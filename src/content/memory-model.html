@@ -134,4 +134,8 @@
     <div class="qa-q" onclick="toggleQA(this)">Why did Java 8 remove 'PermGen' and introduce 'Metaspace'?<span class="arrow">▶</span></div>
     <div class="qa-a">PermGen was part of the Heap and had a fixed size, leading to the frequent <code>java.lang.OutOfMemoryError: PermGen space</code>. Metaspace is part of <strong>Native Memory</strong>. It can grow dynamically with the OS, reducing the risk of crashes due to class-loading heavy frameworks.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the difference between Strong, Weak, Soft, and Phantom References?<span class="arrow">▶</span></div>
+    <div class="qa-a"><strong>Strong</strong>: Default reference, prevents GC. <strong>Soft</strong>: Keeps object alive until JVM is desperate for memory (good for caches). <strong>Weak</strong>: Does not prevent GC; object is collected on the next run (used in <code>WeakHashMap</code>). <strong>Phantom</strong>: Enqueued after object is finalized but before memory is reclaimed; used for manual native memory cleanup instead of <code>finalize()</code>.</div>
+  </div>
 </div>

@@ -95,4 +95,8 @@ bus.<span class="fn">publish</span>(<span class="str">"ORDER_PLACED"</span>); <s
     <div class="qa-q" onclick="toggleQA(this)">How do you handle a "Circular Dependency" between two classes in LLD?<span class="arrow">▶</span></div>
     <div class="qa-a">Circular dependency is an architectural smell. <strong>Fix 1</strong>: Use an Interface to break the cycle. <strong>Fix 2</strong>: Introduce a third "Orchestrator" class that handles the interaction between the two. <strong>Fix 3</strong>: Use Dependency Injection (Setter injection) if using a framework like Spring.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is a "God Object" or "God Class" Anti-Pattern?<span class="arrow">▶</span></div>
+    <div class="qa-a">A God Object is a single class that knows too much or does too much. It becomes a central point of maintenance, violating the Single Responsibility Principle. In LLD, you fix this by identifying distinct responsibilities and refactoring the God Class into multiple smaller, cohesive classes (Delegation).</div>
+  </div>
 </div>

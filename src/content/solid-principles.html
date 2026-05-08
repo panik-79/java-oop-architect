@@ -188,4 +188,8 @@ assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>(
     <div class="qa-q" onclick="toggleQA(this)">What is the "Dependency Inversion" vs "Dependency Injection"?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Dependency Inversion</strong> is the <em>Principle</em> (The Goal: decouple). <strong>Dependency Injection</strong> is the <em>Pattern</em> (The Tool: passing dependencies via constructor/setter). DI is how we achieve DIP.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">How do you spot an Open-Closed Principle (OCP) violation?<span class="arrow">▶</span></div>
+    <div class="qa-a">A classic sign of an OCP violation is a class filled with a large <code>switch</code> statement or a long chain of <code>if-else if</code> blocks checking the <em>type</em> of an object or an enum (e.g., <code>if (type == Type.ADMIN) ... else if (type == Type.USER)</code>). When a new type is added, you have to modify this existing code. The solution is usually polymorphism.</div>
+  </div>
 </div>

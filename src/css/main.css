@@ -18,7 +18,9 @@
   --font-serif: 'Fraunces', serif;
   --font-mono: 'JetBrains Mono', monospace;
   --sidebar-width: 300px;
-  --transition: 0.25s ease;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="light"] {
@@ -57,6 +59,60 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
+/* Utility Classes */
+.text-gradient {
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-accent {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+}
+
+.btn-premium {
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 20px -10px var(--accent);
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -10px var(--accent);
+  filter: brightness(1.1);
+}
+
+.badge-glow {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--accent-glow);
+  color: var(--accent);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
 /* Layout */
 .layout {
   display: flex;
@@ -92,11 +148,11 @@ body {
 
 .sidebar-title {
   font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(to right, #fff, var(--text-dim));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--text-dim);
 }
 
 .search-box {
@@ -158,14 +214,6 @@ body {
 }
 
 .sidebar-logo span { color: var(--text); }
-
-.sidebar-title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-muted);
-  font-weight: 600;
-}
 
 .sidebar-footer {
   padding: 1.5rem;
@@ -399,7 +447,7 @@ body {
 .content {
   max-width: 900px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 2rem; /* Reduced from 4rem 2rem */
 }
 
 .section {
@@ -435,6 +483,14 @@ body {
   text-transform: uppercase;
 }
 
+.section-desc {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 800px;
+}
+
 h1 { 
   font-family: var(--font-serif); 
   font-size: 3rem; 
@@ -444,7 +500,7 @@ h1 {
 h2 { 
   font-family: var(--font-serif); 
   font-size: 2rem; 
-  margin: 3rem 0 1.5rem; 
+  margin: 2rem 0 1.25rem; /* Reduced top from 3rem */
   color: var(--text); 
   border-left: 4px solid var(--accent); 
   padding-left: 1.5rem; 
@@ -616,13 +672,13 @@ td { color: var(--text-dim); font-size: 14px; }
 
 .qa-q {
   background: rgba(255,255,255,0.02);
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 3rem 1.25rem 1.5rem; /* Extra right padding for arrow */
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   font-weight: 600;
   transition: background 0.3s;
+  position: relative; /* For absolute arrow */
+  line-height: 1.5;
+  display: block;
 }
 
 .qa-q:hover { background: rgba(255,255,255,0.05); }
@@ -631,6 +687,9 @@ td { color: var(--text-dim); font-size: 14px; }
   font-size: 12px;
   transition: transform 0.3s;
   color: var(--accent);
+  position: absolute;
+  right: 1.25rem;
+  top: 1.5rem;
 }
 
 .qa-q.open .arrow { transform: rotate(90deg); }
@@ -652,7 +711,7 @@ td { color: var(--text-dim); font-size: 14px; }
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
   padding: 2rem;
   border-radius: 20px;
-  margin: 4rem 0;
+  margin: 2rem 0; /* Reduced from 4rem */
   border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
@@ -689,7 +748,7 @@ td { color: var(--text-dim); font-size: 14px; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin: 3rem 0;
+  margin: 2rem 0; /* Reduced from 3rem */
 }
 
 .home-card {

@@ -1,124 +1,247 @@
 <div id="classes-objects" class="section">
   <div class="breadcrumb">handbook / <span>section 02</span></div>
   <div class="section-eyebrow">The Mechanics</div>
-  <h1>Classes & Objects: The JVM Deep Dive</h1>
+  <h1 class="text-gradient">Classes & Objects: The JVM Deep Dive</h1>
   <div class="section-desc">We move beyond the "Blueprint" analogy into the actual byte-level reality of how the JVM manages entities in memory, handles class metadata, and optimizes object creation.</div>
 
-  <h2>1. Class vs. Object: The Logical Split</h2>
-  <ul>
-    <li><strong>Class</strong>: A template stored in the <strong>Metaspace</strong>. It contains method bytecode, static variables, and the vtable.</li>
-    <li><strong>Object</strong>: An instance stored on the <strong>Heap</strong>. It contains instance variables (state) and a header pointing back to the class metadata.</li>
-  </ul>
-<h2>3. Code Example: Simple Class &amp; Object</h2>
-<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="cl">User</span> {
-    <span class="kw">private</span> <span class="cl">String</span> name;
-    <span class="kw">private</span> <span class="kw">int</span> age;
-
-    <span class="kw">public</span> <span class="cl">User</span>(<span class="cl">String</span> name, <span class="kw">int</span> age) {
-        <span class="kw">this</span>.<span class="fn">name</span> = name;
-        <span class="kw">this</span>.<span class="fn">age</span> = age;
-    }
-
-    <span class="kw">public</span> <span class="cl">void</span> <span class="fn">greet</span>() {
-        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Hello, "</span> + name);
-    }
-}
-
-// Usage
-<span class="kw">User</span> u = <span class="kw">new</span> <span class="cl">User</span>(<span class="str">"Alice"</span>, <span class="num">30</span>);
-u.<span class="fn">greet</span>(); <span class="cm">// prints Hello, Alice</span>
-</code></pre>
-  <h2>2. The Object Anatomy: What's inside?</h2>
-  <p>When you create an object, the JVM doesn't just store your data. It attaches a "Header" to manage the object's identity and state.</p>
-
-  <div class="diagram">
-[ OBJECT ON HEAP ]
-┌───────────────────────────┐
-│  MARK WORD (8 bytes)      │ ──► HashCode, Lock info, GC age (4 bits)
-├───────────────────────────┤
-│  KLASS POINTER (4/8 bytes)│ ──► Pointer to class metadata in Metaspace
-├───────────────────────────┤
-│  INST. DATA (Variable)    │ ──► Your actual fields (int, long, etc.)
-├───────────────────────────┤
-│  PADDING (0-7 bytes)      │ ──► Aligns object to 8-byte boundary
-└───────────────────────────┘</div>
-<h2>4. Inheritance &amp; Polymorphism Example</h2>
-<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="cl">Animal</span> {
-    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">speak</span>() {
-        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"... (generic animal)"</span>);
-    }
-}
-
-<span class="kw">public</span> <span class="kw">class</span> <span class="cl">Dog</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">speak</span>() {
-        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Woof!"</span>);
-    }
-}
-
-// Polymorphic usage
-<span class="cl">Animal</span> a = <span class="kw">new</span> <span class="cl">Dog</span>();
-a.<span class="fn">speak</span>(); <span class="cm">// Prints "Woof!" thanks to dynamic dispatch</span>
-</code></pre>
-  <div class="box box-insight">
-    <div class="box-title">🕵️ Senior Insight: Compressed OOPs</div>
-    On 64-bit JVMs, pointers should be 8 bytes. However, to save memory, the JVM uses "Compressed Ordinary Object Pointers" (Compressed OOPs) to fit them into 4 bytes, allowing you to address up to 32GB of heap with 4-byte pointers. This is why heap sizes above 32GB can actually <em>reduce</em> performance due to the loss of this optimization.
-  </div>
-
-  <h2>3. Memory Allocation: The Journey of a 'new'</h2>
-  <p>What happens when you run <code>User u = new User();</code>? It's a multi-stage process involving the Stack, the Heap, and the Metaspace.</p>
-
-  <div class="table-wrap"><table>
-    <tr><th>Area</th><th>Action</th><th>Content</th></tr>
-    <tr><td><strong>Metaspace</strong></td><td>Class Loading</td><td>Loads <code>User.class</code>, parses constants, method vtables.</td></tr>
-    <tr><td><strong>Heap</strong></td><td>Allocation</td><td>Carves out memory (Eden space). Sets default values (0, null).</td></tr>
-    <tr><td><strong>Stack</strong></td><td>Reference</td><td>Stores the 4/8 byte address (pointer) in the current frame.</td></tr>
-    <tr><td><strong>CPU/Cache</strong></td><td>Initialization</td><td>Executes constructor logic, writes actual values to memory.</td></tr>
-  </table></div>
-
-  <h2>4. Entity vs. Value Objects (DDD Concept)</h2>
-  <p>In Domain Driven Design, we distinguish objects by their identity:</p>
-  <ul>
-    <li><strong>Entity Object</strong>: Defined by a unique ID (e.g., a <code>User</code> with ID 101). Even if two users have the same name, they are different.</li>
-    <li><strong>Value Object</strong>: Defined by its attributes (e.g., <code>Address</code> or <code>Money</code>). If two Money objects both have $100, they are interchangeable. Java 17 <strong>Records</strong> are perfect for Value Objects.</li>
-  </ul>
-
-  <h2>5. Escape Analysis: The "Invisible" Optimization</h2>
-  <p>Does every object live on the Heap? <strong>Not always.</strong></p>
-  <p>Modern JVMs use <strong>Escape Analysis</strong> to determine if an object "escapes" the scope of a method. If an object is only used locally, the JVM might perform <strong>Scalar Replacement</strong> — breaking the object into primitives and keeping them on the <strong>Stack</strong> or in <strong>Registers</strong>. This avoids the GC overhead entirely.</p>
-
-  <h2>6. Object States: The GC Perspective</h2>
-  <ul>
-    <li><strong>Strongly Reachable</strong>: At least one active thread has a pointer to it.</li>
-    <li><strong>Softly Reachable</strong>: Only reachable via <code>SoftReference</code>. GC collects only if memory is desperate.</li>
-    <li><strong>Weakly Reachable</strong>: Only reachable via <code>WeakReference</code>. GC collects in the next cycle.</li>
-    <li><strong>Phantom Reachable</strong>: Already finalized; waiting for the reaper.</li>
-  </ul>
-
-  <h2>7. The 'this' pointer: The Hidden Parameter</h2>
-  <div class="box box-warning">
-    <div class="box-title">⚠️ The JVM Secret</div>
-    Every non-static method in Java has a "hidden" first parameter: <code>this</code>. When you call <code>u.login()</code>, the JVM actually executes <code>User.login(User this)</code>. This is why static methods can't use <code>this</code> — the parameter simply isn't passed.
-  </div>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 02</div>
+  <div class="takeaways glass-card" style="margin: 3rem 0;">
+    <div class="takeaways-title text-gradient-accent">The Logical Split</div>
     <ul>
-      <li><strong>Objects have headers</strong>: 8-16 bytes of metadata for every single instance.</li>
-      <li><strong>Alignment Padding</strong>: JVM objects are always multiples of 8 bytes for CPU efficiency.</li>
-      <li><strong>Identity != HashCode</strong>: The default <code>hashCode()</code> is based on the memory address, but it can be overridden.</li>
-      <li><strong>Escape Analysis</strong> is the JVM's way of making OOP as fast as Procedural code.</li>
-      <li><strong>Metaspace</strong> stores the "blueprint," <strong>Heap</strong> stores the "house."</li>
+      <li><strong>Class (Metaspace)</strong>: The blueprint. Contains method bytecode, constant pool, and the <code>vtable</code> for dynamic dispatch.</li>
+      <li><strong>Object (Heap)</strong>: The physical instance. Contains actual state (fields) and a header linking back to the blueprint.</li>
     </ul>
   </div>
 
-  <h2>Interview Deep Dive — Section 02</h2>
+  <h2>1. Memory Allocation: The Journey of 'new'</h2>
+  <p>When you execute <code>User u = new User();</code>, the JVM performs a high-speed orchestration between three memory regions:</p>
+  
+  <div class="table-wrap">
+    <table>
+      <tr><th>Region</th><th>Operation</th><th>Stored Data</th></tr>
+      <tr><td><strong>Stack</strong></td><td>Frame Creation</td><td>The reference variable <code>u</code> (a 4/8 byte pointer).</td></tr>
+      <tr><td><strong>Heap</strong></td><td>Space Allocation</td><td>The actual object data (Header + Instance fields).</td></tr>
+      <tr><td><strong>Metaspace</strong></td><td>Metadata Look-up</td><td>Class structure, method vtable, and static fields.</td></tr>
+    </table>
+  </div>
+
+  <div class="box box-senior">
+    <div class="box-title">🧠 Senior Insight: Zero-Initializaton</div>
+    Before your constructor even runs, the JVM "zeros out" the allocated heap space. This is why fields like <code>int</code> default to <code>0</code> and references to <code>null</code>. This safety feature prevents "garbage data" from previous memory usage from leaking into your new object.
+  </div>
+
+  <h2>2. The Object Anatomy: What's inside?</h2>
+  <p>Every object on the heap is more than just its data. The JVM wraps your fields in a high-performance <strong>Header</strong>.</p>
+
+  <div class="memory-viz-container">
+    <div class="memory-header">
+      <i class="ri-database-2-line"></i> HEAP OBJECT LAYOUT
+    </div>
+    
+    <div class="memory-stack">
+      <div class="memory-cell glass-card" style="--border-color: var(--purple); --glow: var(--purple);">
+        <div class="cell-meta">
+          <span class="cell-tag">Header Part 1</span>
+          <span class="cell-size">8 Bytes</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Mark Word</div>
+          <div class="cell-desc">Handles <strong>HashCode</strong>, <strong>Locking</strong>, and <strong>GC Generational Age</strong>.</div>
+        </div>
+      </div>
+
+      <div class="memory-cell glass-card" style="--border-color: var(--accent); --glow: var(--accent);">
+        <div class="cell-meta">
+          <span class="cell-tag">Header Part 2</span>
+          <span class="cell-size">4/8 Bytes</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Klass Pointer</div>
+          <div class="cell-desc">The physical link to the <strong>Klass metadata</strong> in Metaspace.</div>
+        </div>
+      </div>
+
+      <div class="memory-cell glass-card" style="--border-color: var(--green); --glow: var(--green);">
+        <div class="cell-meta">
+          <span class="cell-tag">Fields</span>
+          <span class="cell-size">Variable</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Instance Data</div>
+          <div class="cell-desc">Your actual <code>int</code>, <code>boolean</code>, and <code>Object</code> references.</div>
+        </div>
+      </div>
+
+      <div class="memory-cell glass-card" style="--border-color: var(--text-muted); opacity: 0.6;">
+        <div class="cell-meta">
+          <span class="cell-tag">Alignment</span>
+          <span class="cell-size">0-7 Bytes</span>
+        </div>
+        <div class="cell-content">
+          <div class="cell-title">Padding</div>
+          <div class="cell-desc">Fills the gap to ensure the object is <strong>8-byte aligned</strong> for CPU efficiency.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. References vs. Values</h2>
+  <p>In Java, variables either hold <strong>Primitives</strong> (the actual value) or <strong>References</strong> (the address of an object). This distinction is critical for understanding "Pass-by-Value".</p>
+
+  <pre><code><span class="kw">int</span> x = <span class="num">10</span>;          <span class="cm">// 'x' holds the bits 10 on the STACK</span>
+<span class="cl">User</span> u1 = <span class="kw">new</span> <span class="cl">User</span>(); <span class="cm">// 'u1' holds the HEAP ADDRESS (e.g., 0xAF22)</span>
+<span class="cl">User</span> u2 = u1;         <span class="cm">// 'u2' holds the SAME ADDRESS. No new object created.</span>
+
+u2.<span class="fn">setName</span>(<span class="str">"Alice"</span>); 
+<span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(u1.<span class="fn">getName</span>()); <span class="cm">// Prints "Alice" - both share one object!</span>
+</code></pre>
+
+  <div class="box box-warning">
+    <div class="box-title">⚠️ The Equality Trap</div>
+    <code>==</code> compares the <strong>bits</strong> in the variable. For primitives, it compares values. For objects, it compares <strong>addresses</strong>. Always use <code>.equals()</code> for content comparison.
+  </div>
+
+  <h2>4. Initialization Blocks: The Hidden Setup</h2>
+  <p>Java provides "Instance Initialization Blocks" that run every time an object is created, before the constructor logic.</p>
+
+  <pre><code><span class="kw">public class</span> <span class="cl">Engine</span> {
+    <span class="kw">private String</span> status;
+
+    <span class="cm">// Instance Initialization Block</span>
+    {
+        <span class="kw">this</span>.status = <span class="str">"PRE-HEATING"</span>;
+        <span class="kw">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Global init block ran"</span>);
+    }
+
+    <span class="kw">public Engine</span>() {
+        <span class="kw">this</span>.status = <span class="str">"RUNNING"</span>;
+    }
+}</code></pre>
+
+  <h2>5. Statics: The Class-Level State</h2>
+  <p>Static fields and methods belong to the <strong>Class (Metaspace)</strong>, not the instance. They are shared across all objects of that type.</p>
+
+  <pre><code><span class="kw">public class</span> <span class="cl">Counter</span> {
+    <span class="kw">public static int</span> <span class="fn">globalCount</span> = <span class="num">0</span>; <span class="cm">// Shared across ALL instances</span>
+    <span class="kw">public int</span> <span class="fn">instanceCount</span> = <span class="num">0</span>;     <span class="cm">// Unique to EACH instance</span>
+
+    <span class="kw">public Counter</span>() {
+        globalCount++;
+        instanceCount++;
+    }
+}</code></pre>
+
+  <h2>6. Escape Analysis: The "Invisible" Optimization</h2>
+  <p>Modern JVMs use <strong>Escape Analysis</strong> to determine if an object "escapes" a method. If not, the JVM might perform <strong>Scalar Replacement</strong>, breaking the object into primitives and keeping them on the <strong>Stack</strong> or in <strong>Registers</strong> to avoid GC overhead entirely.</p>
+
+  <div class="takeaways glass-card">
+    <div class="takeaways-title text-gradient">Architectural Takeaways</div>
+    <ul>
+      <li><strong>Header Overhead</strong>: Every object costs 12-16 bytes before your data starts. Small objects are expensive.</li>
+      <li><strong>Pointer Compression</strong>: JVM uses "Compressed OOPs" to keep references at 4 bytes even on 64-bit systems (up to 32GB heap).</li>
+      <li><strong>Identity != HashCode</strong>: The default <code>hashCode()</code> is generated once and stored in the Mark Word; it's not simply the memory address (which can change during GC).</li>
+      <li><strong>Statics are Singletons</strong>: Treat static state with care in multi-threaded environments.</li>
+    </ul>
+  </div>
+
+  <h2>Interview Deep Dive</h2>
   <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is the difference between a Shallow Copy and a Deep Copy in terms of Heap memory?<span class="arrow">▶</span></div>
-    <div class="qa-a">A <strong>Shallow Copy</strong> creates a new object on the heap but copies the <em>references</em> of the internal fields. Both objects point to the same "children" objects. A <strong>Deep Copy</strong> creates a new object AND recursively creates new objects for all fields. It results in a completely independent "tree" on the heap.</div>
+    <div class="qa-q" onclick="toggleQA(this)">What happens if you run out of Metaspace instead of Heap?<span class="arrow">▶</span></div>
+    <div class="qa-a">You get a <code>java.lang.OutOfMemoryError: Metaspace</code>. This usually happens in apps that generate many dynamic classes (e.g., using proxies or script engines) without unloading them. Unlike the Heap, Metaspace grows dynamically but is limited by <code>-XX:MaxMetaspaceSize</code>.</div>
   </div>
   <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Can an object be created without calling a constructor?<span class="arrow">▶</span></div>
-    <div class="qa-a">Yes. Via <strong>Deserialization</strong> (using ObjectInputStream) or <strong>Cloning</strong> (Object.clone()). In these cases, the JVM recreates the object's state directly from data without re-executing constructor logic. This is an edge case often used in advanced frameworks.</div>
+    <div class="qa-q" onclick="toggleQA(this)">Why is <code>padding</code> necessary in object anatomy?<span class="arrow">▶</span></div>
+    <div class="qa-a">CPU architectures are optimized to read memory in 8-byte (64-bit) chunks. If an object's address isn't aligned to an 8-byte boundary, the CPU might need two memory reads instead of one to fetch a single field. Padding ensures high-performance alignment.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Can an object be created without <code>new</code>?<span class="arrow">▶</span></div>
+    <div class="qa-a">Yes. Via <strong>Deserialization</strong>, <strong>Reflection</strong> (<code>newInstance()</code>), <strong>Cloning</strong>, or via <strong>Unsafe</strong> (which allocates memory without calling any constructor).</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">Is Java "Pass-by-Reference" or "Pass-by-Value"?<span class="arrow">▶</span></div>
+    <div class="qa-a">Java is strictly <strong>Pass-by-Value</strong>. However, for objects, the "value" being passed is the <em>reference</em> (memory address) to the object. You can mutate the object's fields via this reference, but you cannot change which object the original variable points to.</div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is "Escape Analysis" in modern JVMs?<span class="arrow">▶</span></div>
+    <div class="qa-a">It is a JIT optimization where the compiler analyzes if an object "escapes" the current method or thread. If it doesn't, the JVM can allocate the object directly on the <strong>Stack</strong> instead of the Heap, eliminating Garbage Collection overhead for that object.</div>
+  </div>
+  <style>
+    .memory-viz-container {
+      margin: 4rem 0;
+      background: var(--bg-sidebar);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .memory-header {
+      padding: 1rem 1.5rem;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .memory-stack {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .memory-cell {
+      padding: 1.25rem;
+      position: relative;
+      border-left: 4px solid var(--border-color) !important;
+      transition: all 0.3s ease;
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    .memory-cell:hover {
+      transform: translateX(10px);
+      background: rgba(255,255,255,0.05);
+      box-shadow: -10px 0 30px -10px var(--glow);
+    }
+    .cell-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cell-tag {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .cell-size {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--border-color);
+      font-weight: 600;
+    }
+    .cell-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .cell-desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+    @media (max-width: 768px) {
+      .memory-cell {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+      .cell-meta { flex-direction: row; justify-content: space-between; }
+    }
+  </style>
 </div>

@@ -310,4 +310,8 @@ stack.<span class="fn">push</span>(<span class="str">"World"</span>);
     <div class="qa-q" onclick="toggleQA(this)">What is the difference between abstraction via Interface vs Abstract Class?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Interface</strong>: Pure contract. No state. Multiple inheritance. Use when you want to define "what" something can do. <strong>Abstract Class</strong>: Partial implementation. Can have state and constructors. Single inheritance. Use when you want to share common code among closely related classes. Since Java 8 (default methods), the gap has narrowed, but the conceptual difference remains: interfaces define capability, abstract classes define identity.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is a "Leaky Abstraction"?<span class="arrow">▶</span></div>
+    <div class="qa-a">A leaky abstraction occurs when the underlying implementation details "leak" through the abstraction barrier, forcing the user of the API to understand those internals. For example, an ORM (like Hibernate) abstracts SQL. But if you encounter the N+1 select problem and have to manually write JOIN fetches or tweak the ORM to generate better SQL, the SQL implementation has "leaked." According to Spolsky's Law, "All non-trivial abstractions, to some degree, are leaky."</div>
+  </div>
 </div>

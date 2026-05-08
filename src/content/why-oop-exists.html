@@ -115,4 +115,8 @@
     <div class="qa-q" onclick="toggleQA(this)">What is the "Fragile Base Class" problem?<span class="arrow">▶</span></div>
     <div class="qa-a">A major pitfall of inheritance. If you change a small detail in a parent class, you might unknowingly break 50 subclasses that depend on that specific (sometimes accidental) behavior. This is why senior architects favor <strong>Composition</strong> over Inheritance.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is the "Expression Problem" in software design?<span class="arrow">▶</span></div>
+    <div class="qa-a">The Expression Problem highlights a fundamental trade-off between OOP and Functional Programming (FP). In OOP, it is very easy to add new <strong>types</strong> (classes) without modifying existing code, but hard to add new <strong>behaviors</strong> (methods) across all types. In FP, it's the exact opposite. Modern Java tries to bridge this with features like Sealed Classes and Pattern Matching.</div>
+  </div>
 </div>

@@ -1,38 +1,122 @@
-<div id="home" class="section active">
-  <div class="hero">
-    <div class="hero-eyebrow">// FAANG-Level Preparation Guide</div>
-    <h1 class="hero-title">Object Oriented<br>Programming in <span>Java</span></h1>
-    <p class="hero-sub">
-      A senior engineer's complete handbook for OOP mastery — built for LLD interviews, backend engineering, and production-grade Java development.
+<div id="home" class="section active" style="padding-top: 1rem;">
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .hero-bg-glow {
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .stat-card {
+      padding: 1.5rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-card:last-child { border-right: none; }
+    .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--text); margin-bottom: 0.25rem; font-family: var(--font-mono); }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+    
+    @media (max-width: 768px) {
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .stat-card { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat-card:nth-child(2) { border-bottom: 1px solid var(--border); }
+    }
+  </style>
+
+  <div class="hero-bg-glow"></div>
+
+  <div class="breadcrumb" style="margin-bottom: 3rem;">
+    <span class="badge-glow">v2.4 LTS</span> 
+    <span style="margin: 0 0.5rem; opacity: 0.3;">/</span> 
+    Engineering Handbook
+  </div>
+
+  <div class="hero" style="padding: 0; border: none; margin-bottom: 5rem;">
+    <h1 class="hero-title text-gradient" style="font-size: clamp(2.5rem, 8vw, 5rem); margin-bottom: 2rem;">
+      Master the <span class="text-gradient-accent">Invisible Architecture</span> of Java.
+    </h1>
+    
+    <p class="hero-sub" style="font-size: 1.4rem; line-height: 1.6; max-width: 800px; margin-bottom: 3rem;">
+      This is not a beginner's guide. This is a compressed distillation of a decade of high-frequency engineering patterns, JVM internals, and the systemic logic that separates junior developers from Distinguished Architects.
     </p>
-    <div class="hero-tags">
-      <span class="tag tag-purple">21 Sections</span>
-      <span class="tag tag-green">100+ Code Examples</span>
-      <span class="tag tag-amber">Interview Ready</span>
-      <span class="tag tag-teal">LLD Foundation</span>
+
+    <button class="btn-premium" onclick="showSection('why-oop-exists')">
+      Start learning <i class="ri-terminal-box-line"></i>
+    </button>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="glass-card stat-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); margin-bottom: 5rem; overflow: hidden;">
+    <div class="stat-card">
+      <div class="stat-val">21</div>
+      <div class="stat-label">Modules</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">100+</div>
+      <div class="stat-label">Code Samples</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">JVM</div>
+      <div class="stat-label">Internals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">10k+</div>
+      <div class="stat-label">Hours R&D</div>
     </div>
   </div>
 
-  <div class="home-grid">
-    <div class="home-card">
-      <div class="home-card-icon">💎</div>
-      <div class="home-card-title">JVM Internals</div>
-      <div class="home-card-desc">Deep dives into bytecode, memory regions, and vtable internals. Understand how the engine actually works.</div>
+  <h2 style="border: none; padding: 0; margin-bottom: 3rem;" class="text-gradient">The Core Pillars</h2>
+
+  <div class="home-grid" style="margin-bottom: 5rem;">
+    <div class="home-card glass-card">
+      <div class="home-card-icon animate-float" style="background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">💎</div>
+      <div class="home-card-title">JVM Engine Room</div>
+      <div class="home-card-desc">Go beyond syntax. Master bytecode execution, heap dynamics, and the physical reality of how Java lives in memory.</div>
     </div>
-    <div class="home-card">
-      <div class="home-card-icon">⚡</div>
-      <div class="home-card-title">LLD Patterns</div>
-      <div class="home-card-desc">Principles mapped directly to real-world system design. Bridge the gap between code and architecture.</div>
+    <div class="home-card glass-card">
+      <div class="home-card-icon animate-float" style="animation-delay: 1s; background: linear-gradient(135deg, var(--green), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡</div>
+      <div class="home-card-title">Low-Level Design</div>
+      <div class="home-card-desc">Bridge the gap between "working code" and "maintainable systems" using professional-grade LLD patterns.</div>
     </div>
-    <div class="home-card">
-      <div class="home-card-icon">🔥</div>
-      <div class="home-card-title">Senior Prep</div>
-      <div class="home-card-desc">Focused on the "Why" and "Tradeoffs" that senior engineers actually use in production.</div>
+    <div class="home-card glass-card">
+      <div class="home-card-icon animate-float" style="animation-delay: 2s; background: linear-gradient(135deg, var(--rose), var(--amber)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🔥</div>
+      <div class="home-card-title">FAANG Strategy</div>
+      <div class="home-card-desc">Crush the "Why" and "Tradeoffs" in senior interviews. Learn the mental models that top-tier engineers use daily.</div>
     </div>
   </div>
 
-  <div class="box box-interview">
-    <div class="box-title">🚀 BEGIN YOUR DEEP DIVE</div>
-    <p style="margin:0; color:var(--text-dim);">Start with <strong>Section 01 (Why OOP)</strong> to understand the systemic crisis that built our industry, or jump to <strong>Architectural Tools</strong> in the sidebar to visualize JVM memory in real-time.</p>
+  <div class="takeaways glass-card" style="margin-bottom: 5rem;">
+    <div class="takeaways-title text-gradient-accent">The Engineering Creed</div>
+    <p style="margin-bottom: 2rem; opacity: 0.8; font-style: italic;">Rules we live by in high-scale production systems:</p>
+    <ul>
+      <li><strong>Abstractions are Debts:</strong> Only take them if the decoupling interest is worth the overhead.</li>
+      <li><strong>Decoupling is Survival:</strong> A system that cannot change is a system that is already dead.</li>
+      <li><strong>Bytecode is Truth:</strong> When high-level logic fails, the lower levels never lie.</li>
+      <li><strong>Simplicity over Cleverness:</strong> Senior engineers write code that juniors can debug.</li>
+    </ul>
+  </div>
+
+  <div class="box box-lld" style="background: var(--bg-sidebar); border: 1px solid var(--accent); padding: 3rem; border-radius: 24px; text-align: center;">
+    <h3 style="margin-top: 0; color: var(--text);">Ready to evolve your engineering perspective?</h3>
+    <p style="color: var(--text-dim); margin-bottom: 2rem;">Join the ranks of architects who think in graphs, memory, and trade-offs.</p>
+    <button class="btn-premium" onclick="showSection('why-oop-exists')">
+      Begin Section 01: The Crisis <i class="ri-rocket-2-line"></i>
+    </button>
+  </div>
+
+  <div class="hero-tags" style="justify-content:center; padding: 6rem 0; opacity: 0.4;">
+    <span class="tag tag-purple">Architect Certified</span>
+    <span class="tag tag-green">JVM Hardened</span>
+    <span class="tag tag-amber">FAANG Optimized</span>
+    <span class="tag tag-teal">LLD Fundamental</span>
   </div>
 </div>

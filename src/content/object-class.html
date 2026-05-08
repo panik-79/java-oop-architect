@@ -124,4 +124,8 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
     <div class="qa-q" onclick="toggleQA(this)">Why is it bad to use <code>instanceof</code> in an <code>equals()</code> override? (Architect level)<span class="arrow">▶</span></div>
     <div class="qa-a">Using <code>instanceof</code> violates <strong>Symmetry</strong> if inheritance is involved. If <code>Point(x,y)</code> uses <code>instanceof</code>, it might return true for a <code>ColorPoint(x,y,z)</code>. But <code>ColorPoint.equals(Point)</code> would be false because of the extra field. Using <code>getClass() == other.getClass()</code> is safer as it ensures both objects are the exact same type.</div>
   </div>
+  <div class="qa-block">
+    <div class="qa-q" onclick="toggleQA(this)">What is a Shallow Copy vs a Deep Copy (regarding <code>clone()</code>)?<span class="arrow">▶</span></div>
+    <div class="qa-a">The default <code>Object.clone()</code> creates a <strong>Shallow Copy</strong>. It copies primitive values and the <em>references</em> to objects. If you clone an object containing a list, both the original and the clone will point to the exact same list. A <strong>Deep Copy</strong> creates a new list and recursively clones all nested objects.</div>
+  </div>
 </div>
