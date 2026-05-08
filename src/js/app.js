@@ -109,6 +109,12 @@ export function showSection(id) {
 
 function addCopyButtons(container) {
   container.querySelectorAll('pre').forEach(pre => {
+    if (pre.parentElement.classList.contains('code-wrapper')) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-wrapper';
+    pre.parentNode.insertBefore(wrapper, pre);
+    
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
     btn.innerText = 'Copy';
@@ -119,7 +125,9 @@ function addCopyButtons(container) {
         setTimeout(() => btn.innerText = 'Copy', 2000);
       });
     };
-    pre.appendChild(btn);
+    
+    wrapper.appendChild(pre);
+    wrapper.appendChild(btn);
   });
 }
 
@@ -268,11 +276,13 @@ function scrollToTop() {
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('sidebar-open');
   document.getElementById('sidebarOverlay').classList.toggle('visible');
+  document.getElementById('menuBtn').classList.toggle('hidden-btn');
 }
 
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('sidebar-open');
   document.getElementById('sidebarOverlay').classList.remove('visible');
+  document.getElementById('menuBtn').classList.remove('hidden-btn');
 }
 
 // Attach to window for the onclick handlers in HTML

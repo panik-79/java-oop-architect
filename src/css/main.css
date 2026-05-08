@@ -641,7 +641,7 @@ td { color: var(--text-dim); font-size: 14px; }
 @media (max-width: 768px) {
   .compare { grid-template-columns: 1fr; }
 }
-.compare-col { background: var(--bg-card); padding: 1rem; border-radius: 12px; border: 1px solid var(--border); }
+.compare-col { background: var(--bg-card); padding: 1rem; border-radius: 12px; border: 1px solid var(--border); min-width: 0; }
 .compare-label { font-weight: 700; font-size: 11px; text-transform: uppercase; margin-bottom: 1rem; display: block; }
 .compare-bad { color: var(--rose); }
 .compare-good { color: var(--green); }
@@ -953,6 +953,11 @@ html, body {
   backdrop-filter: blur(10px);
 }
 
+.mobile-menu-btn.hidden-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ─── GLOBAL POLISH ─── */
 html, body {
   margin: 0;
@@ -1015,6 +1020,16 @@ html, body {
 }
 
 /* ─── CODE BLOCKS ─── */
+.code-wrapper {
+  position: relative;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+.code-wrapper pre {
+  margin: 0;
+}
+
 pre {
   background: #0d1117; /* GitHub Dark */
   color: #e2e8f0; /* Force light text */
