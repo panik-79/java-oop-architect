@@ -98,11 +98,16 @@ p2.<span class="fn">process</span>(); <span class="cm">// reads JSON, transforms
   </table></div>
 
   <h2>5. The "Abstract Base" Pattern (JDK Level)</h2>
-  <div class="box box-insight">
-    <div class="box-title">💡 The Head Start Pattern</div>
-    A common pattern in the JDK is to have an <code>Interface</code> (e.g., <code>List</code>) defining the API, and an <code>AbstractClass</code> (e.g., <code>AbstractList</code>) that provides a default, partial implementation of that interface. 
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Spring Framework</div>
+    A common architectural pattern in FAANG is to have an <code>Interface</code> (e.g., <code>Filter</code>) defining the API, and an <code>AbstractClass</code> (e.g., <code>OncePerRequestFilter</code> in Spring) that provides a robust, thread-safe partial implementation.
     <br><br>
-    <strong>Benefit</strong>: Users can either implement the interface from scratch (for total control) or extend the abstract class (to save 90% of the work).
+    <strong>Benefit</strong>: Users can either implement the interface from scratch (for total control) or extend the abstract class (to save 90% of the boilerplate).
+  </div>
+  
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: The God Base Class</div>
+    Beware the <code>BaseController</code> or <code>BaseEntity</code> that has 50 protected methods. This violates the Single Responsibility Principle. If a base class is constantly changing, it creates a <strong>Fragile Base Class</strong> where an update breaks every subclass in the system. Use Composition for shared utilities (e.g., <code>SecurityUtils</code>), not Inheritance.
   </div>
 
   <h2>6. Forced Implementation</h2>
@@ -140,7 +145,7 @@ p2.<span class="fn">process</span>(); <span class="cm">// reads JSON, transforms
     <div class="qa-q" onclick="toggleQA(this)">Can we have an abstract class without any abstract methods?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Yes.</strong> This is done when you want to prevent direct instantiation of a class (e.g., a base class for generic entities) but it has only concrete methods that you want subclasses to reuse.</div>
   </div>
-</div>`,f=Object.freeze(Object.defineProperty({__proto__:null,default:v},Symbol.toStringTag,{value:"Module"})),b=`<div id="abstraction" class="section">
+</div>`,b=Object.freeze(Object.defineProperty({__proto__:null,default:v},Symbol.toStringTag,{value:"Module"})),f=`<div id="abstraction" class="section">
   <div class="breadcrumb">handbook / the 4 pillars / <span>section 04B</span></div>
   <div class="section-eyebrow">The Second Pillar</div>
   <h1>Abstraction: Managing Complexity</h1>
@@ -247,9 +252,9 @@ stack.<span class="fn">push</span>(<span class="str">"World"</span>);
 <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(stack.<span class="fn">pop</span>()); <span class="cm">// "World"</span>
 </code></pre>
 
-  <div class="box box-insight">
-    <div class="box-title">💡 Architect's Insight: Pluggable Architecture (Repository Pattern)</div>
-    By abstracting the database layer behind a <code>Repository</code> interface, you make your business logic "database agnostic." You can swap PostgreSQL for MongoDB by simply changing the implementation class. This is the heart of <strong>Hexagonal Architecture (Ports and Adapters)</strong>.
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: Hexagonal Architecture (Ports & Adapters)</div>
+    By abstracting the database layer behind a <code>Repository</code> interface (The Port), you make your business logic "database agnostic." You can swap PostgreSQL for MongoDB by simply changing the implementation class (The Adapter). This is how FAANG companies migrate databases with zero downtime.
   </div>
 
   <h3>Example: Repository Pattern (Hexagonal Architecture)</h3>
@@ -314,11 +319,11 @@ stack.<span class="fn">push</span>(<span class="str">"World"</span>);
   </ol>
 
   <h2>4. The "Leaky Abstraction" Problem</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Concept: Joel Spolsky's Law</div>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Joel Spolsky's Law</div>
     "All non-trivial abstractions, to some degree, are leaky." 
     <br><br>
-    Example: <code>Hibernate</code> abstracts SQL. But if you don't understand how SQL joins work, you will create a "N+1 Query Problem" that kills performance. The abstraction <em>leaks</em> the underlying complexity. A senior dev knows the abstraction but understands the layer beneath it.
+    Example: <code>Hibernate/JPA</code> abstracts SQL away. But if you don't understand how SQL joins work underneath, you will create a "N+1 Query Problem" that kills production performance. The abstraction <em>leaks</em> the underlying complexity. A senior dev trusts the abstraction but intimately understands the layer beneath it.
   </div>
 
   <h3>Example: The N+1 Problem (Leaky Abstraction)</h3>
@@ -452,7 +457,7 @@ stack.<span class="fn">push</span>(<span class="str">"World"</span>);
     <div class="qa-q" onclick="toggleQA(this)">What is the difference between abstraction via Interface vs Abstract Class?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>Interface</strong>: Pure contract. No state. Multiple inheritance. Use when you want to define "what" something can do. <strong>Abstract Class</strong>: Partial implementation. Can have state and constructors. Single inheritance. Use when you want to share common code among closely related classes. Since Java 8 (default methods), the gap has narrowed, but the conceptual difference remains: interfaces define capability, abstract classes define identity.</div>
   </div>
-</div>`,w=Object.freeze(Object.defineProperty({__proto__:null,default:b},Symbol.toStringTag,{value:"Module"})),k=`<div id="access-modifiers" class="section">
+</div>`,w=Object.freeze(Object.defineProperty({__proto__:null,default:f},Symbol.toStringTag,{value:"Module"})),k=`<div id="access-modifiers" class="section">
   <div class="breadcrumb">handbook / <span>section 06</span></div>
   <div class="section-eyebrow">The Gatekeepers</div>
   <h1>Access Modifiers: Architectural Gates</h1>
@@ -883,7 +888,7 @@ a.<span class="fn">speak</span>(); <span class="cm">// Prints "Woof!" thanks to 
     <div class="qa-q" onclick="toggleQA(this)">Can an object be created without calling a constructor?<span class="arrow">▶</span></div>
     <div class="qa-a">Yes. Via <strong>Deserialization</strong> (using ObjectInputStream) or <strong>Cloning</strong> (Object.clone()). In these cases, the JVM recreates the object's state directly from data without re-executing constructor logic. This is an edge case often used in advanced frameworks.</div>
   </div>
-</div>`,I=Object.freeze(Object.defineProperty({__proto__:null,default:T},Symbol.toStringTag,{value:"Module"})),A=`<div id="constructors" class="section">
+</div>`,I=Object.freeze(Object.defineProperty({__proto__:null,default:T},Symbol.toStringTag,{value:"Module"})),x=`<div id="constructors" class="section">
   <div class="breadcrumb">handbook / <span>section 03</span></div>
   <div class="section-eyebrow">The Initialization</div>
   <h1>Constructors: Mastering Object Birth</h1>
@@ -946,8 +951,16 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
     <strong>Why?</strong> Because <code>Parent</code> constructor runs <em>before</em> <code>Child</code> fields are initialized. <code>name</code> is still <code>null</code> when <code>setup()</code> is called.
   </div>
 
-  <h2>3. Constructor Overloading & this()</h2>
-  <p>Constructor overloading allows you to provide multiple ways to initialize an object. Use <code>this()</code> to avoid code duplication.</p>
+  <h2>3. Constructor Overloading & Telescoping Constructors</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Telescoping Constructors</div>
+    If you have a class with 5 different constructors, each taking one more parameter than the last, you have a <strong>Telescoping Constructor</strong> anti-pattern. It makes the code unreadable (e.g., <code>new User("Alice", null, 0, false, null)</code>).
+  </div>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Builder Pattern</div>
+    To fix telescoping constructors, Senior Engineers use the <strong>Builder Pattern</strong> (Effective Java Item 2). It allows you to construct complex objects step-by-step and makes the client code infinitely more readable.
+  </div>
+  <p>Constructor overloading allows you to provide multiple ways to initialize an object. If you must use it, use <code>this()</code> to avoid code duplication and centralize validation.</p>
   <pre><code><span class="kw">public class</span> <span class="cl">Product</span> {
     <span class="kw">private</span> <span class="cl">String</span> id;
     <span class="kw">private double</span> price;
@@ -963,7 +976,10 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
 }</code></pre>
 
   <h2>4. Leaking 'this' (Security Risk)</h2>
-  <p>If you pass <code>this</code> to another thread or listener inside a constructor, you are leaking a "partially constructed" object.</p>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Escape Before Construction</div>
+    If you pass <code>this</code> to another thread or listener inside a constructor, you are leaking a "partially constructed" object. Other threads might access the object before its <code>final</code> fields are fully initialized, breaking the Java Memory Model guarantees.
+  </div>
   <pre><code><span class="cm">// DANGEROUS — leaking 'this' before construction is complete</span>
 <span class="kw">public class</span> <span class="cl">EventSource</span> {
     <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Listener</span>&gt; listeners;
@@ -1045,185 +1061,186 @@ p.<span class="fn">introduce</span>(); <span class="cm">// prints Hi, I'm Bob, 2
     <div class="qa-q" onclick="toggleQA(this)">Can a constructor be synchronized?<span class="arrow">▶</span></div>
     <div class="qa-a"><strong>No.</strong> A constructor cannot be synchronized. Only the thread that creates an object should have access to it while it is being constructed. Synchronization is not needed and will result in a compile-time error.</div>
   </div>
-</div>`,x=Object.freeze(Object.defineProperty({__proto__:null,default:A},Symbol.toStringTag,{value:"Module"})),O=`<div id="encapsulation" class="section">
-  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04A</span></div>
-  <div class="section-eyebrow">The First Pillar</div>
-  <h1>Encapsulation: Protecting the Invariants</h1>
-  <div class="section-desc">We move beyond "making fields private." Encapsulation is about <strong>Information Hiding</strong> and maintaining the internal consistency (Invariants) of an object at all costs.</div>
-
-  <h2>1. Encapsulation vs. Information Hiding</h2>
-  <ul>
-    <li><strong>Encapsulation</strong>: Bundling data (fields) and methods (behavior) together into a single unit (Class).</li>
-    <li><strong>Information Hiding</strong>: Preventing the outside world from seeing or modifying internal state directly via <strong>Access Modifiers</strong>.</li>
-  </ul>
-
-  <h3>Example: Complete Encapsulated Class</h3>
-  <pre><code><span class="kw">public class</span> <span class="cl">BankAccount</span> {
-    <span class="kw">private</span> <span class="cl">String</span> accountId;
-    <span class="kw">private double</span> balance;
-    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; transactionHistory = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
-
-    <span class="kw">public</span> <span class="cl">BankAccount</span>(<span class="cl">String</span> accountId, <span class="kw">double</span> initialBalance) {
-        <span class="kw">if</span> (initialBalance < <span class="num">0</span>)
-            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Cannot start negative"</span>);
-        <span class="kw">this</span>.accountId = accountId;
-        <span class="kw">this</span>.balance = initialBalance;
-        <span class="fn">logTransaction</span>(<span class="str">"Account opened with $"</span> + initialBalance);
-    }
-
-    <span class="kw">public void</span> <span class="fn">deposit</span>(<span class="kw">double</span> amount) {
-        <span class="kw">if</span> (amount <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Must be positive"</span>);
-        balance += amount;
-        <span class="fn">logTransaction</span>(<span class="str">"Deposited $"</span> + amount);
-    }
-
-    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="kw">double</span> amount) {
-        <span class="kw">if</span> (amount <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Must be positive"</span>);
-        <span class="kw">if</span> (amount > balance) <span class="kw">throw new</span> <span class="cl">IllegalStateException</span>(<span class="str">"Insufficient funds"</span>);
-        balance -= amount;
-        <span class="fn">logTransaction</span>(<span class="str">"Withdrew $"</span> + amount);
-    }
-
-    <span class="kw">public double</span> <span class="fn">getBalance</span>() { <span class="kw">return</span> balance; }
-
-    <span class="cm">// DEFENSIVE COPY — never return the real list!</span>
-    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getTransactionHistory</span>() {
-        <span class="kw">return</span> <span class="cl">Collections</span>.<span class="fn">unmodifiableList</span>(transactionHistory);
-    }
-
-    <span class="kw">private void</span> <span class="fn">logTransaction</span>(<span class="cl">String</span> msg) {
-        transactionHistory.<span class="fn">add</span>(<span class="cl">LocalDateTime</span>.<span class="fn">now</span>() + <span class="str">": "</span> + msg);
-    }
-}
-
-<span class="cm">// Usage — all access goes through controlled methods</span>
-<span class="cl">BankAccount</span> acc = <span class="kw">new</span> <span class="cl">BankAccount</span>(<span class="str">"ACC-001"</span>, <span class="num">1000</span>);
-acc.<span class="fn">deposit</span>(<span class="num">500</span>);
-acc.<span class="fn">withdraw</span>(<span class="num">200</span>);
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(acc.<span class="fn">getBalance</span>()); <span class="cm">// 1300.0</span>
-<span class="cm">// acc.balance = -9999; // COMPILE ERROR — field is private!</span>
-</code></pre>
-
-  <h2>2. The "Invariant" Mastery</h2>
-  <p>An <strong>Invariant</strong> is a condition that must always be true for an object to be valid.</p>
-  <div class="compare">
-    <div class="compare-col">
-      <div class="compare-label compare-bad">❌ Bad: Naked Fields</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Account</span> {
-    <span class="kw">public double</span> balance;
-}
-<span class="cm">// External code can do:</span>
-account.balance = -<span class="num">100000</span>; <span class="cm">// BROKEN</span></code></pre>
-    </div>
-    <div class="compare-col">
-      <div class="compare-label compare-good">✅ Good: Encapsulated</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Account</span> {
-    <span class="kw">private double</span> balance;
-    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="kw">double</span> amt) {
-        <span class="kw">if</span>(amt > <span class="num">0</span> && amt <= balance)
-            balance -= amt;
-    }
-}</code></pre>
-    </div>
-  </div>
-
-  <h2>3. Defensive Copying</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Trap: Leaking the Reference</div>
-    If your private field is a mutable object (like a <code>Date</code> or <code>List</code>), returning it via a getter <strong>breaks encapsulation</strong>.
-  </div>
-  <pre><code><span class="cm">// BAD — leaks internal state</span>
-<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {
-    <span class="kw">return</span> roles; <span class="cm">// caller can do getRoles().clear()!</span>
-}
-
-<span class="cm">// GOOD — defensive copy</span>
-<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {
-    <span class="kw">return new</span> <span class="cl">ArrayList</span>&lt;&gt;(roles); <span class="cm">// return a COPY</span>
-}
-
-<span class="cm">// BEST — unmodifiable view (no memory copy)</span>
-<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {
-    <span class="kw">return</span> <span class="cl">Collections</span>.<span class="fn">unmodifiableList</span>(roles);
-}
-
-<span class="cm">// Also defend on INPUT (setter/constructor)</span>
-<span class="kw">public void</span> <span class="fn">setRoles</span>(<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; roles) {
-    <span class="kw">this</span>.roles = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;(roles); <span class="cm">// copy input too!</span>
-}
-</code></pre>
-
-  <h2>4. Tell, Don't Ask (Law of Demeter)</h2>
-  <p>You shouldn't ask an object about its state to make a decision; you should tell the object what to do.</p>
-  <pre><code><span class="cm">// BAD — asking for state, then deciding externally</span>
-<span class="kw">if</span> (user.<span class="fn">getAddress</span>().<span class="fn">getCity</span>().<span class="fn">equals</span>(<span class="str">"NY"</span>)) {
-    <span class="fn">applyNYTax</span>(order);
-}
-
-<span class="cm">// GOOD — tell the object to handle it</span>
-<span class="kw">if</span> (user.<span class="fn">isResidentOf</span>(<span class="str">"NY"</span>)) {
-    <span class="fn">applyNYTax</span>(order);
-}
-
-<span class="cm">// EVEN BETTER — the order handles its own tax</span>
-order.<span class="fn">applyTaxFor</span>(user);
-</code></pre>
-
-  <h2>5. Validation in Setters (Self-Defense)</h2>
-  <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {
-    <span class="kw">private</span> <span class="cl">String</span> email;
-    <span class="kw">private int</span> age;
-
-    <span class="kw">public void</span> <span class="fn">setEmail</span>(<span class="cl">String</span> email) {
-        <span class="kw">if</span> (email == <span class="kw">null</span> || !email.<span class="fn">contains</span>(<span class="str">"@"</span>))
-            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Invalid email"</span>);
-        <span class="kw">this</span>.email = email;
-    }
-
-    <span class="kw">public void</span> <span class="fn">setAge</span>(<span class="kw">int</span> age) {
-        <span class="kw">if</span> (age < <span class="num">18</span> || age > <span class="num">65</span>)
-            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Age must be 18-65"</span>);
-        <span class="kw">this</span>.age = age;
-    }
-}
-</code></pre>
-
-  <h2>6. Reflection: The Encapsulation Breaker</h2>
-  <pre><code><span class="cm">// Reflection can bypass private — DON'T do this in production!</span>
-<span class="cl">Field</span> balanceField = <span class="cl">BankAccount</span>.<span class="kw">class</span>.<span class="fn">getDeclaredField</span>(<span class="str">"balance"</span>);
-balanceField.<span class="fn">setAccessible</span>(<span class="kw">true</span>); <span class="cm">// bypasses private!</span>
-balanceField.<span class="fn">setDouble</span>(account, <span class="num">999999</span>);
-
-<span class="cm">// Java 9+ modules can prevent this:</span>
-<span class="cm">// module-info.java does NOT 'open' the package</span>
-<span class="cm">// → IllegalAccessException at runtime</span>
-</code></pre>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 04A</div>
-    <ul>
-      <li><strong>Bundle state and behavior</strong> to control access.</li>
-      <li><strong>Defensive Copying</strong> is mandatory for mutable fields.</li>
-      <li><strong>Invariants</strong> are business rules that the class must protect.</li>
-      <li><strong>Law of Demeter</strong> prevents "Feature Envy" and reduces coupling.</li>
-      <li><strong>Strong Encapsulation</strong> (Java 9+) protects even against Reflection.</li>
-    </ul>
-  </div>
-
-  <h2>Interview Deep Dive — Section 04A</h2>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Why are getters/setters considered a "necessary evil"?<span class="arrow">▶</span></div>
-    <div class="qa-a">Too many getters/setters make the data public again. You have an "Anemic Domain Model." True OOP favors methods that perform <strong>Business Actions</strong> (like <code>withdraw()</code>) rather than just setting raw values (like <code>setBalance()</code>).</div>
-  </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is the "Data Clump" smell?<span class="arrow">▶</span></div>
-    <div class="qa-a">When a group of variables (e.g., <code>startDate</code>, <code>endDate</code>) always appear together. Encapsulate them into a <code>DateRange</code> object with behavior like <code>isOverlapping()</code>.</div>
-  </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is 'Strong Encapsulation' in Java 17?<span class="arrow">▶</span></div>
-    <div class="qa-a">Project Jigsaw means even Reflection cannot access internal classes unless explicitly <code>exported</code> or <code>opened</code> in <code>module-info.java</code>.</div>
-  </div>
-</div>`,E=Object.freeze(Object.defineProperty({__proto__:null,default:O},Symbol.toStringTag,{value:"Module"})),P=`<div id="enums" class="section">
+</div>`,A=Object.freeze(Object.defineProperty({__proto__:null,default:x},Symbol.toStringTag,{value:"Module"})),P=`<div id="encapsulation" class="section">\r
+  <div class="breadcrumb">handbook / the 4 pillars / <span>section 04A</span></div>\r
+  <div class="section-eyebrow">The First Pillar</div>\r
+  <h1>Encapsulation: Protecting the Invariants</h1>\r
+  <div class="section-desc">We move beyond "making fields private." Encapsulation is about <strong>Information Hiding</strong> and maintaining the internal consistency (Invariants) of an object at all costs.</div>\r
+\r
+  <h2>1. Encapsulation vs. Information Hiding</h2>\r
+  <ul>\r
+    <li><strong>Encapsulation</strong>: Bundling data (fields) and methods (behavior) together into a single unit (Class).</li>\r
+    <li><strong>Information Hiding</strong>: Preventing the outside world from seeing or modifying internal state directly via <strong>Access Modifiers</strong>.</li>\r
+  </ul>\r
+\r
+  <h3>Example: Complete Encapsulated Class</h3>\r
+  <pre><code><span class="kw">public class</span> <span class="cl">BankAccount</span> {\r
+    <span class="kw">private</span> <span class="cl">String</span> accountId;\r
+    <span class="kw">private double</span> balance;\r
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; transactionHistory = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();\r
+\r
+    <span class="kw">public</span> <span class="cl">BankAccount</span>(<span class="cl">String</span> accountId, <span class="kw">double</span> initialBalance) {\r
+        <span class="kw">if</span> (initialBalance < <span class="num">0</span>)\r
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Cannot start negative"</span>);\r
+        <span class="kw">this</span>.accountId = accountId;\r
+        <span class="kw">this</span>.balance = initialBalance;\r
+        <span class="fn">logTransaction</span>(<span class="str">"Account opened with $"</span> + initialBalance);\r
+    }\r
+\r
+    <span class="kw">public void</span> <span class="fn">deposit</span>(<span class="kw">double</span> amount) {\r
+        <span class="kw">if</span> (amount <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Must be positive"</span>);\r
+        balance += amount;\r
+        <span class="fn">logTransaction</span>(<span class="str">"Deposited $"</span> + amount);\r
+    }\r
+\r
+    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="kw">double</span> amount) {\r
+        <span class="kw">if</span> (amount <= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Must be positive"</span>);\r
+        <span class="kw">if</span> (amount > balance) <span class="kw">throw new</span> <span class="cl">IllegalStateException</span>(<span class="str">"Insufficient funds"</span>);\r
+        balance -= amount;\r
+        <span class="fn">logTransaction</span>(<span class="str">"Withdrew $"</span> + amount);\r
+    }\r
+\r
+    <span class="kw">public double</span> <span class="fn">getBalance</span>() { <span class="kw">return</span> balance; }\r
+\r
+    <span class="cm">// DEFENSIVE COPY — never return the real list!</span>\r
+    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getTransactionHistory</span>() {\r
+        <span class="kw">return</span> <span class="cl">Collections</span>.<span class="fn">unmodifiableList</span>(transactionHistory);\r
+    }\r
+\r
+    <span class="kw">private void</span> <span class="fn">logTransaction</span>(<span class="cl">String</span> msg) {\r
+        transactionHistory.<span class="fn">add</span>(<span class="cl">LocalDateTime</span>.<span class="fn">now</span>() + <span class="str">": "</span> + msg);\r
+    }\r
+}\r
+\r
+<span class="cm">// Usage — all access goes through controlled methods</span>\r
+<span class="cl">BankAccount</span> acc = <span class="kw">new</span> <span class="cl">BankAccount</span>(<span class="str">"ACC-001"</span>, <span class="num">1000</span>);\r
+acc.<span class="fn">deposit</span>(<span class="num">500</span>);\r
+acc.<span class="fn">withdraw</span>(<span class="num">200</span>);\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(acc.<span class="fn">getBalance</span>()); <span class="cm">// 1300.0</span>\r
+<span class="cm">// acc.balance = -9999; // COMPILE ERROR — field is private!</span>\r
+</code></pre>\r
+\r
+  <h2>2. The "Invariant" Mastery</h2>\r
+  <p>An <strong>Invariant</strong> is a condition that must always be true for an object to be valid.</p>\r
+  <div class="compare">\r
+    <div class="compare-col">\r
+      <div class="compare-label compare-bad">❌ Bad: Naked Fields</div>\r
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Account</span> {\r
+    <span class="kw">public double</span> balance;\r
+}\r
+<span class="cm">// External code can do:</span>\r
+account.balance = -<span class="num">100000</span>; <span class="cm">// BROKEN</span></code></pre>\r
+    </div>\r
+    <div class="compare-col">\r
+      <div class="compare-label compare-good">✅ Good: Encapsulated</div>\r
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Account</span> {\r
+    <span class="kw">private double</span> balance;\r
+    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="kw">double</span> amt) {\r
+        <span class="kw">if</span>(amt > <span class="num">0</span> && amt <= balance)\r
+            balance -= amt;\r
+    }\r
+}</code></pre>\r
+    </div>\r
+  </div>\r
+\r
+  <h2>3. Defensive Copying</h2>\r
+  <div class="box box-danger">\r
+    <div class="box-title">🚨 Senior Trap: Leaking the Reference</div>\r
+    If your private field is a mutable object (like a <code>Date</code> or <code>List</code>), returning it via a getter <strong>breaks encapsulation</strong>.\r
+  </div>\r
+  <pre><code><span class="cm">// BAD — leaks internal state</span>\r
+<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {\r
+    <span class="kw">return</span> roles; <span class="cm">// caller can do getRoles().clear()!</span>\r
+}\r
+\r
+<span class="cm">// GOOD — defensive copy</span>\r
+<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {\r
+    <span class="kw">return new</span> <span class="cl">ArrayList</span>&lt;&gt;(roles); <span class="cm">// return a COPY</span>\r
+}\r
+\r
+<span class="cm">// BEST — unmodifiable view (no memory copy)</span>\r
+<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">getRoles</span>() {\r
+    <span class="kw">return</span> <span class="cl">Collections</span>.<span class="fn">unmodifiableList</span>(roles);\r
+}\r
+\r
+<span class="cm">// Also defend on INPUT (setter/constructor)</span>\r
+<span class="kw">public void</span> <span class="fn">setRoles</span>(<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; roles) {\r
+    <span class="kw">this</span>.roles = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;(roles); <span class="cm">// copy input too!</span>\r
+}\r
+</code></pre>\r
+\r
+  <h2>4. Tell, Don't Ask (Law of Demeter)</h2>\r
+  <div class="box box-lld">\r
+    <div class="box-title">⚙️ LLD Connection: Feature Envy</div>\r
+    If an object is constantly asking another object for its data to perform an operation, it's called <strong>Feature Envy</strong>. The logic should be moved to the object that owns the data. This keeps objects highly cohesive.\r
+  </div>\r
+  <p>You shouldn't ask an object about its state to make a decision; you should tell the object what to do.</p>\r
+  <pre><code><span class="cm">// BAD — asking for state, then deciding externally</span>\r
+<span class="kw">if</span> (user.<span class="fn">getAddress</span>().<span class="fn">getCity</span>().<span class="fn">equals</span>(<span class="str">"NY"</span>)) {\r
+    <span class="fn">applyNYTax</span>(order);\r
+}\r
+\r
+<span class="cm">// GOOD — tell the object to handle it</span>\r
+<span class="kw">if</span> (user.<span class="fn">isResidentOf</span>(<span class="str">"NY"</span>)) {\r
+    <span class="fn">applyNYTax</span>(order);\r
+}\r
+\r
+<span class="cm">// EVEN BETTER — the order handles its own tax</span>\r
+order.<span class="fn">applyTaxFor</span>(user);\r
+</code></pre>\r
+\r
+  <h2>5. Validation in Setters (Self-Defense)</h2>\r
+  <div class="box box-smell">\r
+    <div class="box-title">🤢 Design Smell: Primitive Obsession</div>\r
+    Using a raw <code>String</code> for an Email or a raw <code>int</code> for an Age forces every layer of your application to validate it. Instead, encapsulate it into a <strong>Value Object</strong> (e.g., an <code>EmailAddress</code> class) that validates itself exactly once during construction.\r
+  </div>\r
+  <pre><code><span class="kw">public class</span> <span class="cl">Employee</span> {\r
+    <span class="kw">private</span> <span class="cl">EmailAddress</span> email; <span class="cm">// Strongly typed, guaranteed valid</span>\r
+    <span class="kw">private</span> <span class="cl">Age</span> age;\r
+\r
+    <span class="kw">public void</span> <span class="fn">setEmail</span>(<span class="cl">EmailAddress</span> email) {\r
+        <span class="cm">// No regex needed here! EmailAddress handles its own validation.</span>\r
+        <span class="kw">this</span>.email = email;\r
+    }\r
+}\r
+</code></pre>\r
+\r
+  <h2>6. Reflection: The Encapsulation Breaker</h2>\r
+  <pre><code><span class="cm">// Reflection can bypass private — DON'T do this in production!</span>\r
+<span class="cl">Field</span> balanceField = <span class="cl">BankAccount</span>.<span class="kw">class</span>.<span class="fn">getDeclaredField</span>(<span class="str">"balance"</span>);\r
+balanceField.<span class="fn">setAccessible</span>(<span class="kw">true</span>); <span class="cm">// bypasses private!</span>\r
+balanceField.<span class="fn">setDouble</span>(account, <span class="num">999999</span>);\r
+\r
+<span class="cm">// Java 9+ modules can prevent this:</span>\r
+<span class="cm">// module-info.java does NOT 'open' the package</span>\r
+<span class="cm">// → IllegalAccessException at runtime</span>\r
+</code></pre>\r
+\r
+  <div class="takeaways">\r
+    <div class="takeaways-title">Key Takeaways — Section 04A</div>\r
+    <ul>\r
+      <li><strong>Bundle state and behavior</strong> to control access.</li>\r
+      <li><strong>Defensive Copying</strong> is mandatory for mutable fields.</li>\r
+      <li><strong>Invariants</strong> are business rules that the class must protect.</li>\r
+      <li><strong>Law of Demeter</strong> prevents "Feature Envy" and reduces coupling.</li>\r
+      <li><strong>Strong Encapsulation</strong> (Java 9+) protects even against Reflection.</li>\r
+    </ul>\r
+  </div>\r
+\r
+  <h2>Interview Deep Dive — Section 04A</h2>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">Why are getters/setters considered a "necessary evil"?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">Too many getters/setters make the data public again. You have an "Anemic Domain Model." True OOP favors methods that perform <strong>Business Actions</strong> (like <code>withdraw()</code>) rather than just setting raw values (like <code>setBalance()</code>).</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is the "Data Clump" smell?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">When a group of variables (e.g., <code>startDate</code>, <code>endDate</code>) always appear together. Encapsulate them into a <code>DateRange</code> object with behavior like <code>isOverlapping()</code>.</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is 'Strong Encapsulation' in Java 17?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">Project Jigsaw means even Reflection cannot access internal classes unless explicitly <code>exported</code> or <code>opened</code> in <code>module-info.java</code>.</div>\r
+  </div>\r
+</div>`,O=Object.freeze(Object.defineProperty({__proto__:null,default:P},Symbol.toStringTag,{value:"Module"})),E=`<div id="enums" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 15</span></div>
   <div class="section-eyebrow">The Special Classes</div>
   <h1>Enums: More than just Constants</h1>
@@ -1322,7 +1339,7 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
     <div class="qa-a">1. <strong>Type Safety</strong>: You cannot pass an arbitrary integer to a method that expects an enum. 2. <strong>Namespace</strong>: Constants are grouped logically. 3. <strong>Behavior</strong>: You can add methods and logic directly to the enum. 4. <strong>Serialization</strong>: Enums handle serialization and deserialization safely by default.</div>
   </div>
 </div>
-`,D=Object.freeze(Object.defineProperty({__proto__:null,default:P},Symbol.toStringTag,{value:"Module"})),M=`<div id="exception-handling" class="section">
+`,D=Object.freeze(Object.defineProperty({__proto__:null,default:E},Symbol.toStringTag,{value:"Module"})),M=`<div id="exception-handling" class="section">
   <div class="breadcrumb">handbook / <span>section 16</span></div>
   <div class="section-eyebrow">The Error Handling</div>
   <h1>Exception Handling: Designing for Failure</h1>
@@ -1367,6 +1384,10 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
 </code></pre>
 
   <h2>3. The "Fail-Fast" Principle</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Swallowing Exceptions</div>
+    <code>try { risky(); } catch (Exception e) {}</code> is the most dangerous line of code you can write. It hides failures, corrupts state, and makes debugging impossible. Always log or rethrow. If you <em>must</em> ignore it, name the variable <code>ignored</code> to signal intent.
+  </div>
   <pre><code><span class="cm">// BAD — null propagates, crashes deep in the stack</span>
 <span class="kw">public void</span> <span class="fn">processOrder</span>(<span class="cl">Order</span> order) {
     <span class="cm">// ... 50 lines later ...</span>
@@ -1428,6 +1449,10 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
 </code></pre>
 
   <h2>6. Creating Custom Exception Hierarchies</h2>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: API Error Handling</div>
+    In a REST API, you shouldn't return Java stack traces to the client. You map <code>DomainExceptions</code> to HTTP Status Codes. In Spring Boot, this is done using <code>@RestControllerAdvice</code> to catch domain exceptions globally and return standardized JSON error responses.
+  </div>
   <pre><code><span class="cm">// Base exception for your domain</span>
 <span class="kw">public abstract class</span> <span class="cl">DomainException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
     <span class="kw">private final</span> <span class="cl">String</span> errorCode;
@@ -1462,8 +1487,8 @@ labels.<span class="fn">put</span>(<span class="cl">OrderState</span>.SHIPPED, <
 </code></pre>
 
   <h2>7. Performance: fillInStackTrace() Cost</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Fact: Exception Performance</div>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Exception Performance</div>
     Creating an exception is expensive because <code>fillInStackTrace()</code> walks the entire call stack. In high-frequency validation (e.g., parsing 1M records), use return codes or <code>Optional</code> instead of exceptions for flow control.
     <pre style="margin-top:10px;"><code><span class="cm">// High-performance: skip stack trace for expected validation failures</span>
 <span class="kw">public class</span> <span class="cl">ValidationException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
@@ -1539,11 +1564,16 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
   <p><strong>Senior Fact</strong>: Many core Java classes like <code>String</code>, <code>Integer</code>, and <code>Math</code> are final for security and immutability. Java 17 <strong>Sealed Classes</strong> provide a middle ground.</p>
 
   <h2>4. The Java Memory Model (JMM) Guarantee</h2>
-  <div class="box box-insight">
-    <div class="box-title">🚀 Senior Fact: Safe Publication</div>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: Safe Publication</div>
     The <code>final</code> keyword provides a unique thread-safety guarantee. Under the JMM, if an object is constructed correctly (without leaking <code>this</code>), any thread that sees the object is <strong>guaranteed</strong> to see the correctly initialized values of its <code>final</code> fields. 
     <br><br>
-    <strong>The Magic</strong>: The JVM inserts a "StoreStore" barrier at the end of the constructor to ensure all final field writes are visible to other CPUs before the object reference itself is published.
+    <strong>The Magic</strong>: The JVM inserts a "StoreStore" barrier at the end of the constructor to ensure all final field writes are flushed to main memory before the object reference itself is published.
+  </div>
+
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: Immutability First</div>
+    "Classes should be immutable unless there's a very good reason to make them mutable." (Effective Java Item 17). Immutable objects (where all fields are final) are inherently thread-safe. They require no synchronization. This is why <code>String</code> is immutable, and why <code>record</code> classes in Java 14+ are the preferred way to model Data Transfer Objects (DTOs).
   </div>
 
   <h2>5. Effectively Final (Java 8+)</h2>
@@ -1751,63 +1781,72 @@ names = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
     <div class="qa-q" onclick="toggleQA(this)">Why should you not use a mutable object as a HashMap key?<span class="arrow">▶</span></div>
     <div class="qa-a">If the object changes after being put in the Map, its <code>hashCode()</code> will change. When you try to retrieve it, the Map will look in the <strong>wrong bucket</strong> and fail to find it, even though the object is still in the map! This is a "Memory Leak" equivalent in Java.</div>
   </div>
-</div>`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),U=`<div id="inheritance" class="section">
+</div>`,_=Object.freeze(Object.defineProperty({__proto__:null,default:N},Symbol.toStringTag,{value:"Module"})),H=`<div id="inheritance" class="section">
   <div class="breadcrumb">handbook / the 4 pillars / <span>section 04C</span></div>
   <div class="section-eyebrow">The Deep Hierarchy</div>
   <h1>Inheritance: Hierarchy, State, and the Fragile Base</h1>
   <div class="section-desc">Inheritance represents the <strong>IS-A</strong> relationship. While powerful, it is the most dangerous tool in OOP due to tight coupling. We explore the memory layout, the dangers of deep hierarchies, and the modern transition to <strong>Composition</strong> and <strong>Sealed Classes</strong>.</div>
 
   <h2>1. IS-A vs. HAS-A (The Golden Rule)</h2>
-  <p>Use inheritance only if you can say "A [Subclass] IS-A [Superclass]."</p>
+  <p>Use inheritance only if you can say "A [Subclass] IS-A [Superclass]." However, even when true, you must ask if it's the <em>right</em> abstraction.</p>
   <ul>
-    <li><code>Dog</code> <strong>IS-A</strong> <code>Animal</code> (Inheritance).</li>
-    <li><code>Car</code> <strong>HAS-A</strong> <code>Engine</code> (Composition).</li>
+    <li><code>CreditCardProcessor</code> <strong>IS-A</strong> <code>PaymentProcessor</code> (Inheritance).</li>
+    <li><code>PaymentService</code> <strong>HAS-A</strong> <code>PaymentProcessor</code> (Composition).</li>
   </ul>
 
-  <h3>Example: Basic Inheritance</h3>
-  <pre><code><span class="kw">public class</span> <span class="cl">Animal</span> {
-    <span class="kw">protected</span> <span class="cl">String</span> name;
+  <div class="box box-insight">
+    <div class="box-title">🤔 Why This Exists</div>
+    Inheritance exists because large systems repeat behavior. Without it, you would copy-paste the "Connect to Payment Gateway" code 50 times. <strong>But inheritance also creates tight coupling</strong>, which is why modern systems often prefer composition to share behavior.
+  </div>
 
-    <span class="kw">public</span> <span class="cl">Animal</span>(<span class="cl">String</span> name) { <span class="kw">this</span>.name = name; }
+  <h3>Example: Enterprise Payment Architecture</h3>
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">PaymentProcessor</span> {
+    <span class="kw">protected</span> <span class="cl">String</span> transactionId;
 
-    <span class="kw">public void</span> <span class="fn">eat</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" is eating"</span>);
+    <span class="kw">public</span> <span class="cl">PaymentProcessor</span>(<span class="cl">String</span> txId) { 
+        <span class="kw">this</span>.transactionId = txId; 
     }
 
-    <span class="kw">public void</span> <span class="fn">sleep</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" is sleeping"</span>);
+    <span class="cm">// Concrete behavior shared by all subclasses</span>
+    <span class="kw">public void</span> <span class="fn">logAudit</span>() {
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"[AUDIT] Processing: "</span> + transactionId);
+    }
+
+    <span class="cm">// Abstract behavior enforced on subclasses</span>
+    <span class="kw">public abstract void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount);
+}
+
+<span class="kw">public class</span> <span class="cl">StripeProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {
+    <span class="kw">private</span> <span class="cl">String</span> apiKey;
+
+    <span class="kw">public</span> <span class="cl">StripeProcessor</span>(<span class="cl">String</span> txId, <span class="cl">String</span> apiKey) {
+        <span class="kw">super</span>(txId); <span class="cm">// MUST call parent constructor</span>
+        <span class="kw">this</span>.apiKey = apiKey;
+    }
+
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {
+        <span class="fn">logAudit</span>(); <span class="cm">// Inherited method</span>
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Calling Stripe API with key... Amount: $"</span> + amount);
     }
 }
 
-<span class="kw">public class</span> <span class="cl">Dog</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
-    <span class="kw">private</span> <span class="cl">String</span> breed;
+<span class="kw">public class</span> <span class="cl">CryptoProcessor</span> <span class="kw">extends</span> <span class="cl">PaymentProcessor</span> {
+    <span class="kw">public</span> <span class="cl">CryptoProcessor</span>(<span class="cl">String</span> txId) { <span class="kw">super</span>(txId); }
 
-    <span class="kw">public</span> <span class="cl">Dog</span>(<span class="cl">String</span> name, <span class="cl">String</span> breed) {
-        <span class="kw">super</span>(name); <span class="cm">// MUST call parent constructor</span>
-        <span class="kw">this</span>.breed = breed;
-    }
-
-    <span class="kw">public void</span> <span class="fn">bark</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" says Woof!"</span>);
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">processPayment</span>(<span class="kw">double</span> amount) {
+        <span class="fn">logAudit</span>();
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Validating blockchain transaction... Amount: "</span> + amount + <span class="str">" ETH"</span>);
     }
 }
 
-<span class="kw">public class</span> <span class="cl">Cat</span> <span class="kw">extends</span> <span class="cl">Animal</span> {
-    <span class="kw">public</span> <span class="cl">Cat</span>(<span class="cl">String</span> name) { <span class="kw">super</span>(name); }
+<span class="cm">// Usage — Polymorphism in action</span>
+<span class="cl">PaymentProcessor</span> p1 = <span class="kw">new</span> <span class="cl">StripeProcessor</span>(<span class="str">"TX-991"</span>, <span class="str">"sk_live_123"</span>);
+p1.<span class="fn">processPayment</span>(<span class="num">150.00</span>); <span class="cm">// Triggers Stripe implementation</span>
 
-    <span class="kw">public void</span> <span class="fn">purr</span>() {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(name + <span class="str">" purrs..."</span>);
-    }
-}
-
-<span class="cm">// Usage</span>
-<span class="cl">Dog</span> dog = <span class="kw">new</span> <span class="cl">Dog</span>(<span class="str">"Rex"</span>, <span class="str">"German Shepherd"</span>);
-dog.<span class="fn">eat</span>();   <span class="cm">// inherited from Animal</span>
-dog.<span class="fn">bark</span>();  <span class="cm">// own method</span>
-
-<span class="cl">Animal</span> a = <span class="kw">new</span> <span class="cl">Cat</span>(<span class="str">"Whiskers"</span>); <span class="cm">// polymorphic reference</span>
-a.<span class="fn">eat</span>();    <span class="cm">// works — inherited method</span>
-<span class="cm">// a.purr(); // ERROR — Animal ref doesn't know about purr()</span>
+<span class="cl">PaymentProcessor</span> p2 = <span class="kw">new</span> <span class="cl">CryptoProcessor</span>(<span class="str">"TX-992"</span>);
+p2.<span class="fn">processPayment</span>(<span class="num">0.05</span>); <span class="cm">// Triggers Crypto implementation</span>
 </code></pre>
 
   <h2>2. Memory Layout: The Layered Object</h2>
@@ -1886,41 +1925,52 @@ a.<span class="fn">eat</span>();    <span class="cm">// works — inherited meth
 d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "Swimming"</span>
 </code></pre>
 
-  <h2>5. The "Fragile Base Class" Problem</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Trap: The Semantic Break</div>
-    If you add a new method to a Base class, you might unknowingly break a Subclass that already has a method with the same name but different logic.
-    <br><br>
-    <strong>Solution</strong>: Keep inheritance hierarchies shallow (max 2-3 levels). If deeper, you need Composition.
+  <h2>5. The "Fragile Base Class" Problem (Design Smell)</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Deep Inheritance Tree</div>
+    If your class hierarchy is <code>Object -> Entity -> User -> AdminUser -> SuperAdminUser</code>, you have a <strong>Fragile Base Class</strong>. Changing one method in <code>Entity</code> will inadvertently break <code>SuperAdminUser</code>.
   </div>
 
-  <h2>6. Composition Over Inheritance</h2>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    "Prefer Composition over Inheritance." Juniors use inheritance for code reuse. Seniors use it ONLY for polymorphic behavior substitution. If you just want to reuse a database connection, inject it (Composition). Don't inherit from <code>BaseDatabaseEntity</code>.
+  </div>
+
+  <h2>6. Bad Code → Good Code: The Composition Shift</h2>
+  <p>Let's fix a classic architectural mistake.</p>
   <div class="compare">
     <div class="compare-col">
-      <div class="compare-label compare-bad">❌ Inheritance (Static)</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Bird</span> { <span class="kw">void</span> <span class="fn">fly</span>() { ... } }
-<span class="kw">class</span> <span class="cl">Ostrich</span> <span class="kw">extends</span> <span class="cl">Bird</span> {
-   <span class="cm">// Breaks LSP: Ostriches can't fly!</span>
-}</code></pre>
+      <div class="compare-label compare-bad">❌ Bad: Inheritance (Rigid)</div>
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Notification</span> { 
+    <span class="kw">void</span> <span class="fn">send</span>() { ... } 
+}
+<span class="kw">class</span> <span class="cl">EmailNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }
+<span class="kw">class</span> <span class="cl">SMSNotification</span> <span class="kw">extends</span> <span class="cl">Notification</span> { ... }
+
+<span class="cm">// Requirements change: User wants BOTH Email and SMS!
+// Now what? EmailAndSMSNotification? (Explosion of classes)</span></code></pre>
     </div>
     <div class="compare-col">
-      <div class="compare-label compare-good">✅ Composition (Dynamic)</div>
-      <pre style="font-size:11px;"><code><span class="kw">interface</span> <span class="cl">FlyBehavior</span> {
-   <span class="kw">void</span> <span class="fn">fly</span>();
+      <div class="compare-label compare-good">✅ Good: Composition (Flexible)</div>
+      <pre style="font-size:11px;"><code><span class="kw">interface</span> <span class="cl">MessageChannel</span> {
+    <span class="kw">void</span> <span class="fn">deliver</span>();
 }
-<span class="kw">class</span> <span class="cl">CanFly</span> <span class="kw">implements</span> <span class="cl">FlyBehavior</span> {
-   <span class="kw">public void</span> <span class="fn">fly</span>() { <span class="cm">/*soar*/</span> }
-}
-<span class="kw">class</span> <span class="cl">NoFly</span> <span class="kw">implements</span> <span class="cl">FlyBehavior</span> {
-   <span class="kw">public void</span> <span class="fn">fly</span>() { <span class="cm">/*noop*/</span> }
-}
-<span class="kw">class</span> <span class="cl">Bird</span> {
-   <span class="cl">FlyBehavior</span> flyBehavior;
-   <span class="kw">void</span> <span class="fn">performFly</span>() {
-       flyBehavior.<span class="fn">fly</span>();
-   }
+<span class="kw">class</span> <span class="cl">EmailChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }
+<span class="kw">class</span> <span class="cl">SMSChannel</span> <span class="kw">implements</span> <span class="cl">MessageChannel</span> { ... }
+
+<span class="kw">class</span> <span class="cl">NotificationService</span> {
+    <span class="cm">// HAS-A relationship. We can inject a List of channels!</span>
+    <span class="cl">List</span>&lt;<span class="cl">MessageChannel</span>&gt; channels;
+    
+    <span class="kw">void</span> <span class="fn">sendAll</span>() {
+        channels.<span class="fn">forEach</span>(<span class="cl">MessageChannel</span>::deliver);
+    }
 }</code></pre>
     </div>
+  </div>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection</div>
+    <strong>Composition</strong> enables the Strategy Pattern. By injecting <code>MessageChannel</code> dependencies at runtime (via Spring or manually), you achieve <strong>Loose Coupling</strong>. You can swap out an SMS provider without touching the <code>NotificationService</code> class.
   </div>
 
   <h2>7. Sealed Classes (Java 17)</h2>
@@ -2003,7 +2053,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-a"><code>extends</code> creates an IS-A relationship with a class (single inheritance). <code>implements</code> creates a CAN-DO relationship with an interface (multiple allowed). A class can <code>extend</code> one class and <code>implement</code> many interfaces simultaneously.</div>
   </div>
 </div>
-`,F=Object.freeze(Object.defineProperty({__proto__:null,default:U},Symbol.toStringTag,{value:"Module"})),H=`<div id="inner-classes" class="section">
+`,U=Object.freeze(Object.defineProperty({__proto__:null,default:H},Symbol.toStringTag,{value:"Module"})),F=`<div id="inner-classes" class="section">
   <div class="breadcrumb">handbook / deep dives / <span>section 14</span></div>
   <div class="section-eyebrow">The Mechanics</div>
   <h1>Inner Classes: Logic within Logic</h1>
@@ -2116,7 +2166,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-a"><strong>Yes, but only if they are effectively final.</strong> This is because the local inner class object might outlive the method execution. The JVM "captures" the value of the variable and stores a copy in the inner object. If the variable could change, the copy and the original would go out of sync.</div>
   </div>
 </div>
-`,J=Object.freeze(Object.defineProperty({__proto__:null,default:H},Symbol.toStringTag,{value:"Module"})),W=`<div id="interfaces" class="section">
+`,J=Object.freeze(Object.defineProperty({__proto__:null,default:F},Symbol.toStringTag,{value:"Module"})),W=`<div id="interfaces" class="section">
   <div class="breadcrumb">handbook / <span>section 09</span></div>
   <div class="section-eyebrow">The Contracts</div>
   <h1>Interfaces: Defining Capability</h1>
@@ -2171,19 +2221,28 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
   <p><strong>Marker Interfaces</strong> (e.g., <code>Serializable</code>) have zero methods and tag a class. 
   <br><strong>Modern Shift</strong>: Annotations (<code>@Entity</code>, <code>@Component</code>) are preferred as they are more flexible and don't affect the type hierarchy. However, <code>instanceof Serializable</code> is still faster than reading an annotation via reflection.</p>
 
-  <h2>5. Interface vs. Abstract Class (LLD Choice)</h2>
-  <div class="box box-insight">
-    <div class="box-title">🏛️ Architect's Decision Matrix</div>
-    <ul>
-      <li>Use an <strong>Interface</strong> for <strong>Behavior</strong> ("Can-Do"). Unrelated classes (e.g., <code>Car</code> and <code>Fan</code>) can both be <code>Switchable</code>.</li>
-      <li>Use an <strong>Abstract Class</strong> for <strong>Identity</strong> ("Kind-Of"). Shared state (fields) and partial implementation (Base logic).</li>
-    </ul>
-    <strong>Senior Tip</strong>: "Program to an interface, not an implementation." This is the key to <strong>Unit Testing</strong> and <strong>Dependency Injection</strong>.
+  <h2>5. Interface vs. Abstract Class (The LLD Choice)</h2>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    Juniors use abstract classes to avoid writing the same code twice. Seniors know that interfaces define <strong>System Boundaries (APIs)</strong>, while abstract classes define <strong>Domain Taxonomies</strong>. You expose the Interface to the world, and you hide the Abstract Class as an internal base implementation.
   </div>
 
-  <h2>6. Internal: The itable (Interface Table)</h2>
-  <p>While classes use a vtable with fixed offsets, the JVM uses an <strong>itable</strong> for interface calls. Because a class can implement many interfaces, the JVM must search the itable at runtime to find the method pointer. 
-  <br><strong>Performance</strong>: <code>invokeinterface</code> is slightly slower than <code>invokevirtual</code> because the offset isn't constant across all classes implementing the interface.</p>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Plugin Architecture</div>
+    Every massive software system (IntelliJ, VSCode, Chrome) is a microkernel surrounded by plugins. How do plugins work? <strong>Interfaces.</strong> The core system exposes an <code>ExtensionPoint</code> interface. Third-party developers implement it. The core system loads them dynamically at runtime (via SPI or classloaders) without knowing <em>anything</em> about the concrete classes.
+  </div>
+
+  <h2>6. Internal: The itable (How JVM Handles Interfaces)</h2>
+  <p>While classes use a vtable with fixed offsets, the JVM uses an <strong>itable</strong> for interface calls. Because a class can implement many interfaces, the JVM must search the itable at runtime to find the method pointer.</p>
+  <div class="ascii-diagram">
+[ CLASS: PAYMENT PROCESSOR ]
+vtable: 0x1A2B (Fixed offsets for class methods)
+itable: [
+   interface: Payable   -> offset: 12
+   interface: Auditable -> offset: 24
+] (JVM must search this list at runtime!)
+  </div>
+  <p><strong>Performance</strong>: <code>invokeinterface</code> is slightly slower than <code>invokevirtual</code> because of this search step, although modern JIT compilers optimize it heavily.</p>
 
   <h2>7. Sealed Interfaces (Java 17+)</h2>
   <p>Just like sealed classes, <strong>Sealed Interfaces</strong> allow you to define exactly which classes or interfaces can implement them.</p>
@@ -2231,7 +2290,7 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     <div class="qa-q" onclick="toggleQA(this)">What is the 'Three-Tier Architecture' link?<span class="arrow">▶</span></div>
     <div class="qa-a">In professional backend development, we use <strong>Interfaces</strong> to separate layers: <code>Controller</code> -> <code>IService</code> -> <code>IRepository</code>. This allows us to change the implementation of the Service or Repository (e.g., swapping a Database for a Mock) without affecting other layers.</div>
   </div>
-</div>`,z=Object.freeze(Object.defineProperty({__proto__:null,default:W},Symbol.toStringTag,{value:"Module"})),V=`<div id="interview-qa" class="section">
+</div>`,z=Object.freeze(Object.defineProperty({__proto__:null,default:W},Symbol.toStringTag,{value:"Module"})),G=`<div id="interview-qa" class="section">
   <div class="breadcrumb">handbook / <span>section 19</span></div>
   <div class="section-eyebrow">The Senior Engineer's Guide</div>
   <h1>The Interview Masterclass: FAANG-Level Deep Dives</h1>
@@ -2312,118 +2371,142 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
       <li>Reference <strong>JVM behavior</strong> for extra points.</li>
     </ul>
   </div>
-</div>`,G=Object.freeze(Object.defineProperty({__proto__:null,default:V},Symbol.toStringTag,{value:"Module"})),Q=`<div id="memory-model" class="section">
-  <div class="breadcrumb">handbook / <span>section 12</span></div>
-  <div class="section-eyebrow">The Engine Room</div>
-  <h1>JVM Memory: The Generational Architecture</h1>
-  <div class="section-desc">We move beyond "Stack vs Heap." We explore the TLABs, the Survivor space rotation, the ZGC revolution, and the memory regions that make Java's Garbage Collector one of the most advanced in the world.</div>
-
-  <h2>1. The "Big Three" Regions</h2>
-  <div class="diagram">
-[ JVM PROCESS ]
-├─ METASPACE (Native) ──► Class Metadata, Method vtables, Static Fields
-├─ STACK (Private)    ──► Thread-local storage, LIFO, Primitive data
-└─ HEAP (Shared)      ──► The dynamic playground of all objects
-
-   [ HEAP ANATOMY ]
-   ┌─────────────┬─────────────┬─────────────┐
-   │ YOUNG GEN   │ OLD GEN     │ HUMONGOUS   │ (G1 Layout)
-   │ [E][S0][S1] │ [Tenured]   │ [Regions]   │
-   └─────────────┴─────────────┴─────────────┘</div>
-
-  <h2>2. The Generational Hypothesis</h2>
-  <p>The entire memory system is built on one observation: <strong>"Most objects die young."</strong></p>
-  <ul>
-    <li><strong>Eden Space</strong>: Where 99% of objects are born.</li>
-    <li><strong>Survivor Spaces (S0/S1)</strong>: "The Waiting Room." Objects that survive a Minor GC move here. They swap roles (From/To) every cycle to ensure <strong>Zero Fragmentation</strong>.</li>
-    <li><strong>Old Generation</strong>: "The Retirement Home." If an object survives enough cycles (usually 15, the "Tenuring Threshold"), it is promoted here.</li>
-  </ul>
-
-  <div class="box box-insight">
-    <div class="box-title">🚀 Senior Speed: TLAB (Thread Local Allocation Buffer)</div>
-    Allocating memory on a shared heap requires "locking" (to prevent two threads from taking the same spot). To avoid this bottleneck, the JVM gives each thread a small chunk of the Eden space called a <strong>TLAB</strong>. A thread can allocate objects in its TLAB without any locking. This makes Java's <code>new</code> almost as fast as a pointer increment.
-  </div>
-
-  <h2>3. Garbage Collection: G1 vs ZGC</h2>
-  <p>Modern Java (9+) uses the <strong>G1 (Garbage First)</strong> collector as default. But for low-latency systems, we use <strong>ZGC</strong>.</p>
-  <ul>
-    <li><strong>G1 GC</strong>: Regional collector. Targets "Garbage First" regions. Optimized for <strong>Throughput</strong>.</li>
-    <li><strong>ZGC (Java 15+)</strong>: A concurrent, NUMA-aware collector. It handles heaps from 8MB to 16TB with <strong>max pause times of 1ms</strong>. It uses "Colored Pointers" and "Load Barriers" to move objects while the app is still running.</li>
-  </ul>
-
-  <h2>4. The String Pool: Memory vs Identity</h2>
-  <p>The <strong>String Pool</strong> lives on the Heap (since Java 7). It stores one copy of each unique string literal.</p>
-  <pre><code><span class="cl">String</span> a = <span class="str">"Hello"</span>;            <span class="cm">// goes to String Pool</span>
-<span class="cl">String</span> b = <span class="str">"Hello"</span>;            <span class="cm">// reuses SAME reference from Pool</span>
-<span class="cl">String</span> c = <span class="kw">new</span> <span class="cl">String</span>(<span class="str">"Hello"</span>); <span class="cm">// creates NEW object on Heap</span>
-
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == b);  <span class="cm">// true  (same reference)</span>
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == c);  <span class="cm">// false (different objects)</span>
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">equals</span>(c)); <span class="cm">// true  (same content)</span>
-
-<span class="cl">String</span> d = c.<span class="fn">intern</span>(); <span class="cm">// puts c into pool, returns pool reference</span>
-<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == d); <span class="cm">// true</span>
-</code></pre>
-
-  <h2>5. JIT & HotSpot: The Magic of Speed</h2>
-  <div class="box box-insight">
-    <div class="box-title">⚡ The JIT Compiler</div>
-    The JVM doesn't just interpret code. It identifies "Hot Methods" and compiles them into <strong>Native Machine Code</strong>. It performs optimizations like:
-    <ul>
-      <li><strong>Inlining</strong>: Replacing a method call with the method's actual code.</li>
-      <li><strong>Loop Unrolling</strong>: Optimizing loops for CPU branch prediction.</li>
-      <li><strong>Dead Code Elimination</strong>: Removing code that never runs.</li>
-    </ul>
-  </div>
-
-  <h2>6. Reference Reachability (Edge Cases)</h2>
-  <div class="table-wrap"><table>
-    <tr><th>Reference Type</th><th>JVM Behavior</th><th>Architectural Use Case</th></tr>
-    <tr><td><strong>Strong</strong></td><td>The default. Never collected.</td><td>Business logic data.</td></tr>
-    <tr><td><strong>Soft</strong></td><td>Collected ONLY if OOM is imminent.</td><td>Memory-sensitive caches (Image loaders).</td></tr>
-    <tr><td><strong>Weak</strong></td><td>Collected in the NEXT Minor GC.</td><td>WeakHashMap (Thread-locals, metadata).</td></tr>
-    <tr><td><strong>Phantom</strong></td><td>Never de-referenced. Used for cleanup.</td><td>Replacing <code>finalize()</code> for resource management.</td></tr>
-  </table></div>
-
-  <h3>Example: WeakReference for Cache</h3>
-  <pre><code><span class="cm">// WeakReference — object collected at next GC if no strong refs</span>
-<span class="cl">WeakReference</span>&lt;<span class="cl">byte</span>[]&gt; cache = <span class="kw">new</span> <span class="cl">WeakReference</span>&lt;&gt;(
-    <span class="kw">new byte</span>[<span class="num">1024</span> * <span class="num">1024</span>] <span class="cm">// 1MB</span>
-);
-
-<span class="kw">byte</span>[] data = cache.<span class="fn">get</span>(); <span class="cm">// may return null after GC!</span>
-<span class="kw">if</span> (data == <span class="kw">null</span>) {
-    data = <span class="fn">loadFromDisk</span>(); <span class="cm">// reload</span>
-    cache = <span class="kw">new</span> <span class="cl">WeakReference</span>&lt;&gt;(data);
-}
-</code></pre>
-
-  <h2>7. The Memory Leak Checklist</h2>
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Warning: The "Unfinished Thread" Leak</div>
-    If a Thread is started but never finished, it keeps its entire <strong>Stack</strong> (1MB) alive. If that thread uses <code>ThreadLocal</code> variables, they will NEVER be GC'd. This is the #1 cause of memory leaks in Tomcat/Spring apps.
-  </div>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 12</div>
-    <ul>
-      <li><strong>Stack is for Context</strong>; <strong>Heap is for Data</strong>.</li>
-      <li><strong>Survivor Rotation</strong> ensures memory is always contiguous.</li>
-      <li><strong>ZGC</strong> is the future of low-latency Java.</li>
-      <li><strong>JIT Inlining</strong> is why Java is often as fast as C++.</li>
-      <li><strong>Off-Heap (Direct Memory)</strong>: Use for large buffers to avoid GC pressure.</li>
-    </ul>
-  </div>
-
-  <h2>Interview Deep Dive — Section 12</h2>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is 'Stop the World' (STW) and why is it dangerous?<span class="arrow">▶</span></div>
-    <div class="qa-a">STW is a pause where the JVM stops all application threads to perform GC. It's dangerous for real-time systems because the app becomes unresponsive. Modern collectors like <strong>ZGC</strong> aim for sub-millisecond STW pauses by performing most work concurrently.</div>
-  </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Why did Java 8 remove 'PermGen' and introduce 'Metaspace'?<span class="arrow">▶</span></div>
-    <div class="qa-a">PermGen was part of the Heap and had a fixed size, leading to the frequent <code>java.lang.OutOfMemoryError: PermGen space</code>. Metaspace is part of <strong>Native Memory</strong>. It can grow dynamically with the OS, reducing the risk of crashes due to class-loading heavy frameworks.</div>
-  </div>
+</div>`,V=Object.freeze(Object.defineProperty({__proto__:null,default:G},Symbol.toStringTag,{value:"Module"})),Q=`<div id="memory-model" class="section">\r
+  <div class="breadcrumb">handbook / <span>section 12</span></div>\r
+  <div class="section-eyebrow">The Engine Room</div>\r
+  <h1>JVM Memory: The Generational Architecture</h1>\r
+  <div class="section-desc">We move beyond "Stack vs Heap." We explore the TLABs, the Survivor space rotation, the ZGC revolution, and the memory regions that make Java's Garbage Collector one of the most advanced in the world.</div>\r
+\r
+  <h2>1. The "Big Three" Regions</h2>\r
+  <div class="box box-senior">\r
+    <div class="box-title">🧠 How Senior Engineers Think</div>\r
+    Juniors memorize "Objects go on the Heap, primitives on the Stack." Seniors know that <strong>reachability is everything</strong>. Memory leaks happen when a long-lived object (like a static Map) holds a strong reference to a short-lived object, preventing the GC from reclaiming the Heap space.\r
+  </div>\r
+\r
+  <div class="ascii-diagram">\r
+[ THE JVM MEMORY MAP ]\r
+\r
+   STACK (Thread-Local)                      HEAP (Shared)\r
+  +--------------------+                 +----------------------+\r
+  |                    |                 |                      |\r
+  | personRef ---------+---------------->| 0xA123: Person       |\r
+  |                    |                 |  |- name = "Pujan"   |\r
+  | count = 42         |                 |  |- age  = 22        |\r
+  |                    |                 |                      |\r
+  | listRef -----------+----------+      | 0xB456: ArrayList    |\r
+  |                    |          +----->|  |- size = 1         |\r
+  +--------------------+                 |  |- elementData      |\r
+                                         +----------------------+\r
+  * Primitives & References              * Actual Object Data\r
+  * LIFO execution context               * GC Managed Area\r
+  * Dies when method returns             * Dies when unreachable\r
+  </div>\r
+\r
+  <div class="box box-lld">\r
+    <div class="box-title">⚙️ LLD Connection</div>\r
+    When designing a high-throughput system (like a Trading Engine or a WebSocket server), understanding the Heap is critical. You use <strong>Object Pooling</strong> or <strong>Off-Heap Memory</strong> (like ByteBuffer) to completely bypass the Garbage Collector and ensure zero-latency execution.\r
+  </div>\r
+\r
+  <div class="diagram">\r
+[ HEAP ANATOMY ]\r
++-------------+-------------+-------------+\r
+| YOUNG GEN   | OLD GEN     | HUMONGOUS   | (G1 Layout)\r
+| [E][S0][S1] | [Tenured]   | [Regions]   |\r
++-------------+-------------+-------------+</div>\r
+\r
+  <h2>2. The Generational Hypothesis</h2>\r
+  <p>The entire memory system is built on one observation: <strong>"Most objects die young."</strong></p>\r
+  <ul>\r
+    <li><strong>Eden Space</strong>: Where 99% of objects are born.</li>\r
+    <li><strong>Survivor Spaces (S0/S1)</strong>: "The Waiting Room." Objects that survive a Minor GC move here. They swap roles (From/To) every cycle to ensure <strong>Zero Fragmentation</strong>.</li>\r
+    <li><strong>Old Generation</strong>: "The Retirement Home." If an object survives enough cycles (usually 15, the "Tenuring Threshold"), it is promoted here.</li>\r
+  </ul>\r
+\r
+  <div class="box box-insight">\r
+    <div class="box-title">🚀 Senior Speed: TLAB (Thread Local Allocation Buffer)</div>\r
+    Allocating memory on a shared heap requires "locking" (to prevent two threads from taking the same spot). To avoid this bottleneck, the JVM gives each thread a small chunk of the Eden space called a <strong>TLAB</strong>. A thread can allocate objects in its TLAB without any locking. This makes Java's <code>new</code> almost as fast as a pointer increment.\r
+  </div>\r
+\r
+  <h2>3. Garbage Collection: G1 vs ZGC</h2>\r
+  <p>Modern Java (9+) uses the <strong>G1 (Garbage First)</strong> collector as default. But for low-latency systems, we use <strong>ZGC</strong>.</p>\r
+  <ul>\r
+    <li><strong>G1 GC</strong>: Regional collector. Targets "Garbage First" regions. Optimized for <strong>Throughput</strong>.</li>\r
+    <li><strong>ZGC (Java 15+)</strong>: A concurrent, NUMA-aware collector. It handles heaps from 8MB to 16TB with <strong>max pause times of 1ms</strong>. It uses "Colored Pointers" and "Load Barriers" to move objects while the app is still running.</li>\r
+  </ul>\r
+\r
+  <h2>4. The String Pool: Memory vs Identity</h2>\r
+  <p>The <strong>String Pool</strong> lives on the Heap (since Java 7). It stores one copy of each unique string literal.</p>\r
+  <pre><code><span class="cl">String</span> a = <span class="str">"Hello"</span>;            <span class="cm">// goes to String Pool</span>\r
+<span class="cl">String</span> b = <span class="str">"Hello"</span>;            <span class="cm">// reuses SAME reference from Pool</span>\r
+<span class="cl">String</span> c = <span class="kw">new</span> <span class="cl">String</span>(<span class="str">"Hello"</span>); <span class="cm">// creates NEW object on Heap</span>\r
+\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == b);  <span class="cm">// true  (same reference)</span>\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == c);  <span class="cm">// false (different objects)</span>\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a.<span class="fn">equals</span>(c)); <span class="cm">// true  (same content)</span>\r
+\r
+<span class="cl">String</span> d = c.<span class="fn">intern</span>(); <span class="cm">// puts c into pool, returns pool reference</span>\r
+<span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(a == d); <span class="cm">// true</span>\r
+</code></pre>\r
+\r
+  <h2>5. JIT & HotSpot: The Magic of Speed</h2>\r
+  <div class="box box-insight">\r
+    <div class="box-title">⚡ The JIT Compiler</div>\r
+    The JVM doesn't just interpret code. It identifies "Hot Methods" and compiles them into <strong>Native Machine Code</strong>. It performs optimizations like:\r
+    <ul>\r
+      <li><strong>Inlining</strong>: Replacing a method call with the method's actual code.</li>\r
+      <li><strong>Loop Unrolling</strong>: Optimizing loops for CPU branch prediction.</li>\r
+      <li><strong>Dead Code Elimination</strong>: Removing code that never runs.</li>\r
+    </ul>\r
+  </div>\r
+\r
+  <h2>6. Reference Reachability (Edge Cases)</h2>\r
+  <div class="table-wrap"><table>\r
+    <tr><th>Reference Type</th><th>JVM Behavior</th><th>Architectural Use Case</th></tr>\r
+    <tr><td><strong>Strong</strong></td><td>The default. Never collected.</td><td>Business logic data.</td></tr>\r
+    <tr><td><strong>Soft</strong></td><td>Collected ONLY if OOM is imminent.</td><td>Memory-sensitive caches (Image loaders).</td></tr>\r
+    <tr><td><strong>Weak</strong></td><td>Collected in the NEXT Minor GC.</td><td>WeakHashMap (Thread-locals, metadata).</td></tr>\r
+    <tr><td><strong>Phantom</strong></td><td>Never de-referenced. Used for cleanup.</td><td>Replacing <code>finalize()</code> for resource management.</td></tr>\r
+  </table></div>\r
+\r
+  <h3>Example: WeakReference for Cache</h3>\r
+  <pre><code><span class="cm">// WeakReference — object collected at next GC if no strong refs</span>\r
+<span class="cl">WeakReference</span>&lt;<span class="cl">byte</span>[]&gt; cache = <span class="kw">new</span> <span class="cl">WeakReference</span>&lt;&gt;(\r
+    <span class="kw">new byte</span>[<span class="num">1024</span> * <span class="num">1024</span>] <span class="cm">// 1MB</span>\r
+);\r
+\r
+<span class="kw">byte</span>[] data = cache.<span class="fn">get</span>(); <span class="cm">// may return null after GC!</span>\r
+<span class="kw">if</span> (data == <span class="kw">null</span>) {\r
+    data = <span class="fn">loadFromDisk</span>(); <span class="cm">// reload</span>\r
+    cache = <span class="kw">new</span> <span class="cl">WeakReference</span>&lt;&gt;(data);\r
+}\r
+</code></pre>\r
+\r
+  <h2>7. The Memory Leak Checklist</h2>\r
+  <div class="box box-danger">\r
+    <div class="box-title">🚨 Senior Warning: The "Unfinished Thread" Leak</div>\r
+    If a Thread is started but never finished, it keeps its entire <strong>Stack</strong> (1MB) alive. If that thread uses <code>ThreadLocal</code> variables, they will NEVER be GC'd. This is the #1 cause of memory leaks in Tomcat/Spring apps.\r
+  </div>\r
+\r
+  <div class="takeaways">\r
+    <div class="takeaways-title">Key Takeaways — Section 12</div>\r
+    <ul>\r
+      <li><strong>Stack is for Context</strong>; <strong>Heap is for Data</strong>.</li>\r
+      <li><strong>Survivor Rotation</strong> ensures memory is always contiguous.</li>\r
+      <li><strong>ZGC</strong> is the future of low-latency Java.</li>\r
+      <li><strong>JIT Inlining</strong> is why Java is often as fast as C++.</li>\r
+      <li><strong>Off-Heap (Direct Memory)</strong>: Use for large buffers to avoid GC pressure.</li>\r
+    </ul>\r
+  </div>\r
+\r
+  <h2>Interview Deep Dive — Section 12</h2>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is 'Stop the World' (STW) and why is it dangerous?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">STW is a pause where the JVM stops all application threads to perform GC. It's dangerous for real-time systems because the app becomes unresponsive. Modern collectors like <strong>ZGC</strong> aim for sub-millisecond STW pauses by performing most work concurrently.</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">Why did Java 8 remove 'PermGen' and introduce 'Metaspace'?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">PermGen was part of the Heap and had a fixed size, leading to the frequent <code>java.lang.OutOfMemoryError: PermGen space</code>. Metaspace is part of <strong>Native Memory</strong>. It can grow dynamically with the OS, reducing the risk of crashes due to class-loading heavy frameworks.</div>\r
+  </div>\r
 </div>`,Y=Object.freeze(Object.defineProperty({__proto__:null,default:Q},Symbol.toStringTag,{value:"Module"})),K=`<div id="object-class" class="section">
   <div class="breadcrumb">handbook / <span>section 11</span></div>
   <div class="section-eyebrow">The Root</div>
@@ -2448,12 +2531,17 @@ d.<span class="fn">move</span>(); <span class="cm">// prints both "Flying" and "
     </ol>
   </div>
 
-  <div class="box box-danger">
-    <div class="box-title">🚨 Senior Trap: HashMap Buckets</div>
-    When you put an object in a HashMap:<br>
-    1. The Map uses <code>hashCode()</code> to find the correct <strong>Bucket</strong>.<br>
-    2. If there are multiple objects in that bucket, it uses <code>equals()</code> to find the <strong>Exact Match</strong>.<br>
-    If equal objects have different hashes, the Map will look in the wrong bucket and never find your object!
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Hash Mutation</div>
+    If you use mutable fields in your <code>hashCode()</code> (e.g., a <code>List</code> or a mutable <code>String</code> name) and you change that field <strong>after</strong> adding the object to a <code>HashSet</code>, the object's hash changes. The Set will never find it again, creating a silent <strong>Memory Leak</strong>.
+  </div>
+
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think: HashMap Internals</div>
+    When you put an object in a HashMap:
+    <br>1. The Map uses <code>hashCode()</code> to find the correct <strong>Bucket</strong>.
+    <br>2. If there are multiple objects in that bucket, it uses <code>equals()</code> to find the <strong>Exact Match</strong>.
+    <br>If equal objects have different hashes, the Map will look in the wrong bucket and never find your object.
   </div>
 
   <h3>Example: Correct equals() and hashCode()</h3>
@@ -2500,12 +2588,15 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
   <p>Returns the <code>Class</code> object that represents the runtime class of the object. Unlike <code>instanceof</code>, <code>getClass() == Other.class</code> is <strong>Strict</strong>; it doesn't return true for subclasses. </p>
 
   <h2>4. clone(): The "Shallow" Heritage</h2>
-  <p>The <code>clone()</code> method is widely considered "broken" in Java. It requires the <code>Cloneable</code> interface (a marker interface) but doesn't actually define it. 
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: The Broken Clone Contract</div>
+    The <code>clone()</code> method is universally considered broken by Java architects. It requires implementing the <code>Cloneable</code> marker interface, but doesn't actually define the method. It bypasses constructors, which breaks invariants and <code>final</code> field guarantees.
+  </div>
   <ul>
     <li><strong>Shallow Copy</strong>: Copies field values. If a field is a reference, both objects point to the same child.</li>
     <li><strong>Deep Copy</strong>: Requires manual implementation to clone every child object.</li>
   </ul>
-  <strong>Senior Recommendation</strong>: Use <strong>Copy Constructors</strong> or <strong>Serialization</strong> for deep copying. Avoid <code>clone()</code>.</p>
+  <p><strong>Senior Recommendation</strong>: Use <strong>Copy Constructors</strong> or <strong>Serialization</strong> (like JSON mapping) for deep copying. Avoid <code>clone()</code>.</p>
 
   <h2>5. finalize(): The Deprecated Reaper</h2>
   <p>Historically used for cleanup before GC. However, it is unpredictable, slow, and can lead to memory leaks. 
@@ -2799,35 +2890,38 @@ m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">"
 </code></pre>
 
   <h3>Example: Method Overriding (Dynamic Polymorphism)</h3>
-  <pre><code><span class="kw">public class</span> <span class="cl">Shape</span> {
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="num">0</span>; }
+  <pre><code><span class="kw">public abstract class</span> <span class="cl">Logger</span> {
+    <span class="kw">public abstract void</span> <span class="fn">write</span>(<span class="cl">String</span> log);
 }
 
-<span class="kw">public class</span> <span class="cl">Circle</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
-    <span class="kw">private double</span> radius;
-    <span class="kw">public</span> <span class="cl">Circle</span>(<span class="kw">double</span> r) { <span class="kw">this</span>.radius = r; }
+<span class="kw">public class</span> <span class="cl">FileLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {
+    <span class="kw">private</span> <span class="cl">String</span> filePath;
+    <span class="kw">public</span> <span class="cl">FileLogger</span>(<span class="cl">String</span> path) { <span class="kw">this</span>.filePath = path; }
 
     <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="cl">Math</span>.PI * radius * radius; }
+    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { 
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Appending to file "</span> + filePath + <span class="str">": "</span> + log); 
+    }
 }
 
-<span class="kw">public class</span> <span class="cl">Square</span> <span class="kw">extends</span> <span class="cl">Shape</span> {
-    <span class="kw">private double</span> side;
-    <span class="kw">public</span> <span class="cl">Square</span>(<span class="kw">double</span> s) { <span class="kw">this</span>.side = s; }
+<span class="kw">public class</span> <span class="cl">CloudLogger</span> <span class="kw">extends</span> <span class="cl">Logger</span> {
+    <span class="kw">private</span> <span class="cl">String</span> bucketUrl;
+    <span class="kw">public</span> <span class="cl">CloudLogger</span>(<span class="cl">String</span> url) { <span class="kw">this</span>.bucketUrl = url; }
 
     <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">area</span>() { <span class="kw">return</span> side * side; }
+    <span class="kw">public void</span> <span class="fn">write</span>(<span class="cl">String</span> log) { 
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Sending over network to "</span> + bucketUrl + <span class="str">": "</span> + log); 
+    }
 }
 
 <span class="cm">// Dynamic dispatch — JVM decides at RUNTIME</span>
-<span class="cl">List</span>&lt;<span class="cl">Shape</span>&gt; shapes = <span class="cl">List</span>.<span class="fn">of</span>(
-    <span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">5</span>),
-    <span class="kw">new</span> <span class="cl">Square</span>(<span class="num">4</span>),
-    <span class="kw">new</span> <span class="cl">Circle</span>(<span class="num">3</span>)
+<span class="cl">List</span>&lt;<span class="cl">Logger</span>&gt; loggers = <span class="cl">List</span>.<span class="fn">of</span>(
+    <span class="kw">new</span> <span class="cl">FileLogger</span>(<span class="str">"/var/logs/app.log"</span>),
+    <span class="kw">new</span> <span class="cl">CloudLogger</span>(<span class="str">"s3://bucket/logs"</span>)
 );
 
-<span class="kw">for</span> (<span class="cl">Shape</span> s : shapes) {
-    <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Area: "</span> + s.<span class="fn">area</span>()); <span class="cm">// correct method called!</span>
+<span class="kw">for</span> (<span class="cl">Logger</span> logger : loggers) {
+    logger.<span class="fn">write</span>(<span class="str">"System booted."</span>); <span class="cm">// Correct method called via vtable</span>
 }
 </code></pre>
 
@@ -2840,13 +2934,19 @@ m.<span class="fn">add</span>(<span class="str">"Hi"</span>, <span class="str">"
     <li><strong>invokedynamic</strong>: Lambdas, var-args (Java 7+). Bootstrap method resolves target.</li>
   </ul>
 
-  <h2>3. Internal Wiring: vtable vs itable</h2>
-  <div class="diagram">
-[ CLASS: ANIMAL ]          [ CLASS: DOG ]
+  <h2>3. Internal Wiring: How the JVM Thinks</h2>
+  <div class="box box-senior">
+    <div class="box-title">🧠 How Senior Engineers Think</div>
+    Juniors think polymorphism is "magic." Seniors know it's just a pointer lookup. Every object has a hidden header pointing to its class's <strong>vtable</strong> (Virtual Method Table). At runtime, <code>logger.write()</code> looks up index 1 in the vtable and jumps to that memory address.
+  </div>
+
+  <div class="ascii-diagram">
+[ CLASS: LOGGER ]          [ CLASS: FILELOGGER ]
 vtable:                    vtable:
 0: Object.toString()       0: Object.toString()
-1: Animal.makeSound()      1: Dog.makeSound() <── (OVERRIDDEN)
-                           2: Dog.wagTail()   <── (NEW)</div>
+1: Logger.write()          1: FileLogger.write() <── (OVERRIDDEN)
+                           2: FileLogger.rotate() <── (NEW)
+  </div>
 
   <div class="box box-insight">
     <div class="box-title">🚀 JIT Optimization: Devirtualization</div>
@@ -2854,6 +2954,11 @@ vtable:                    vtable:
   </div>
 
   <h2>4. Interface-Based Polymorphism (The Professional Way)</h2>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Strategy Pattern</div>
+    Polymorphism is the engine behind the <strong>Strategy Pattern</strong>. By programming to an interface (<code>Notifier</code>), the <code>AlertService</code> is completely decoupled from the specific transport mechanism. This makes the code highly testable (via Mocks) and extensible.
+  </div>
+
   <pre><code><span class="kw">public interface</span> <span class="cl">Notifier</span> {
     <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> message, <span class="cl">String</span> recipient);
 }
@@ -2872,17 +2977,11 @@ vtable:                    vtable:
     }
 }
 
-<span class="kw">public class</span> <span class="cl">SlackNotifier</span> <span class="kw">implements</span> <span class="cl">Notifier</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> msg, <span class="cl">String</span> to) {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Slack to #"</span> + to + <span class="str">": "</span> + msg);
-    }
-}
-
 <span class="cm">// SERVICE — depends on abstraction, not concrete classes</span>
 <span class="kw">public class</span> <span class="cl">AlertService</span> {
     <span class="kw">private final</span> <span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers;
 
+    <span class="cm">// Dependency Injection via Constructor</span>
     <span class="kw">public</span> <span class="cl">AlertService</span>(<span class="cl">List</span>&lt;<span class="cl">Notifier</span>&gt; notifiers) {
         <span class="kw">this</span>.notifiers = notifiers;
     }
@@ -2895,8 +2994,7 @@ vtable:                    vtable:
 <span class="cm">// USAGE — add new notifiers without changing AlertService!</span>
 <span class="cl">AlertService</span> svc = <span class="kw">new</span> <span class="cl">AlertService</span>(<span class="cl">List</span>.<span class="fn">of</span>(
     <span class="kw">new</span> <span class="cl">EmailNotifier</span>(),
-    <span class="kw">new</span> <span class="cl">SmsNotifier</span>(),
-    <span class="kw">new</span> <span class="cl">SlackNotifier</span>()
+    <span class="kw">new</span> <span class="cl">SmsNotifier</span>()
 ));
 svc.<span class="fn">alert</span>(<span class="str">"Server is down!"</span>);
 </code></pre>
@@ -3231,189 +3329,197 @@ h.<span class="fn">showRooms</span>();
     <div class="qa-a">Ask: <strong>"Does the container logically 'own' the contained object?"</strong> If a <code>Team</code> has <code>Players</code>, the Team "owns" them in context — that's Aggregation. If a <code>Student</code> knows a <code>Library</code>, neither owns the other — that's Association. The UML diamond (◇) indicates "whole-part" thinking.</div>
   </div>
 </div>
-`,cs=Object.freeze(Object.defineProperty({__proto__:null,default:ts},Symbol.toStringTag,{value:"Module"})),ls=`<div id="solid-principles" class="section">
-  <div class="breadcrumb">handbook / <span>section 17</span></div>
-  <div class="section-eyebrow">The Architecture</div>
-  <h1>SOLID Principles: The Engineering Compass</h1>
-  <div class="section-desc">SOLID is the difference between "code that works" and "code that lasts." These five principles are the foundation of scalable, maintainable, and testable software systems.</div>
-
-  <h2>1. S: Single Responsibility (SRP)</h2>
-  <p><strong>"A class should have only one reason to change."</strong></p>
-  <div class="box box-insight">
-    <div class="box-title">🏛️ Architect's Tip: The 'Conway's Law' Link</div>
-    SRP isn't just about code; it's about people. If two different departments (e.g., Finance and HR) ask for changes to the same class, you have violated SRP. Each class should serve exactly one stakeholder.
-  </div>
-  <div class="compare">
-    <div class="compare-col">
-      <div class="compare-label compare-bad">❌ Bad: God Class</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Invoice</span> {
-  <span class="kw">void</span> <span class="fn">calculate</span>() { ... }
-  <span class="kw">void</span> <span class="fn">saveToDb</span>() { ... }
-  <span class="kw">void</span> <span class="fn">emailUser</span>() { ... }
-}</code></pre>
-    </div>
-    <div class="compare-col">
-      <div class="compare-label compare-good">✅ Good: Decoupled</div>
-      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">InvoiceCalculator</span> { ... }
-<span class="kw">class</span> <span class="cl">InvoiceRepository</span> { ... }
-<span class="kw">class</span> <span class="cl">NotificationService</span> { ... }</code></pre>
-    </div>
-  </div>
-
-  <h2>2. O: Open/Closed Principle (OCP)</h2>
-  <p><strong>"Open for extension, Closed for modification."</strong></p>
-  <p>You should be able to add a new "Discount Type" without opening the <code>DiscountService.java</code> file and adding an <code>if-else</code> or <code>switch</code> block.</p>
-  <div class="diagram">
-[ CLIENT ] ──► [ INTERFACE: DiscountStrategy ]
-                       ▲
-          ┌────────────┴────────────┐
-    [ StudentDiscount ]      [ VIPDiscount ]
-
-To add 'BlackFridayDiscount', just implement the interface. 
-The CLIENT code stays exactly the same.</div>
-
-  <h3>Example: OCP with Strategy Pattern</h3>
-  <pre><code><span class="kw">public interface</span> <span class="cl">DiscountStrategy</span> {
-    <span class="kw">double</span> <span class="fn">apply</span>(<span class="kw">double</span> price);
-}
-
-<span class="kw">public class</span> <span class="cl">StudentDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.8</span>; }
-}
-
-<span class="kw">public class</span> <span class="cl">VIPDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.7</span>; }
-}
-
-<span class="cm">// Adding new discount — NO modification to existing code!</span>
-<span class="kw">public class</span> <span class="cl">BlackFridayDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.5</span>; }
-}
-
-<span class="cm">// Client code is CLOSED for modification</span>
-<span class="kw">public class</span> <span class="cl">PriceCalculator</span> {
-    <span class="kw">public double</span> <span class="fn">finalPrice</span>(<span class="kw">double</span> price, <span class="cl">DiscountStrategy</span> strategy) {
-        <span class="kw">return</span> strategy.<span class="fn">apply</span>(price);
-    }
-}
-
-<span class="cl">PriceCalculator</span> calc = <span class="kw">new</span> <span class="cl">PriceCalculator</span>();
-calc.<span class="fn">finalPrice</span>(<span class="num">100</span>, <span class="kw">new</span> <span class="cl">VIPDiscount</span>());          <span class="cm">// 70.0</span>
-calc.<span class="fn">finalPrice</span>(<span class="num">100</span>, <span class="kw">new</span> <span class="cl">BlackFridayDiscount</span>()); <span class="cm">// 50.0</span>
-</code></pre>
-
-  <h2>3. L: Liskov Substitution (LSP)</h2>
-  <p><strong>"Subtypes must be substitutable for their base types without breaking behavior."</strong></p>
-  <div class="box box-danger">
-    <div class="box-title">🚨 The LSP Test: The "Duck" Rule</div>
-    "If it looks like a duck and quacks like a duck but needs batteries, you probably have the wrong abstraction."
-    <br><br>
-    If you override a method to throw <code>UnsupportedOperationException</code>, you have violated LSP. A subclass should never "do less" than its parent.
-  </div>
-
-  <div class="box box-warning">
-    <div class="box-title">⚠️ The Square-Rectangle Problem</div>
-    If <code>Square</code> inherits from <code>Rectangle</code>, and <code>Rectangle</code> has <code>setWidth()</code> and <code>setHeight()</code>, the <code>Square</code> override must set <strong>both</strong> to the same value to stay a square. But a user of <code>Rectangle</code> expects to set width without changing height! This is an LSP violation.
-    <br><strong>Solution</strong>: Inheritance isn't always the answer. Use a common <code>Shape</code> interface instead.
-  </div>
-
-  <h2>4. I: Interface Segregation (ISP)</h2>
-  <p><strong>"Clients should not be forced to depend on methods they do not use."</strong></p>
-  <p>Fat interfaces lead to <strong>Rigid Coupling</strong>. Break them down into specific, atomic capabilities.</p>
-  <pre><code><span class="cm">// BAD: Fat Interface</span>
-<span class="kw">interface</span> <span class="cl">SmartDevice</span> { <span class="kw">void</span> <span class="fn">print</span>(); <span class="kw">void</span> <span class="fn">fax</span>(); <span class="kw">void</span> <span class="fn">scan</span>(); }
-
-<span class="cm">// GOOD: Segregated Interfaces</span>
-<span class="kw">interface</span> <span class="cl">Printer</span> { <span class="kw">void</span> <span class="fn">print</span>(); }
-<span class="kw">interface</span> <span class="cl">Scanner</span> { <span class="kw">void</span> <span class="fn">scan</span>(); }</code></pre>
-
-  <h2>5. D: Dependency Inversion (DIP)</h2>
-  <p><strong>"Depend on abstractions, not concretions."</strong></p>
-  <p>High-level modules (Business Logic) should not depend on low-level modules (Database/API). Both should depend on Interfaces.</p>
-  <div class="box box-insight">
-    <div class="box-title">💡 Spring Framework Perspective</div>
-    DIP is what makes <strong>Dependency Injection</strong> possible. Spring injects the concrete implementation into your constructor based on the interface. This allows you to swap a <code>MockDatabase</code> for a <code>RealDatabase</code> during testing without changing a single line of code.
-  </div>
-
-  <h3>Example: DIP with Constructor Injection</h3>
-  <pre><code><span class="cm">// ABSTRACTION (Port)</span>
-<span class="kw">public interface</span> <span class="cl">MessageSender</span> {
-    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body);
-}
-
-<span class="cm">// LOW-LEVEL (Adapter 1)</span>
-<span class="kw">public class</span> <span class="cl">EmailSender</span> <span class="kw">implements</span> <span class="cl">MessageSender</span> {
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body) {
-        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Email to "</span> + to + <span class="str">": "</span> + body);
-    }
-}
-
-<span class="cm">// LOW-LEVEL (Adapter 2 — for testing)</span>
-<span class="kw">public class</span> <span class="cl">MockSender</span> <span class="kw">implements</span> <span class="cl">MessageSender</span> {
-    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; sent = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
-    <span class="kw">@Override</span>
-    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body) {
-        sent.<span class="fn">add</span>(to + <span class="str">":"</span> + body);
-    }
-}
-
-<span class="cm">// HIGH-LEVEL — depends on ABSTRACTION, not concrete</span>
-<span class="kw">public class</span> <span class="cl">NotificationService</span> {
-    <span class="kw">private final</span> <span class="cl">MessageSender</span> sender; <span class="cm">// interface!</span>
-
-    <span class="kw">public</span> <span class="cl">NotificationService</span>(<span class="cl">MessageSender</span> sender) {
-        <span class="kw">this</span>.sender = sender;
-    }
-
-    <span class="kw">public void</span> <span class="fn">notifyUser</span>(<span class="cl">String</span> userId) {
-        sender.<span class="fn">send</span>(userId, <span class="str">"Your order has shipped!"</span>);
-    }
-}
-
-<span class="cm">// PRODUCTION</span>
-<span class="kw">new</span> <span class="cl">NotificationService</span>(<span class="kw">new</span> <span class="cl">EmailSender</span>()).<span class="fn">notifyUser</span>(<span class="str">"alice"</span>);
-
-<span class="cm">// TESTING — swap implementation, zero code changes!</span>
-<span class="cl">MockSender</span> mock = <span class="kw">new</span> <span class="cl">MockSender</span>();
-<span class="kw">new</span> <span class="cl">NotificationService</span>(mock).<span class="fn">notifyUser</span>(<span class="str">"bob"</span>);
-assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>());
-</code></pre>
-
-
-  <h2>6. SOLID vs. YAGNI/KISS</h2>
-  <p>While SOLID is powerful, it can lead to <strong>Over-Engineering</strong> if misapplied. A senior dev balances these with:</p>
-  <ul>
-    <li><strong>KISS (Keep It Simple, Stupid)</strong>: Don't use 5 interfaces if 1 simple class will suffice for the next 2 years.</li>
-    <li><strong>YAGNI (You Ain't Gonna Need It)</strong>: Don't build an OCP-compliant pluggable system for a feature that will never change.</li>
-  </ul>
-
-  <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 17</div>
-    <ul>
-      <li><strong>SOLID is about Managing Change.</strong></li>
-      <li><strong>SRP</strong> reduces the scope of bugs.</li>
-      <li><strong>OCP</strong> allows the system to grow safely.</li>
-      <li><strong>LSP</strong> ensures inheritance is used correctly.</li>
-      <li><strong>ISP</strong> keeps interfaces lean and relevant.</li>
-      <li><strong>DIP</strong> enables loose coupling and testability.</li>
-      <li><strong>Balance is key</strong>: Don't over-engineer for scenarios that don't exist.</li>
-    </ul>
-  </div>
-
-  <h2>Interview Deep Dive — Section 17</h2>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">Is SOLID always necessary for small projects?<span class="arrow">▶</span></div>
-    <div class="qa-a">No. Over-applying SOLID to a 100-line script is <strong>Over-Engineering</strong>. SOLID is a defense mechanism against the complexity of <strong>Scale</strong>. It comes at the cost of more classes and files. A senior dev knows when to keep it simple and when to pull out the SOLID "big guns."</div>
-  </div>
-  <div class="qa-block">
-    <div class="qa-q" onclick="toggleQA(this)">What is the "Dependency Inversion" vs "Dependency Injection"?<span class="arrow">▶</span></div>
-    <div class="qa-a"><strong>Dependency Inversion</strong> is the <em>Principle</em> (The Goal: decouple). <strong>Dependency Injection</strong> is the <em>Pattern</em> (The Tool: passing dependencies via constructor/setter). DI is how we achieve DIP.</div>
-  </div>
-</div>`,os=Object.freeze(Object.defineProperty({__proto__:null,default:ls},Symbol.toStringTag,{value:"Module"})),ps=`<div id="static-keyword" class="section">
+`,cs=Object.freeze(Object.defineProperty({__proto__:null,default:ts},Symbol.toStringTag,{value:"Module"})),ls=`<div id="solid-principles" class="section">\r
+  <div class="breadcrumb">handbook / <span>section 17</span></div>\r
+  <div class="section-eyebrow">The Architecture</div>\r
+  <h1>SOLID Principles: The Engineering Compass</h1>\r
+  <div class="section-desc">SOLID is the difference between "code that works" and "code that lasts." These five principles are the foundation of scalable, maintainable, and testable software systems.</div>\r
+\r
+  <h2>1. S: Single Responsibility (SRP)</h2>\r
+  <p><strong>"A class should have only one reason to change."</strong></p>\r
+  <div class="box box-insight">\r
+    <div class="box-title">🏛️ Architect's Tip: The 'Conway's Law' Link</div>\r
+    SRP isn't just about code; it's about people. If two different departments (e.g., Finance and HR) ask for changes to the same class, you have violated SRP. Each class should serve exactly one stakeholder.\r
+  </div>\r
+  <div class="box box-smell">\r
+    <div class="box-title">🤢 Design Smell: The God Object & Shotgun Surgery</div>\r
+    If a class is 2,000 lines long and handles validation, database access, and UI formatting, it is a <strong>God Object</strong>. When you have to change 5 different files to add one tiny feature, you are suffering from <strong>Shotgun Surgery</strong> (a clear violation of SRP).\r
+  </div>\r
+  <div class="compare">\r
+    <div class="compare-col">\r
+      <div class="compare-label compare-bad">❌ Bad: God Class</div>\r
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">Invoice</span> {\r
+  <span class="kw">void</span> <span class="fn">calculate</span>() { ... }\r
+  <span class="kw">void</span> <span class="fn">saveToDb</span>() { ... }\r
+  <span class="kw">void</span> <span class="fn">emailUser</span>() { ... }\r
+}</code></pre>\r
+    </div>\r
+    <div class="compare-col">\r
+      <div class="compare-label compare-good">✅ Good: Decoupled</div>\r
+      <pre style="font-size:11px;"><code><span class="kw">class</span> <span class="cl">InvoiceCalculator</span> { ... }\r
+<span class="kw">class</span> <span class="cl">InvoiceRepository</span> { ... }\r
+<span class="kw">class</span> <span class="cl">NotificationService</span> { ... }</code></pre>\r
+    </div>\r
+  </div>\r
+\r
+  <h2>2. O: Open/Closed Principle (OCP)</h2>\r
+  <p><strong>"Open for extension, Closed for modification."</strong></p>\r
+  <p>You should be able to add a new "Discount Type" without opening the <code>DiscountService.java</code> file and adding an <code>if-else</code> or <code>switch</code> block.</p>\r
+  <div class="diagram">\r
+[ CLIENT ] ──► [ INTERFACE: DiscountStrategy ]\r
+                       ▲\r
+          ┌────────────┴────────────┐\r
+    [ StudentDiscount ]      [ VIPDiscount ]\r
+\r
+To add 'BlackFridayDiscount', just implement the interface. \r
+The CLIENT code stays exactly the same.</div>\r
+\r
+  <h3>Example: OCP with Strategy Pattern</h3>\r
+  <pre><code><span class="kw">public interface</span> <span class="cl">DiscountStrategy</span> {\r
+    <span class="kw">double</span> <span class="fn">apply</span>(<span class="kw">double</span> price);\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">StudentDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.8</span>; }\r
+}\r
+\r
+<span class="kw">public class</span> <span class="cl">VIPDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.7</span>; }\r
+}\r
+\r
+<span class="cm">// Adding new discount — NO modification to existing code!</span>\r
+<span class="kw">public class</span> <span class="cl">BlackFridayDiscount</span> <span class="kw">implements</span> <span class="cl">DiscountStrategy</span> {\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public double</span> <span class="fn">apply</span>(<span class="kw">double</span> price) { <span class="kw">return</span> price * <span class="num">0.5</span>; }\r
+}\r
+\r
+<span class="cm">// Client code is CLOSED for modification</span>\r
+<span class="kw">public class</span> <span class="cl">PriceCalculator</span> {\r
+    <span class="kw">public double</span> <span class="fn">finalPrice</span>(<span class="kw">double</span> price, <span class="cl">DiscountStrategy</span> strategy) {\r
+        <span class="kw">return</span> strategy.<span class="fn">apply</span>(price);\r
+    }\r
+}\r
+\r
+<span class="cl">PriceCalculator</span> calc = <span class="kw">new</span> <span class="cl">PriceCalculator</span>();\r
+calc.<span class="fn">finalPrice</span>(<span class="num">100</span>, <span class="kw">new</span> <span class="cl">VIPDiscount</span>());          <span class="cm">// 70.0</span>\r
+calc.<span class="fn">finalPrice</span>(<span class="num">100</span>, <span class="kw">new</span> <span class="cl">BlackFridayDiscount</span>()); <span class="cm">// 50.0</span>\r
+</code></pre>\r
+\r
+  <h2>3. L: Liskov Substitution (LSP)</h2>\r
+  <p><strong>"Subtypes must be substitutable for their base types without breaking behavior."</strong></p>\r
+  <div class="box box-danger">\r
+    <div class="box-title">🚨 The LSP Test: The "Duck" Rule</div>\r
+    "If it looks like a duck and quacks like a duck but needs batteries, you probably have the wrong abstraction."\r
+    <br><br>\r
+    If you override a method to throw <code>UnsupportedOperationException</code>, you have violated LSP. A subclass should never "do less" than its parent.\r
+  </div>\r
+\r
+  <div class="box box-warning">\r
+    <div class="box-title">⚠️ The Square-Rectangle Problem</div>\r
+    If <code>Square</code> inherits from <code>Rectangle</code>, and <code>Rectangle</code> has <code>setWidth()</code> and <code>setHeight()</code>, the <code>Square</code> override must set <strong>both</strong> to the same value to stay a square. But a user of <code>Rectangle</code> expects to set width without changing height! This is an LSP violation.\r
+    <br><strong>Solution</strong>: Inheritance isn't always the answer. Use a common <code>Shape</code> interface instead.\r
+  </div>\r
+\r
+  <h2>4. I: Interface Segregation (ISP)</h2>\r
+  <p><strong>"Clients should not be forced to depend on methods they do not use."</strong></p>\r
+  <p>Fat interfaces lead to <strong>Rigid Coupling</strong>. Break them down into specific, atomic capabilities.</p>\r
+  <pre><code><span class="cm">// BAD: Fat Interface</span>\r
+<span class="kw">interface</span> <span class="cl">SmartDevice</span> { <span class="kw">void</span> <span class="fn">print</span>(); <span class="kw">void</span> <span class="fn">fax</span>(); <span class="kw">void</span> <span class="fn">scan</span>(); }\r
+\r
+<span class="cm">// GOOD: Segregated Interfaces</span>\r
+<span class="kw">interface</span> <span class="cl">Printer</span> { <span class="kw">void</span> <span class="fn">print</span>(); }\r
+<span class="kw">interface</span> <span class="cl">Scanner</span> { <span class="kw">void</span> <span class="fn">scan</span>(); }</code></pre>\r
+\r
+  <h2>5. D: Dependency Inversion (DIP)</h2>\r
+  <p><strong>"Depend on abstractions, not concretions."</strong></p>\r
+  <p>High-level modules (Business Logic) should not depend on low-level modules (Database/API). Both should depend on Interfaces.</p>\r
+  <div class="box box-insight">\r
+    <div class="box-title">💡 Spring Framework Perspective</div>\r
+    DIP is what makes <strong>Dependency Injection</strong> possible. Spring injects the concrete implementation into your constructor based on the interface. This allows you to swap a <code>MockDatabase</code> for a <code>RealDatabase</code> during testing without changing a single line of code.\r
+  </div>\r
+\r
+  <h3>Example: DIP with Constructor Injection</h3>\r
+  <pre><code><span class="cm">// ABSTRACTION (Port)</span>\r
+<span class="kw">public interface</span> <span class="cl">MessageSender</span> {\r
+    <span class="kw">void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body);\r
+}\r
+\r
+<span class="cm">// LOW-LEVEL (Adapter 1)</span>\r
+<span class="kw">public class</span> <span class="cl">EmailSender</span> <span class="kw">implements</span> <span class="cl">MessageSender</span> {\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body) {\r
+        <span class="cl">System</span>.<span class="fn">out</span>.<span class="fn">println</span>(<span class="str">"Email to "</span> + to + <span class="str">": "</span> + body);\r
+    }\r
+}\r
+\r
+<span class="cm">// LOW-LEVEL (Adapter 2 — for testing)</span>\r
+<span class="kw">public class</span> <span class="cl">MockSender</span> <span class="kw">implements</span> <span class="cl">MessageSender</span> {\r
+    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; sent = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();\r
+    <span class="kw">@Override</span>\r
+    <span class="kw">public void</span> <span class="fn">send</span>(<span class="cl">String</span> to, <span class="cl">String</span> body) {\r
+        sent.<span class="fn">add</span>(to + <span class="str">":"</span> + body);\r
+    }\r
+}\r
+\r
+<span class="cm">// HIGH-LEVEL — depends on ABSTRACTION, not concrete</span>\r
+<span class="kw">public class</span> <span class="cl">NotificationService</span> {\r
+    <span class="kw">private final</span> <span class="cl">MessageSender</span> sender; <span class="cm">// interface!</span>\r
+\r
+    <span class="kw">public</span> <span class="cl">NotificationService</span>(<span class="cl">MessageSender</span> sender) {\r
+        <span class="kw">this</span>.sender = sender;\r
+    }\r
+\r
+    <span class="kw">public void</span> <span class="fn">notifyUser</span>(<span class="cl">String</span> userId) {\r
+        sender.<span class="fn">send</span>(userId, <span class="str">"Your order has shipped!"</span>);\r
+    }\r
+}\r
+\r
+<span class="cm">// PRODUCTION</span>\r
+<span class="kw">new</span> <span class="cl">NotificationService</span>(<span class="kw">new</span> <span class="cl">EmailSender</span>()).<span class="fn">notifyUser</span>(<span class="str">"alice"</span>);\r
+\r
+<span class="cm">// TESTING — swap implementation, zero code changes!</span>\r
+<span class="cl">MockSender</span> mock = <span class="kw">new</span> <span class="cl">MockSender</span>();\r
+<span class="kw">new</span> <span class="cl">NotificationService</span>(mock).<span class="fn">notifyUser</span>(<span class="str">"bob"</span>);\r
+assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>());\r
+</code></pre>\r
+\r
+\r
+  <h2>6. SOLID vs. YAGNI/KISS</h2>\r
+  <div class="box box-senior">\r
+    <div class="box-title">🧠 How Senior Engineers Think</div>\r
+    Junior devs read about SOLID and instantly create 5 interfaces, 3 abstract classes, and a factory for a script that just reads a CSV file. Senior devs balance SOLID against practical delivery. Over-abstracting code before the requirements demand it is called <strong>Premature Optimization</strong>.\r
+  </div>\r
+  <p>While SOLID is powerful, it can lead to <strong>Over-Engineering</strong> if misapplied. Balance these with:</p>\r
+  <ul>\r
+    <li><strong>KISS (Keep It Simple, Stupid)</strong>: Don't use 5 interfaces if 1 simple class will suffice for the next 2 years.</li>\r
+    <li><strong>YAGNI (You Ain't Gonna Need It)</strong>: Don't build an OCP-compliant pluggable system for a feature that will never change.</li>\r
+  </ul>\r
+\r
+  <div class="takeaways">\r
+    <div class="takeaways-title">Key Takeaways — Section 17</div>\r
+    <ul>\r
+      <li><strong>SOLID is about Managing Change.</strong></li>\r
+      <li><strong>SRP</strong> reduces the scope of bugs.</li>\r
+      <li><strong>OCP</strong> allows the system to grow safely.</li>\r
+      <li><strong>LSP</strong> ensures inheritance is used correctly.</li>\r
+      <li><strong>ISP</strong> keeps interfaces lean and relevant.</li>\r
+      <li><strong>DIP</strong> enables loose coupling and testability.</li>\r
+      <li><strong>Balance is key</strong>: Don't over-engineer for scenarios that don't exist.</li>\r
+    </ul>\r
+  </div>\r
+\r
+  <h2>Interview Deep Dive — Section 17</h2>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">Is SOLID always necessary for small projects?<span class="arrow">▶</span></div>\r
+    <div class="qa-a">No. Over-applying SOLID to a 100-line script is <strong>Over-Engineering</strong>. SOLID is a defense mechanism against the complexity of <strong>Scale</strong>. It comes at the cost of more classes and files. A senior dev knows when to keep it simple and when to pull out the SOLID "big guns."</div>\r
+  </div>\r
+  <div class="qa-block">\r
+    <div class="qa-q" onclick="toggleQA(this)">What is the "Dependency Inversion" vs "Dependency Injection"?<span class="arrow">▶</span></div>\r
+    <div class="qa-a"><strong>Dependency Inversion</strong> is the <em>Principle</em> (The Goal: decouple). <strong>Dependency Injection</strong> is the <em>Pattern</em> (The Tool: passing dependencies via constructor/setter). DI is how we achieve DIP.</div>\r
+  </div>\r
+</div>`,os=Object.freeze(Object.defineProperty({__proto__:null,default:ls},Symbol.toStringTag,{value:"Module"})),is=`<div id="static-keyword" class="section">
   <div class="breadcrumb">handbook / <span>section 07</span></div>
   <div class="section-eyebrow">The Shared State</div>
   <h1>Static: Class-Level Mechanics</h1>
@@ -3441,9 +3547,14 @@ assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>(
     <tr><td>5</td><td><strong>Constructor</strong></td><td>Instance</td><td>Every 'new'</td></tr>
   </table></div>
 
-  <div class="box box-warning">
+  <div class="box box-insight">
     <div class="box-title">🚨 Execution Secret</div>
     Static blocks run when the class is loaded, <strong>even if you never create an object</strong>. Instance blocks run right before the constructor but <strong>after</strong> the <code>super()</code> call.
+  </div>
+  
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: Global Mutable State</div>
+    Senior developers hate <code>public static</code> variables. Why? Because they represent <strong>Global Mutable State</strong>. If a static variable is changed by Thread A, Thread B instantly sees the corrupted state. It also makes <strong>Unit Testing</strong> impossible because tests running in parallel will overwrite each other's data. If you need shared state, use Dependency Injection to pass a Singleton object.
   </div>
 
   <h3>Example: Initialization Order</h3>
@@ -3479,15 +3590,23 @@ assertEquals(<span class="num">1</span>, mock.sent.<span class="fn">size</span>(
 p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This is "Method Hiding."</span></code></pre>
 
   <h2>4. Static in Interfaces (Java 8+)</h2>
-  <p>Interfaces can now have static methods. They are <strong>not inherited</strong> by implementing classes.</p>
-  <pre><code><span class="kw">public interface</span> <span class="cl">StringUtils</span> {
-    <span class="kw">static boolean</span> <span class="fn">isBlank</span>(<span class="cl">String</span> s) {
-        <span class="kw">return</span> s == <span class="kw">null</span> || s.<span class="fn">trim</span>().<span class="fn">isEmpty</span>();
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: Static Factory Methods</div>
+    "Consider static factory methods instead of constructors." (Effective Java Item 1). Static methods in interfaces allow you to create clean factory methods that return specific implementations without exposing the implementation classes.
+  </div>
+  <pre><code><span class="kw">public interface</span> <span class="cl">DatabaseConnection</span> {
+    <span class="kw">void</span> <span class="fn">connect</span>();
+    
+    <span class="cm">// Factory method hides the concrete classes!</span>
+    <span class="kw">static</span> <span class="cl">DatabaseConnection</span> <span class="fn">create</span>(<span class="cl">String</span> url) {
+        <span class="kw">if</span> (url.<span class="fn">startsWith</span>(<span class="str">"jdbc:mysql"</span>)) <span class="kw">return new</span> <span class="cl">MySqlConnection</span>();
+        <span class="kw">if</span> (url.<span class="fn">startsWith</span>(<span class="str">"jdbc:postgres"</span>)) <span class="kw">return new</span> <span class="cl">PostgresConnection</span>();
+        <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Unsupported DB"</span>);
     }
 }
 
-<span class="cm">// Must use InterfaceName.method() — NOT inherited</span>
-<span class="cl">StringUtils</span>.<span class="fn">isBlank</span>(<span class="str">""</span>); <span class="cm">// true</span>
+<span class="cm">// Client Code</span>
+<span class="cl">DatabaseConnection</span> conn = <span class="cl">DatabaseConnection</span>.<span class="fn">create</span>(<span class="str">"jdbc:mysql://..."</span>);
 </code></pre>
 
   <h2>5. The "Bill Pugh" Singleton Pattern</h2>
@@ -3539,7 +3658,7 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">Why is a static method faster than an instance method?<span class="arrow">▶</span></div>
     <div class="qa-a">Because the JVM doesn't have to perform a vtable lookup (Dynamic Dispatch). It knows the exact address of the static method at compile time. However, with JIT optimizations, the difference is negligible in modern Java.</div>
   </div>
-</div>`,is=Object.freeze(Object.defineProperty({__proto__:null,default:ps},Symbol.toStringTag,{value:"Module"})),rs=`<div id="why-oop-exists" class="section">
+</div>`,ps=Object.freeze(Object.defineProperty({__proto__:null,default:is},Symbol.toStringTag,{value:"Module"})),rs=`<div id="why-oop-exists" class="section">
   <div class="breadcrumb">handbook / <span>section 01</span></div>
   <div class="section-eyebrow">The Foundations</div>
   <h1>Why OOP Exists: The Architecture of Scale</h1>
@@ -3567,6 +3686,10 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
   </div>
 
   <h2>2. Procedure-Centric vs. Data-Centric</h2>
+  <div class="box box-smell">
+    <div class="box-title">🤢 Design Smell: The Anemic Domain Model</div>
+    If your objects are just "bags of getters and setters" (e.g., a User class with 15 fields but zero business logic), and all the logic lives in a massive <code>UserService</code> class, you aren't doing OOP. You are doing Procedural Programming in Java. This anti-pattern is called the <strong>Anemic Domain Model</strong>.
+  </div>
   <p>Procedural programming is <strong>Procedure-Centric</strong> (verbs take priority). OOP is <strong>Data-Centric</strong> (nouns take priority). In a procedural world, a 'Save' function knows about Users, Orders, and Products. In OOP, the <code>User</code> knows how to save itself.</p>
 
   <h2>3. The OOP Mental Model: Entities as Sovereigns</h2>
@@ -3588,6 +3711,10 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
   </table></div>
 
   <h2>5. The Expression Problem</h2>
+  <div class="box box-lld">
+    <div class="box-title">⚙️ LLD Connection: The Visitor Pattern</div>
+    The Visitor Pattern is the classic OOP workaround for the Expression Problem. It allows you to add new behaviors (operations) to a hierarchy of objects without modifying the classes themselves, effectively giving OOP languages the functional power of "adding behavior easily."
+  </div>
   <p>In software engineering, the <strong>Expression Problem</strong> asks: How easy is it to add new data types vs. new behaviors?</p>
   <ul>
     <li><strong>OOP excels at adding new types</strong>: Just create a new subclass. You don't have to touch existing code.</li>
@@ -3648,4 +3775,4 @@ p.<span class="fn">show</span>(); <span class="cm">// Calls Parent.show()! This 
     <div class="qa-q" onclick="toggleQA(this)">What is the "Fragile Base Class" problem?<span class="arrow">▶</span></div>
     <div class="qa-a">A major pitfall of inheritance. If you change a small detail in a parent class, you might unknowingly break 50 subclasses that depend on that specific (sometimes accidental) behavior. This is why senior architects favor <strong>Composition</strong> over Inheritance.</div>
   </div>
-</div>`,ds=Object.freeze(Object.defineProperty({__proto__:null,default:rs},Symbol.toStringTag,{value:"Module"})),h={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],g={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let i="home";const d=Object.assign({"../content/abstract-classes.html":f,"../content/abstraction.html":w,"../content/access-modifiers.html":y,"../content/cheat-sheets.html":C,"../content/classes-objects.html":I,"../content/constructors.html":x,"../content/encapsulation.html":E,"../content/enums.html":D,"../content/exception-handling.html":L,"../content/final-keyword.html":j,"../content/home.html":B,"../content/immutability.html":_,"../content/inheritance.html":F,"../content/inner-classes.html":J,"../content/interfaces.html":z,"../content/interview-qa.html":G,"../content/memory-model.html":Y,"../content/object-class.html":$,"../content/oop-design-thinking.html":X,"../content/oop-lld-bridge.html":ns,"../content/polymorphism.html":es,"../content/relationships.html":cs,"../content/solid-principles.html":os,"../content/static-keyword.html":is,"../content/why-oop-exists.html":ds});for(const s in d){const a=s.split("/").pop().replace(".html","");h[a]=d[s].default||d[s]}function p(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&h[s]){const n=document.createElement("div");n.innerHTML=h[s],e=n.firstElementChild,a.appendChild(e),hs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),document.querySelectorAll(".home-section").forEach(n=>{s==="home"?n.classList.remove("hidden"):n.classList.add("hidden")}),s!=="home"&&e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),i=s,m(),vs(),fs(e),window.scrollTo({top:0,behavior:"smooth"})}function hs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function gs(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}const r=document.getElementById("themeToggle");if(r){const s=r.querySelector("i"),a=document.body,e=localStorage.getItem("theme")||"dark";a.setAttribute("data-theme",e),s&&u(s,e),r.addEventListener("click",()=>{const n=a.getAttribute("data-theme")==="dark"?"light":"dark";a.setAttribute("data-theme",n),localStorage.setItem("theme",n),s&&u(s,n)})}function u(s,a){const e=r.querySelector("span");a==="dark"?(s.className="ri-moon-line",e&&(e.textContent="Dark Mode")):(s.className="ri-sun-line",e&&(e.textContent="Light Mode"))}function us(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function ms(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function vs(){const s=l.indexOf(i),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=g[a]||a,n.onclick=()=>p(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=g[e]||e,c.onclick=()=>p(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",i==="home")}function fs(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||i==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function bs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(i);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&p(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&p(l[a-1]))})}function ws(){window.scrollTo({top:0,behavior:"smooth"})}function ks(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function m(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=p;window.toggleQA=gs;window.filterNav=us;window.scrollToTop=ws;window.toggleSidebar=ks;window.closeSidebar=m;document.addEventListener("DOMContentLoaded",()=>{try{ms(),bs(),document.getElementById("mainContent")||console.error("CRITICAL: mainContent container missing"),p("home");const s=localStorage.getItem("theme")||"dark";document.body.setAttribute("data-theme",s)}catch(s){console.error("Boot error:",s)}});
+</div>`,ds=Object.freeze(Object.defineProperty({__proto__:null,default:rs},Symbol.toStringTag,{value:"Module"})),h={},l=["home","why-oop-exists","classes-objects","constructors","encapsulation","abstraction","inheritance","polymorphism","relationships","access-modifiers","static-keyword","final-keyword","interfaces","abstract-classes","object-class","memory-model","immutability","inner-classes","enums","exception-handling","solid-principles","oop-lld-bridge","oop-design-thinking","interview-qa","cheat-sheets"],g={home:"Home","why-oop-exists":"Why OOP Exists","classes-objects":"Classes & Objects",constructors:"Constructors",encapsulation:"Encapsulation",abstraction:"Abstraction",inheritance:"Inheritance",polymorphism:"Polymorphism",relationships:"Relationships","access-modifiers":"Access Modifiers","static-keyword":"Static Keyword","final-keyword":"Final Keyword",interfaces:"Interfaces","abstract-classes":"Abstract Classes","object-class":"Object Class","memory-model":"Memory Model",immutability:"Immutability","inner-classes":"Inner Classes",enums:"Enums","exception-handling":"Exception Handling","solid-principles":"SOLID Principles","oop-lld-bridge":"OOP → LLD Bridge","oop-design-thinking":"Design Thinking","interview-qa":"Interview Q&A","cheat-sheets":"Quick Review Sheet"};let p="home";const d=Object.assign({"../content/abstract-classes.html":b,"../content/abstraction.html":w,"../content/access-modifiers.html":y,"../content/cheat-sheets.html":C,"../content/classes-objects.html":I,"../content/constructors.html":A,"../content/encapsulation.html":O,"../content/enums.html":D,"../content/exception-handling.html":L,"../content/final-keyword.html":j,"../content/home.html":B,"../content/immutability.html":_,"../content/inheritance.html":U,"../content/inner-classes.html":J,"../content/interfaces.html":z,"../content/interview-qa.html":V,"../content/memory-model.html":Y,"../content/object-class.html":$,"../content/oop-design-thinking.html":X,"../content/oop-lld-bridge.html":ns,"../content/polymorphism.html":es,"../content/relationships.html":cs,"../content/solid-principles.html":os,"../content/static-keyword.html":ps,"../content/why-oop-exists.html":ds});for(const s in d){const a=s.split("/").pop().replace(".html","");h[a]=d[s].default||d[s]}function i(s){const a=document.getElementById("mainContent");let e=document.getElementById(s);if(!e&&h[s]){const n=document.createElement("div");n.innerHTML=h[s],e=n.firstElementChild,a.appendChild(e),hs(e)}document.querySelectorAll(".section").forEach(n=>n.classList.remove("active")),document.querySelectorAll(".home-section").forEach(n=>{s==="home"?n.classList.remove("hidden"):n.classList.add("hidden")}),s!=="home"&&e&&e.classList.add("active"),document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));const t=[...document.querySelectorAll(".nav-item")].find(n=>{var c;return(c=n.getAttribute("onclick"))==null?void 0:c.includes(`'${s}'`)});t&&t.classList.add("active"),p=s,m(),vs(),bs(e),window.scrollTo({top:0,behavior:"smooth"})}function hs(s){s.querySelectorAll("pre").forEach(a=>{const e=document.createElement("button");e.className="copy-btn",e.innerText="Copy",e.onclick=()=>{var n;const t=((n=a.querySelector("code"))==null?void 0:n.innerText)||a.innerText;navigator.clipboard.writeText(t).then(()=>{e.innerText="Copied!",setTimeout(()=>e.innerText="Copy",2e3)})},a.appendChild(e)})}function gs(s){s.classList.toggle("open"),s.nextElementSibling.classList.toggle("open")}const r=document.getElementById("themeToggle");if(r){const s=r.querySelector("i"),a=document.body,e=localStorage.getItem("theme")||"dark";a.setAttribute("data-theme",e),s&&u(s,e),r.addEventListener("click",()=>{const n=a.getAttribute("data-theme")==="dark"?"light":"dark";a.setAttribute("data-theme",n),localStorage.setItem("theme",n),s&&u(s,n)})}function u(s,a){const e=r.querySelector("span");a==="dark"?(s.className="ri-moon-line",e&&(e.textContent="Dark Mode")):(s.className="ri-sun-line",e&&(e.textContent="Light Mode"))}function us(s){document.querySelectorAll(".nav-item").forEach(e=>{const t=e.textContent.toLowerCase(),n=s.toLowerCase();e.style.display=s===""||t.includes(n)?"":"none"})}function ms(){window.addEventListener("scroll",()=>{const s=document.documentElement,a=s.scrollTop||document.body.scrollTop,e=s.scrollHeight-s.clientHeight,t=document.getElementById("progress");t&&(t.style.width=(e>0?a/e*100:0)+"%");const n=document.getElementById("scrollTopBtn");n&&n.classList.toggle("visible",a>400)},{passive:!0})}function vs(){const s=l.indexOf(p),a=s>0?l[s-1]:null,e=s<l.length-1?l[s+1]:null,t=document.getElementById("bottomNav");if(!t)return;const n=t.querySelector(".bottom-nav-prev");a?(n.classList.remove("hidden"),n.querySelector(".bottom-nav-label").textContent=g[a]||a,n.onclick=()=>i(a)):n.classList.add("hidden");const c=t.querySelector(".bottom-nav-next");e?(c.classList.remove("hidden"),c.querySelector(".bottom-nav-label").textContent=g[e]||e,c.onclick=()=>i(e)):c.classList.add("hidden");const o=t.querySelector(".bottom-nav-counter");o&&(o.textContent=`${s+1} / ${l.length}`),t.classList.toggle("hidden",p==="home")}function bs(s){const a=document.getElementById("readingTime");if(!a)return;if(!s||p==="home"){a.classList.add("hidden");return}a.classList.remove("hidden");const t=(s.innerText||"").split(/\s+/).length,n=Math.max(1,Math.round(t/200));a.textContent=`☕ ${n} min read`}function fs(){document.addEventListener("keydown",s=>{if(s.target.tagName==="INPUT"||s.target.tagName==="TEXTAREA")return;const a=l.indexOf(p);(s.key==="ArrowRight"||s.key==="ArrowDown")&&(s.preventDefault(),a<l.length-1&&i(l[a+1])),(s.key==="ArrowLeft"||s.key==="ArrowUp")&&(s.preventDefault(),a>0&&i(l[a-1]))})}function ws(){window.scrollTo({top:0,behavior:"smooth"})}function ks(){document.getElementById("sidebar").classList.toggle("sidebar-open"),document.getElementById("sidebarOverlay").classList.toggle("visible")}function m(){document.getElementById("sidebar").classList.remove("sidebar-open"),document.getElementById("sidebarOverlay").classList.remove("visible")}window.showSection=i;window.toggleQA=gs;window.filterNav=us;window.scrollToTop=ws;window.toggleSidebar=ks;window.closeSidebar=m;document.addEventListener("DOMContentLoaded",()=>{try{ms(),fs(),document.getElementById("mainContent")||console.error("CRITICAL: mainContent container missing"),i("home");const s=localStorage.getItem("theme")||"dark";document.body.setAttribute("data-theme",s)}catch(s){console.error("Boot error:",s)}});
