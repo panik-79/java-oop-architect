@@ -706,7 +706,7 @@ exporter.<span class="fn">export</span>(<span class="cl">List</span>.<span class
   </div>\r
 </div>\r
 `,I=Object.freeze(Object.defineProperty({__proto__:null,default:T},Symbol.toStringTag,{value:"Module"})),A=`<div id="cheat-sheets" class="section">\r
-  <div class="breadcrumb">handbook / <span>section 20</span></div>\r
+  <div class="breadcrumb">handbook / <span>section 21</span></div>\r
   <div class="section-eyebrow">The Mastery Roadmap</div>\r
   <h1>The Senior Developer's Cheat Sheet</h1>\r
   <div class="section-desc">A high-density reference for the modern Java architect. Bytecode, JVM versions, SOLID principles, and the "Design for Change" checklist.</div>\r
@@ -2552,7 +2552,7 @@ itable: [\r
     <div class="qa-a">The compiler will throw an error to prevent the "Diamond Problem." The class <strong>must</strong> resolve the ambiguity by overriding the method itself. Inside that override, the class can choose to call one of the specific interface defaults using <code>InterfaceName.super.methodName()</code>, or provide an entirely new implementation.</div>\r
   </div>\r
 </div>`,K=Object.freeze(Object.defineProperty({__proto__:null,default:Y},Symbol.toStringTag,{value:"Module"})),$=`<div id="interview-qa" class="section">\r
-  <div class="breadcrumb">handbook / <span>section 19</span></div>\r
+  <div class="breadcrumb">handbook / <span>section 20</span></div>\r
   <div class="section-eyebrow">The Senior Engineer's Guide</div>\r
   <h1>The Interview Masterclass: FAANG-Level Deep Dives</h1>\r
   <div class="section-desc">FAANG-level interviews don't ask for definitions. They ask for architectural decisions, JVM internals, and the 'Why' behind every design choice. We've tiered these answers to help you reach the L6/Senior level.</div>\r
@@ -2903,7 +2903,7 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
     <div class="qa-a">The default <code>Object.clone()</code> creates a <strong>Shallow Copy</strong>. It copies primitive values and the <em>references</em> to objects. If you clone an object containing a list, both the original and the clone will point to the exact same list. A <strong>Deep Copy</strong> creates a new list and recursively clones all nested objects.</div>\r
   </div>\r
 </div>`,as=Object.freeze(Object.defineProperty({__proto__:null,default:ns},Symbol.toStringTag,{value:"Module"})),es=`<div id="oop-design-thinking" class="section">\r
-  <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>\r
+  <div class="breadcrumb">handbook / architecture / <span>section 19</span></div>\r
   <div class="section-eyebrow">LLD Framework</div>\r
   <h1>OOP Design Thinking: The Architect's Mindset</h1>\r
   <div class="section-desc">Design thinking is about decomposing a complex problem into a collection of interacting objects. It’s the first step of any Low-Level Design (LLD) interview. We move from raw requirements to a structured object-oriented system.</div>\r
@@ -3016,7 +3016,7 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
   </ul>\r
 \r
   <div class="takeaways">\r
-    <div class="takeaways-title">Key Takeaways — Section 18</div>\r
+    <div class="takeaways-title">Key Takeaways — Section 19</div>\r
     <ul>\r
       <li><strong>Think in Entities</strong>, not functions.</li>\r
       <li><strong>Use Composition</strong> to build complex behaviors from small parts.</li>\r
@@ -3025,7 +3025,7 @@ map.<span class="fn">get</span>(e2); <span class="cm">// returns "Engineering" �
     </ul>\r
   </div>\r
 \r
-  <h2>Interview Questions — Section 18</h2>\r
+  <h2>Interview Questions — Section 19</h2>\r
   <div class="qa-block">\r
     <div class="qa-q" onclick="toggleQA(this)">How do you handle "Circular Dependencies" in design?<span class="arrow">▶</span></div>\r
     <div class="qa-a">Circular dependency (Class A needs B, and B needs A) is a major design smell. Fix it by: (1) Introducing an <strong>Interface</strong> to break the direct link. (2) Creating a third "Orchestrator" class that manages both. (3) Moving the shared logic into a common base class.</div>\r
