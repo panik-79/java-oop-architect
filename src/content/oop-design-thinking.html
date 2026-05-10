@@ -1,5 +1,5 @@
 <div id="oop-design-thinking" class="section">
-  <div class="breadcrumb">handbook / architecture / <span>section 18</span></div>
+  <div class="breadcrumb">handbook / architecture / <span>section 19</span></div>
   <div class="section-eyebrow">LLD Framework</div>
   <h1>OOP Design Thinking: The Architect's Mindset</h1>
   <div class="section-desc">Design thinking is about decomposing a complex problem into a collection of interacting objects. It’s the first step of any Low-Level Design (LLD) interview. We move from raw requirements to a structured object-oriented system.</div>
@@ -112,7 +112,7 @@
   </ul>
 
   <div class="takeaways">
-    <div class="takeaways-title">Key Takeaways — Section 18</div>
+    <div class="takeaways-title">Key Takeaways — Section 19</div>
     <ul>
       <li><strong>Think in Entities</strong>, not functions.</li>
       <li><strong>Use Composition</strong> to build complex behaviors from small parts.</li>
@@ -121,7 +121,7 @@
     </ul>
   </div>
 
-  <h2>Interview Questions — Section 18</h2>
+  <h2>Interview Questions — Section 19</h2>
   <div class="qa-block">
     <div class="qa-q" onclick="toggleQA(this)">How do you handle "Circular Dependencies" in design?<span class="arrow">▶</span></div>
     <div class="qa-a">Circular dependency (Class A needs B, and B needs A) is a major design smell. Fix it by: (1) Introducing an <strong>Interface</strong> to break the direct link. (2) Creating a third "Orchestrator" class that manages both. (3) Moving the shared logic into a common base class.</div>
